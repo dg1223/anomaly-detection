@@ -1,7 +1,7 @@
 import pyspark
 from pyspark.context import SparkContext
 from pyspark.sql.session import SparkSession
-from ResourcesFlattener import ResourcesFlattener
+from resourceflattener import ResourcesFlattener
 from pyspark.sql.types import StructType,StructField, StringType, ArrayType, TimestampType, MapType
 from pyspark.sql.functions import to_timestamp, col, shuffle, rand
 
