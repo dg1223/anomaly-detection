@@ -1,3 +1,17 @@
+import httpagentparser
+
+import pandas as pd
+import pyspark.sql.functions as f
+
+from pyspark import keyword_only
+from pyspark.ml import Transformer, UnaryTransformer
+from pyspark.ml.param.shared import TypeConverters, Param, Params
+
+from pyspark.sql import DataFrame, Column
+from pyspark.sql.functions import window, col, pandas_udf, PandasUDFType, max, min, udf, lit
+from pyspark.sql.types import LongType, DoubleType, StringType, TimestampType, StructType, StructField, DateType, FloatType, MapType
+
+
 class UserAgentFlattenerParser(Transformer):
 
   """
