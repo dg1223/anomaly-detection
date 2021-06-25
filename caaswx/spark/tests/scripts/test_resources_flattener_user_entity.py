@@ -1,6 +1,7 @@
 import pytest
 from data.flattener_user_entity import Test_datasets
 
+#window size is 10
 def test_single_window_dataframe():
 
     data_importer = Test_datasets()
