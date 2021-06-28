@@ -287,3 +287,5 @@ class UserAgentFlattenerParser(Transformer):
     df = result.withColumn("New_Agent_Name", httpParser_udf(col("SM_AGENTNAME"))).drop('SM_AGENTNAME')
 
     return df
+
+
