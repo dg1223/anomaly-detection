@@ -1,8 +1,5 @@
-# Importing various datatypes supported by Spark for specifying the schemas of result dataframes
-
-import pyspark
-from pyspark.sql.types import StructType,StructField, StringType, ArrayType, TimestampType, MapType
-from pyspark.sql.functions import to_timestamp, col, shuffle, rand
+# Importing various datatype supported by Spark for specifying the schemas
+# of result dataframes
 
 # Importing OOP decorators
 from pyspark import keyword_only
@@ -16,14 +13,14 @@ from pyspark.sql.window import Window
 from pyspark.ml import Transformer
 
 import pyspark.sql.functions as func
-from pyspark.sql.functions import lit
+
 
 class ResourcesFlattener(Transformer):
     """
     User Feature transformer for the Streamworx project.
     """
 
-    windowLength = Param(
+    window_length = Param(
         Params._dummy(),
         "windowLength",
         "Length of the sliding window used for entity resolution. " +
@@ -31,7 +28,7 @@ class ResourcesFlattener(Transformer):
         typeConverter=TypeConverters.toInt
     )
 
-    windowStep = Param(
+    window_step = Param(
         Params._dummy(),
         "windowStep",
         "Length of the sliding window step-size used for entity resolution. " +
@@ -39,7 +36,7 @@ class ResourcesFlattener(Transformer):
         typeConverter=TypeConverters.toInt
     )
 
-    entityName = Param(
+    entity_name = Param(
         Params._dummy(),
         "entityName",
         "Name of the column to perform aggregation on, together with the " +
@@ -47,26 +44,40 @@ class ResourcesFlattener(Transformer):
         typeConverter=TypeConverters.toString
     )
 
-    maxResourceCount = Param(
+    max_resource_count = Param(
         Params._dummy(),
-        "maxResourceCount",
+        "max_resource_count",
         "Maximum count of resources allowed in the resource list within the " +
         "sliding window.",
         typeConverter=TypeConverters.toInt
     )
 
     @keyword_only
-    def __init__(self, entityName='SM_USERNAME', windowLength=900, windowStep=900, maxResourceCount=-1):
+    def __init__(
+            self,
+            entity_name='SM_USERNAME',
+            window_length=900,
+            window_step=900,
+            max_resource_count=-1):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
         super(ResourcesFlattener, self).__init__()
-        self._setDefault(windowLength=900, windowStep=900, entityName='SM_USERNAME', maxResourceCount=-1)
+        self._setDefault(
+            window_length=900,
+            window_step=900,
+            entity_name='SM_USERNAME',
+            max_resource_count=-1)
         kwargs = self._input_kwargs
-        self.setParams(**kwargs)
+        self.set_params(**kwargs)
 
     @keyword_only
-    def setParams(self, entityName='SM_USERNAME', windowLength=900, windowStep=900, maxResourceCount=-1):
+    def set_params(
+            self,
+            entity_name='SM_USERNAME',
+            window_length=900,
+            window_step=900,
+            max_resource_count=-1):
         """
         setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
                   inputCols=None, outputCols=None)
@@ -75,61 +86,64 @@ class ResourcesFlattener(Transformer):
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
-    def setEntityName(self, value):
+    def set_entity_name(self, value):
         """
         Sets the Entity Name
         """
-        self._set(entityName=value)
+        self._set(entity_name=value)
 
-    def setWindowLength(self, value):
+    def set_window_length(self, value):
         """
         Sets this ResourcesFlattener's window length.
         """
-        self._set(windowLength=value)
+        self._set(window_length=value)
 
-    def setWindowStep(self, value):
+    def set_window_step(self, value):
         """
         Sets this ResourcesFlattener's window step size.
         """
-        self._set(windowStep=value)
+        self._set(window_step=value)
 
-    def setMaxResourceCount(self, value):
+    def set_max_resource_count(self, value):
         """
         Sets this ResourcesFlattener's maximum resource count.
         """
-        self._set(maxResourceCount=value)
+        self._set(max_resource_count=value)
 
     def _transform(self, dataset):
         """
-        Overridden function which flattens the input dataset w.r.t URLs
+        flatten input dataset w.r.t URLs
         Input : Siteminder dataframe
-        Output : SM_USERNAMEs with flattened URLs merged into lists
+        Output : flattened URLs merged into lists
         """
-        if int(self.getOrDefault('maxResourceCount')) > 0:
-            windowSpec = (
+        if int(self.getOrDefault('max_resource_count')) > 0:
+            window_spec = (
                 Window.
-                    partitionBy('window', str(self.getOrDefault('entityName'))).
-                    orderBy('SM_TIMESTAMP')
+                partitionBy('window', str(self.getOrDefault('entity_name'))).
+                orderBy('SM_TIMESTAMP')
             )
             dataset = (
                 dataset
-                    .withColumn(
+                .withColumn(
                     'window',
                     window(
                         'SM_TIMESTAMP',
-                        str(self.getOrDefault('windowLength')) + ' seconds',
-                        str(self.getOrDefault('windowStep')) + ' seconds')
+                        str(self.getOrDefault('window_length')) + ' seconds',
+                        str(self.getOrDefault('window_step')) + ' seconds')
                 )
-                    .withColumn('dense_rank', func.dense_rank().over(windowSpec))
+                .withColumn('dense_rank', func.dense_rank().over(window_spec))
             )
-            dataset = dataset.filter(dataset['dense_rank'] <= int(self.getOrDefault('maxResourceCount')))
+            dataset = dataset.filter(
+                dataset['dense_rank'] <= int(
+                    self.getOrDefault('max_resource_count')))
         return (
             dataset
-                .groupby(
-                str(self.getOrDefault('entityName')),
+            .groupby(
+                str(self.getOrDefault('entity_name')),
                 window(
-                    'SM_TIMESTAMP', str(self.getOrDefault('windowLength')) + ' seconds',
-                                    str(self.getOrDefault('windowStep')) + ' seconds'
+                    'SM_TIMESTAMP', str(
+                        self.getOrDefault('window_length')) + ' seconds',
+                    str(self.getOrDefault('window_step')) + ' seconds'
                 )
             ).agg(func.collect_list('SM_RESOURCE').alias('SM_RESOURCE'))
         )
