@@ -79,8 +79,6 @@ class ResourcesFlattener(Transformer):
             window_step=900,
             max_resource_count=-1):
         """
-        setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
-                  inputCols=None, outputCols=None)
         Sets params for this ResourcesFlattener.
         """
         kwargs = self._input_kwargs
