@@ -16,27 +16,26 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-    name: Running Unit Test
+    name: Running Unit Tests
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.9
+    - name: Set up Python 3.8.8
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.8.8
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pylint
-        pip install black
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Unit Tests
+      run: |
+        python -m pytest
+
     - name: Lint, format, and type-check
       run: |
-        pip3 install flake8
-        #- pip3 install flake8-docstrings
-        pip3 install flake8-comprehensions
-        pip3 install pep8-naming
-        # stop the build if there are Python syntax errors or undefined names
         flake8 --config=.flake8 .
         black --diff --check --verbose .
         # exit-zero treats all errors as warnings.
@@ -44,4 +43,6 @@ jobs:
         # accordance with this:
         # https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds
         flake8 . --count --exit-zero --statistics --select=E,F,W,C90
+
+
 

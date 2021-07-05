@@ -79,8 +79,8 @@ class IPFeatureGeneratorPandas(Transformer):
     @staticmethod
     def __generateIPFeatures(self, input_df):
         """
-        Generates IP features from the given dataframe of SM_CLIENTIP data
-        Input: pandas.DataFrame of IP data
+        Generates IP features from the given dataframe of SM_CLIENTIP generateData2
+        Input: pandas.DataFrame of IP generateData2
         Output: pandas.DataFrame of IP features
         """
 
