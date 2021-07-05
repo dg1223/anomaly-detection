@@ -1,0 +1,7 @@
+pylint
+black
+flake8
+flake8-comprehensions
+pep8-naming
+mypy
+pytest
