@@ -4,29 +4,10 @@ the issue is likely with the typing of the dataframes, timestamp seems to give s
 
 """
 
-import httpagentparser
-
-import pandas as pd
 import pyspark.sql.functions as f
-
-from pyspark import keyword_only
-from pyspark.ml import Transformer, UnaryTransformer
-from pyspark.ml.param.shared import TypeConverters, Param, Params
-
-from pyspark.sql import DataFrame, Column, SparkSession
-from pyspark.sql.functions import window, col, pandas_udf, PandasUDFType, max, min, udf, lit
-from pyspark.sql.types import LongType, DoubleType, StringType, TimestampType, StructType, StructField, DateType, FloatType, MapType
-
-
 from pyspark.sql.session import SparkSession
-from pyspark.context import SparkContext
-from IPython.display import display
-import pandas as pd
-
 from pyspark.sql.types import DatetimeConverter, StructType,StructField, StringType, ArrayType, TimestampType, MapType
-from pyspark.sql.functions import to_timestamp, col, shuffle, rand
-
-from agentstringflattener import UserAgentFlattenerParser
+from caaswx.spark._transformers.agentstringflattener import UserAgentFlattenerParser
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -35,8 +16,6 @@ test_schema = StructType([
     StructField('SM_AGENTNAME', StringType()),
     StructField('SM_TIMESTAMP', StringType())
 ])
-
-
 
 
 class agentflattener_datasets:

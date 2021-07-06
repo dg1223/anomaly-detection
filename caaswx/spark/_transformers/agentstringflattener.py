@@ -1,6 +1,5 @@
 import httpagentparser
 
-import pandas as pd
 import pyspark.sql.functions as f
 
 from pyspark import keyword_only
