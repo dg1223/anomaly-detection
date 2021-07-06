@@ -1,5 +1,5 @@
 import pytest
-from testa.generateTestData.flattener_user_entity import Test_datasets
+from tests.generateTestData.flattener_user_entity import Test_datasets
 
 #maximum resource count is 10
 def test_single_window_dataframe():
