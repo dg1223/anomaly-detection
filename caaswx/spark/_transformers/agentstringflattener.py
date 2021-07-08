@@ -10,8 +10,6 @@ from pyspark.sql import DataFrame, Column, SparkSession
 from pyspark.sql.functions import window, col, pandas_udf, PandasUDFType, max, min, udf, lit
 from pyspark.sql.types import LongType, DoubleType, StringType, TimestampType, StructType, StructField, DateType, FloatType, MapType
 
-spark = SparkSession.builder.getOrCreate()
-
 
 class UserAgentFlattenerParser(Transformer):
   """

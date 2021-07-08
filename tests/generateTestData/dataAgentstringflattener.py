@@ -1,15 +1,17 @@
-"""
-Note: not working yet, based off of the main branch's flattener_user_entity.py
-the issue is likely with the typing of the dataframes, timestamp seems to give some problems
-
-"""
-
 import pyspark.sql.functions as f
 from pyspark.sql.session import SparkSession
-from pyspark.sql.types import DatetimeConverter, StructType,StructField, StringType, ArrayType, TimestampType, MapType
+from pyspark.sql.types import StructType, StructField, StringType, ArrayType, TimestampType
 from caaswx.spark._transformers.agentstringflattener import UserAgentFlattenerParser
 
-spark = SparkSession.builder.getOrCreate()
+from pyspark import SparkContext
+from pyspark import SparkConf
+from pyspark.sql import SQLContext
+
+conf = SparkConf()
+conf.setAppName("caaswx")
+
+sc = SparkContext(conf=conf)
+spark = SQLContext(sc)
 
 test_schema = StructType([
     StructField('SM_CLIENTIP', StringType()),
@@ -64,7 +66,7 @@ class agentflattener_datasets:
 
         test_df = spark.createDataFrame(test_1_data, schema=test_schema)
 
-        result = UserAgentFlattenerParser(agentSizeLimit=2, entityName='SM_CLIENTIP',runParser=False).transform(test_df)
+        result = UserAgentFlattenerParser(agentSizeLimit=2, entityName='SM_CLIENTIP', runParser=True).transform(test_df)
 
         #         print("result: ")
         #         print(result)
@@ -120,16 +122,4 @@ class agentflattener_datasets:
         result = UserAgentFlattenerParser(agentSizeLimit=2, entityName='SM_CLIENTIP', runParser=False).transform(
             test_df)
 
-        #         print("result: ")
-        #         print(result)
-        #         print("ans: ")
-        #         print(ans_df)
-
         return result, ans_df
-
-# data_importer = agentflattener_datasets()
-# result, ans_1_data = data_importer.ds1_base()
-# # result.write.parquet("./people.parquet")
-# # result.coalesce(1).write.csv("./myresults.csv")
-# result.show()
-# # print(httpagentparser.detect("something"))
