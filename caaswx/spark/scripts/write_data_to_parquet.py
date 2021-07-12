@@ -12,7 +12,7 @@ PATH_FLATTENER = 'mnt/repo-related/caa-streamworx/caaswx/spark/data/flattener/'
 
 
 class WriteParquet:
-    """class to implement various kinds of methonds to write parquets"""
+    """class to implement various kinds of methods to write parquets"""
     test_dataset = 0
     expected_dataset = 0
     td_file_name = 0
