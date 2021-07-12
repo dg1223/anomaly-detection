@@ -1,17 +1,8 @@
 import pyspark.sql.functions as f
-from pyspark.sql.session import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, TimestampType
 from caaswx.spark._transformers.agentstringflattener import UserAgentFlattenerParser
 
-from pyspark import SparkContext
-from pyspark import SparkConf
-from pyspark.sql import SQLContext
-
-conf = SparkConf()
-conf.setAppName("caaswx")
-
-sc = SparkContext(conf=conf)
-spark = SQLContext(sc)
+from pyspark.shell import spark
 
 test_schema = StructType([
     StructField('SM_CLIENTIP', StringType()),
