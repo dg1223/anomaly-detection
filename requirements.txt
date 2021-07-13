@@ -5,3 +5,7 @@ flake8-comprehensions
 pep8-naming
 mypy
 pytest
+pyspark
+httpagentparser
+pandas
+numpy
