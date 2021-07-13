@@ -1,11 +1,13 @@
-from pyspark.context import SparkContext
-from pyspark.sql.session import SparkSession
-#from resourceflattener import ResourcesFlattener
+# from pyspark.context import SparkContext
+# from pyspark.sql.session import SparkSession
+from caaswx.spark._transformers.resourceflattener import ResourceFlattener
 from pyspark.sql.types import StructType,StructField, StringType, ArrayType, TimestampType, MapType
 from pyspark.sql.functions import to_timestamp, col, shuffle, rand
 
-sc = SparkContext('local')
-spark = SparkSession(sc)
+# sc = SparkContext('local')
+# spark = SparkSession(sc)
+
+from pyspark.shell import spark
 
 test_user_schema = StructType([
             StructField('SM_USERNAME', StringType()),
@@ -67,7 +69,7 @@ class Test_datasets:
         test_df = test_df.withColumn('SM_TIMESTAMP', col('SM_TIMESTAMP_TEMP').cast('timestamp'))
         test_df = test_df.drop('SM_TIMESTAMP_TEMP')
 
-        flattener = ResourcesFlattener(maxResourceCount=10)
+        flattener = ResourceFlattener(maxResourceCount=10)
 
         result = flattener.transform(test_df)
 
@@ -141,7 +143,7 @@ class Test_datasets:
         test_df = test_df.withColumn('SM_TIMESTAMP', col('SM_TIMESTAMP_TEMP').cast('timestamp'))
         test_df = test_df.drop('SM_TIMESTAMP_TEMP')
 
-        flattener = ResourcesFlattener(maxResourceCount=5)
+        flattener = ResourceFlattener(maxResourceCount=5)
         result = flattener.transform(test_df)
 
         ans_df_5 = [
@@ -221,7 +223,7 @@ class Test_datasets:
         test_df = test_df.withColumn('SM_TIMESTAMP', col('SM_TIMESTAMP_TEMP').cast('timestamp'))
         test_df = test_df.drop('SM_TIMESTAMP_TEMP')
 
-        flattener = ResourcesFlattener(maxResourceCount=5)
+        flattener = ResourceFlattener(maxResourceCount=5)
         result = flattener.transform(test_df)
 
         ans_data_5 = [
@@ -291,7 +293,7 @@ class Test_datasets:
         test_df = test_df.withColumn('SM_TIMESTAMP', col('SM_TIMESTAMP_TEMP').cast('timestamp'))
         test_df = test_df.drop('SM_TIMESTAMP_TEMP')
 
-        flattener = ResourcesFlattener(maxResourceCount=5)
+        flattener = ResourceFlattener(maxResourceCount=5)
         result = flattener.transform(test_df)
 
         ans_data_5 = [
@@ -361,7 +363,7 @@ class Test_datasets:
         test_df = test_df.withColumn('SM_TIMESTAMP', col('SM_TIMESTAMP_TEMP').cast('timestamp'))
         test_df = test_df.drop('SM_TIMESTAMP_TEMP')
 
-        flattener = ResourcesFlattener(maxResourceCount=5)
+        flattener = ResourceFlattener(maxResourceCount=5)
         result = flattener.transform(test_df)
         ans_data_5 = [
 
@@ -429,7 +431,7 @@ class Test_datasets:
         test_df = test_df.withColumn('SM_TIMESTAMP', col('SM_TIMESTAMP_TEMP').cast('timestamp'))
         test_df = test_df.drop('SM_TIMESTAMP_TEMP')
 
-        flattener = ResourcesFlattener(maxResourceCount=5)
+        flattener = ResourceFlattener(maxResourceCount=5)
         result = flattener.transform(test_df)
 
         ans_data_5 = [
