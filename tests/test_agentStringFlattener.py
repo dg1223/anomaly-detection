@@ -1,4 +1,4 @@
-from tests.generateTestData.dataAgentstringflattener import agentflattener_datasets
+from data.dataAgentstringflattener import agentflattener_datasets
 
 
 # if parser is now working, run test_1, edit code in agentstringflattener to activate parser and uncomment block below

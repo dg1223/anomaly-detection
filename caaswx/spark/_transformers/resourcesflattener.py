@@ -5,7 +5,7 @@
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 
-# Importing window module for performing time slicing while grouping data
+# Importing window module for performing time slicing while grouping parquet_data
 from pyspark.sql.functions import window
 from pyspark.sql.window import Window
 

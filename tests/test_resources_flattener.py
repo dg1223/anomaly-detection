@@ -1,5 +1,5 @@
-from resourcesflattener import ResourcesFlattener
-from load_test_data import LoadTestData
+from caaswx.spark._transformers.resourcesflattener import ResourcesFlattener
+from caaswx.spark.scripts.load_test_data import LoadTestData
 
 ingest_data = LoadTestData()
 
@@ -8,10 +8,10 @@ ingest_data = LoadTestData()
 
 def test_single_window_dataframe():
     rf = ResourcesFlattener(max_resource_count=10)
-    df = ingest_data.load_test_data("flattener/user_one_window_10.parquet")
+    df = ingest_data.load_test_data("flattener_tests/user_one_window_10.parquet")
     result = rf.transform(df)
     expected_result = ingest_data.load_test_data(
-        "flattener/expected_user_one_window_10.parquet"
+        "flattener_tests/expected_user_one_window_10.parquet"
     )
     assert (
         result.subtract(expected_result).count() == 0
@@ -24,10 +24,10 @@ def test_single_window_dataframe():
 
 def test_multiple_windows_dataframe():
     rf = ResourcesFlattener(max_resource_count=5)
-    df = ingest_data.load_test_data("flattener/user_multiple_window_5.parquet")
+    df = ingest_data.load_test_data("flattener_tests/user_multiple_window_5.parquet")
     result = rf.transform(df)
     expected_result = ingest_data.load_test_data(
-        "flattener/expected_user_multiple_window_5.parquet"
+        "flattener_tests/expected_user_multiple_window_5.parquet"
     )
     assert (
         result.subtract(expected_result).count() == 0
@@ -40,10 +40,10 @@ def test_multiple_windows_dataframe():
 
 def test_single_window_duplicate_resources():
     rf = ResourcesFlattener(max_resource_count=5)
-    df = ingest_data.load_test_data("flattener/user_duplicate_resources.parquet")
+    df = ingest_data.load_test_data("flattener_tests/user_duplicate_resources.parquet")
     result = rf.transform(df)
     expected_result = ingest_data.load_test_data(
-        "flattener/expected_user_duplicate_resources.parquet"
+        "flattener_tests/expected_user_duplicate_resources.parquet"
     )
     assert (
         result.subtract(expected_result).count() == 0
@@ -57,10 +57,10 @@ def test_single_window_duplicate_resources():
 
 def test_single_window_duplicate_rows():
     rf = ResourcesFlattener(max_resource_count=5)
-    df = ingest_data.load_test_data("flattener/user_duplicate_rows.parquet")
+    df = ingest_data.load_test_data("flattener_tests/user_duplicate_rows.parquet")
     result = rf.transform(df)
     expected_result = ingest_data.load_test_data(
-        "flattener/expected_user_duplicate_rows.parquet"
+        "flattener_tests/expected_user_duplicate_rows.parquet"
     )
     assert (
         result.subtract(expected_result).count() == 0
@@ -73,10 +73,10 @@ def test_single_window_duplicate_rows():
 
 def test_user_based_grouping():
     rf = ResourcesFlattener(max_resource_count=5)
-    df = ingest_data.load_test_data("flattener/user_based_grouping.parquet")
+    df = ingest_data.load_test_data("flattener_tests/user_based_grouping.parquet")
     result = rf.transform(df)
     expected_result = ingest_data.load_test_data(
-        "flattener/expected_user_based_grouping.parquet"
+        "flattener_tests/expected_user_based_grouping.parquet"
     )
     assert (
         result.subtract(expected_result).count() == 0
@@ -90,10 +90,10 @@ def test_user_based_grouping():
 
 def test_shuffled_dataset():
     rf = ResourcesFlattener(max_resource_count=5)
-    df = ingest_data.load_test_data("flattener/user_shuffled_data.parquet")
+    df = ingest_data.load_test_data("flattener_tests/user_shuffled_data.parquet")
     result = rf.transform(df)
     expected_result = ingest_data.load_test_data(
-        "flattener/expected_user_shuffled_data.parquet"
+        "flattener_tests/expected_user_shuffled_data.parquet"
     )
     assert (
         result.subtract(expected_result).count() == 0
