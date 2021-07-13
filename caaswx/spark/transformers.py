@@ -1,6 +1,5 @@
 from _transformers.userfeaturegenerator import (
-        SessionFeatureGenerator,
-        UserFeatureGenerator,
-        IPFeatureGenerator,
-        )
-
+    SessionFeatureGenerator,
+    UserFeatureGenerator,
+    IPFeatureGenerator,
+)
