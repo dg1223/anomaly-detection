@@ -1,10 +1,16 @@
 """Module for writing parquet files given datasets alongwoth their schema"""
 from pyspark.context import SparkContext
 from pyspark.sql.session import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, ArrayType, TimestampType
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    ArrayType,
+    TimestampType,
+)
 from pyspark.sql.functions import col
 
-sc = SparkContext('local')
+sc = SparkContext("local")
 spark = SparkSession(sc)
 
 PATH_DATA = 'mnt/repo-related/caa-streamworx/caaswx/spark/data/'
@@ -84,4 +90,5 @@ class WriteParquet:
 #     ed_fn='expected_data.parquet')
 # x, y = obj.write_parquet_general(
 #     test_schema=test_user_schema, expected_result_schema=ans_schema)
+
 
