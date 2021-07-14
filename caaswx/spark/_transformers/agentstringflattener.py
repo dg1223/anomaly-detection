@@ -69,7 +69,7 @@ class UserAgentFlattenerParser(Transformer):
     runParser = Param(
         Params._dummy(),
         "runParser",
-        "Choose to parse data." + "Given as the boolean.",
+        "Choose to parse parquet_data." + "Given as the boolean.",
         typeConverter=TypeConverters.toBoolean,
     )
 
