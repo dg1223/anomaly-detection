@@ -15,8 +15,8 @@ from pyspark.sql.types import (
 
 class UserAgentFlattenerParser(Transformer):
     """
-  User Feature transformer for the Streamworx project.
-  """
+    User Feature transformer for the Streamworx project.
+    """
 
     windowLength = Param(
         Params._dummy(),
@@ -66,8 +66,8 @@ class UserAgentFlattenerParser(Transformer):
         windowStep=900,
     ):
         """
-    def __init__(self, *, window_length = 900, window_step = 900)
-    """
+        def __init__(self, *, window_length = 900, window_step = 900)
+        """
         super(UserAgentFlattenerParser, self).__init__()
         self._setDefault(
             windowLength=900,
@@ -98,8 +98,8 @@ class UserAgentFlattenerParser(Transformer):
 
     def setEntityName(self, value):
         """
-    Sets the Entity Name
-    """
+        Sets the Entity Name
+        """
         self._set(entityName=value)
 
     def getEntityName(self):
@@ -107,8 +107,8 @@ class UserAgentFlattenerParser(Transformer):
 
     def setRunParser(self, value):
         """
-    Sets the Entity Name
-    """
+        Sets the Entity Name
+        """
         self._set(runParser=value)
 
     def getRunParser(self):
@@ -116,8 +116,8 @@ class UserAgentFlattenerParser(Transformer):
 
     def setAgentSizeLimit(self, value):
         """
-    Sets the Agent Size
-    """
+        Sets the Agent Size
+        """
         self._set(agentSizeLimit=value)
 
     def getAgentSizeLimit(self):
@@ -125,23 +125,23 @@ class UserAgentFlattenerParser(Transformer):
 
     def setWindowLength(self, value):
         """
-    Sets this UserAgentFlattenerParser's window length.
-    """
+        Sets this UserAgentFlattenerParser's window length.
+        """
         self._set(windowLength=value)
 
     def setWindowStep(self, value):
         """
-    Sets this UserAgentFlattenerParser's window step size.
-    """
+        Sets this UserAgentFlattenerParser's window step size.
+        """
         self._set(windowStep=value)
 
     @staticmethod
     def __flatten(self, df):
         """
-    Flattens the URLs based on the order of their occurring timestamps
-    Input: Siteminder dataframe
-    Output: Dataframe containing entity name, window intervals and flattened URLs combined into lists
-    """
+        Flattens the URLs based on the order of their occurring timestamps
+        Input: Siteminder dataframe
+        Output: Dataframe containing entity name, window intervals and flattened URLs combined into lists
+        """
 
         # Sorting the dataframe w.r.t timestamps in ascending order
         df = df.sort("SM_TIMESTAMP")
@@ -181,10 +181,10 @@ class UserAgentFlattenerParser(Transformer):
 
     def _transform(self, dataset):
         """
-    Overridden function which flattens the input dataset w.r.t URLs
-    Input : Siteminder dataframe
-    Output : SM_USERNAMEs with flattened URLs merged into lists
-    """
+        Overridden function which flattens the input dataset w.r.t URLs
+        Input : Siteminder dataframe
+        Output : SM_USERNAMEs with flattened URLs merged into lists
+        """
 
         result = self.__flatten(self, dataset)
         if self.getOrDefault("runParser"):

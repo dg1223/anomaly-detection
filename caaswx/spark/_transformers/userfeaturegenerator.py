@@ -12,8 +12,8 @@ from pyspark.sql.types import (
 
 class SWXUserFeatureGenerator(Transformer):
     """
-  Feature transformer for the swx project.
-  """
+    Feature transformer for the swx project.
+    """
 
     windowLength = Param(
         Params._dummy(),
@@ -42,8 +42,8 @@ class SWXUserFeatureGenerator(Transformer):
     @keyword_only
     def __init__(self, entityName, windowLength=900, windowStep=900):
         """
-    def __init__(self, *, window_length = 900, window_step = 900)
-    """
+        def __init__(self, *, window_length = 900, window_step = 900)
+        """
         super(SWXUserFeatureGenerator, self).__init__()
         self._setDefault(windowLength=900, windowStep=900)
         kwargs = self._input_kwargs
@@ -61,14 +61,14 @@ class SWXUserFeatureGenerator(Transformer):
 
     def setWindowLength(self, value):
         """
-    Sets this SWXUserFeatureGenerator's window length.
-    """
+        Sets this SWXUserFeatureGenerator's window length.
+        """
         self._set(windowLength=value)
 
     def setWindowStep(self, value):
         """
-    Sets this SWXUserFeatureGenerator's window step size.
-    """
+        Sets this SWXUserFeatureGenerator's window step size.
+        """
         self._set(windowStep=value)
 
     @staticmethod
@@ -82,7 +82,7 @@ class SWXUserFeatureGenerator(Transformer):
     def get_CN(users) -> StringType():
         return users.where(
             users.str.contains("cn") is False,
-            users.str[users[0].find("=") + 1: users[0].find(",")],
+            users.str[users[0].find("=") + 1 : users[0].find(",")],
         )[0]
 
     @staticmethod

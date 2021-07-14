@@ -12,8 +12,8 @@ class LoadTestData:
     df = 0
 
     def load_test_data(self, file_name):
-        """ load test parquet_data from parquet_data by passing file name"""
-        self.path = "/caa-streamworx/data/parquet_data/"
+        """load test parquet_data from parquet_data by passing file name"""
+        self.path = "./data/parquet_data/"
         self.path = self.path + file_name
         self.df = spark.read.parquet(self.path)
         return self.df
