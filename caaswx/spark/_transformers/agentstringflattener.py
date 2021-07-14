@@ -1,32 +1,15 @@
 import httpagentparser
-
 import pyspark.sql.functions as f
-
 from pyspark import keyword_only
-from pyspark.ml import Transformer, UnaryTransformer
+from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
-
-from pyspark.sql import DataFrame, Column, SparkSession
 from pyspark.sql.functions import (
     window,
     col,
-    pandas_udf,
-    PandasUDFType,
-    max,
-    min,
     udf,
-    lit,
 )
 from pyspark.sql.types import (
-    LongType,
-    DoubleType,
     StringType,
-    TimestampType,
-    StructType,
-    StructField,
-    DateType,
-    FloatType,
-    MapType,
 )
 
 
@@ -204,10 +187,10 @@ class UserAgentFlattenerParser(Transformer):
     """
 
         result = self.__flatten(self, dataset)
-        if self.getOrDefault("runParser") == True:
-            httpParser_udf = udf(self.httpParser, StringType())
+        if self.getOrDefault("runParser"):
+            httpParserUdf = udf(self.httpParser, StringType())
             df = result.withColumn(
-                "Parsed_Agent_String", httpParser_udf(col("SM_AGENTNAME"))
+                "Parsed_Agent_String", httpParserUdf(col("SM_AGENTNAME"))
             ).drop("SM_AGENTNAME")
             return df
         else:

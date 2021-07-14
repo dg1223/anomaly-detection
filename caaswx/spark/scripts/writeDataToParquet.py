@@ -90,5 +90,3 @@ class WriteParquet:
 #     ed_fn='expected_data.parquet')
 # x, y = obj.write_parquet_general(
 #     test_schema=test_user_schema, expected_result_schema=ans_schema)
-
-

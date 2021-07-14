@@ -40,13 +40,12 @@ jobs:
 
     - name: Lint, format, and type-check
       run: |
-        flake8 --config=.flake8 .
         black --diff --check --verbose .
         # exit-zero treats all errors as warnings.
         # diverting from the standard 79 character line length in
         # accordance with this:
         # https://www.python.org/dev/peps/pep-0008/#a-foolish-consistency-is-the-hobgoblin-of-little-minds
-        flake8 . --count --exit-zero --statistics --select=E,F,W,C90
+        flake8 . --max-line-length=125 --count --exit-zero --statistics --select=E,F,W,C90 --ignore=N815,N802,N803,W503,W504,N806
 
 
 

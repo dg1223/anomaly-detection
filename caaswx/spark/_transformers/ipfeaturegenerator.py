@@ -1,22 +1,9 @@
-import pandas as pd
 import numpy as np
-
-from pyspark.sql.functions import pandas_udf
+import pandas as pd
 from pyspark import keyword_only
-
 from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
-from pyspark.sql.functions import window, col, pandas_udf, PandasUDFType, max, min
-from pyspark.sql.types import (
-    LongType,
-    DoubleType,
-    StringType,
-    TimestampType,
-    StructType,
-    StructField,
-    DateType,
-    FloatType,
-)
+from pyspark.sql.functions import window
 
 
 class IPFeatureGeneratorPandas(Transformer):
@@ -35,16 +22,16 @@ class IPFeatureGeneratorPandas(Transformer):
     windowStep = Param(
         Params._dummy(),
         "windowStep",
-        "Length of the sliding window step-size used for entity resolution. "
-        + "Given as an integer in seconds.",
+        "Length of the sliding window step-size used for entity resolution. " +
+        "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
     entityName = Param(
         Params._dummy(),
         "entityName",
-        "Name of the column to perform aggregation on, together with the "
-        + "sliding window.",
+        "Name of the column to perform aggregation on, together with the " +
+        "sliding window.",
         typeConverter=TypeConverters.toString,
     )
 
@@ -304,5 +291,18 @@ class IPFeatureGeneratorPandas(Transformer):
             ),
         ).applyInPandas(
             self.__generateIPFeatures,
-            schema="SM_CLIENTIP String, IP_APP String, IP_AVG_TIME_BT_RECORDS float, IP_MAX_TIME_BT_RECORDS float, IP_MIN_TIME_BT_RECORDS float, IP_COUNT_ADMIN_LOGIN long, IP_COUNT_ADMIN_LOGOUT long, IP_COUNT_ADMIN_REJECT long, IP_COUNT_AUTH_ACCEPT long, IP_COUNT_AUTH_ATTEMPT long, IP_COUNT_AUTH_CHALLENGE long, IP_COUNT_AUTH_LOGOUT long, IP_COUNT_AUTH_REJECT long, IP_COUNT_AZ_ACCEPT long, IP_COUNT_AZ_REJECT long, IP_COUNT_FAILED long, IP_COUNT_GET long, IP_COUNT_POST long, IP_COUNT_HTTP_METHODS long, IP_COUNT_OU_AMS long, IP_COUNT_OU_CMS long, IP_COUNT_OU_IDENTITY long, IP_COUNT_OU_CRED long, IP_COUNT_OU_SECUREKEY long, IP_COUNT_PORTAL_MYA long, IP_COUNT_PORTAL_MYBA long, IP_COUNT_UNIQUE_ACTION long, IP_COUNT_UNIQUE_EVENTS long, IP_COUNT_UNIQUE_USERS long, IP_COUNT_UNIQUE_RESOURCE long, IP_COUNT_UNIQUE_SESSIONS long, IP_COUNT_PORTAL_RAC long, IP_COUNT_RECORDS long, IP_COUNT_VISIT long, IP_COUNT_VALIDATE_ACCEPT long, IP_COUNT_VALIDATE_REJECT long, IP_SM_ACTION String, IP_SM_USERNAMES String, IP_SM_SESSIONID String, IP_SM_PORTAL String, IP_SM_TRANSACTIONID String, IP_OU String, IP_REP_APP String, IP_TIMESTAMP timestamp, IP_COUNT_UNIQUE_OU long, IP_COUNT_UNIQUE_USERNAME long, IP_COUNT_UNIQUE_REP long",
+            schema="SM_CLIENTIP String, IP_APP String, IP_AVG_TIME_BT_RECORDS float, IP_MAX_TIME_BT_RECORDS float, "
+                   "IP_MIN_TIME_BT_RECORDS float, IP_COUNT_ADMIN_LOGIN long, IP_COUNT_ADMIN_LOGOUT long, "
+                   "IP_COUNT_ADMIN_REJECT long, IP_COUNT_AUTH_ACCEPT long, IP_COUNT_AUTH_ATTEMPT long, "
+                   "IP_COUNT_AUTH_CHALLENGE long, IP_COUNT_AUTH_LOGOUT long, IP_COUNT_AUTH_REJECT long, "
+                   "IP_COUNT_AZ_ACCEPT long, IP_COUNT_AZ_REJECT long, IP_COUNT_FAILED long, IP_COUNT_GET long, "
+                   "IP_COUNT_POST long, IP_COUNT_HTTP_METHODS long, IP_COUNT_OU_AMS long, IP_COUNT_OU_CMS long, "
+                   "IP_COUNT_OU_IDENTITY long, IP_COUNT_OU_CRED long, IP_COUNT_OU_SECUREKEY long, IP_COUNT_PORTAL_MYA "
+                   "long, IP_COUNT_PORTAL_MYBA long, IP_COUNT_UNIQUE_ACTION long, IP_COUNT_UNIQUE_EVENTS long, "
+                   "IP_COUNT_UNIQUE_USERS long, IP_COUNT_UNIQUE_RESOURCE long, IP_COUNT_UNIQUE_SESSIONS long, "
+                   "IP_COUNT_PORTAL_RAC long, IP_COUNT_RECORDS long, IP_COUNT_VISIT long, IP_COUNT_VALIDATE_ACCEPT "
+                   "long, IP_COUNT_VALIDATE_REJECT long, IP_SM_ACTION String, IP_SM_USERNAMES String, IP_SM_SESSIONID "
+                   "String, IP_SM_PORTAL String, IP_SM_TRANSACTIONID String, IP_OU String, IP_REP_APP String, "
+                   "IP_TIMESTAMP timestamp, IP_COUNT_UNIQUE_OU long, IP_COUNT_UNIQUE_USERNAME long, "
+                   "IP_COUNT_UNIQUE_REP long",
         )
