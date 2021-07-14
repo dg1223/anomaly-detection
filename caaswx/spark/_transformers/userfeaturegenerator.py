@@ -1,15 +1,11 @@
 from pyspark import keyword_only
 from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
-from pyspark.sql.functions import window, col, pandas_udf, PandasUDFType, max, min
+from pyspark.sql.functions import window, pandas_udf, PandasUDFType
 from pyspark.sql.types import (
     LongType,
-    DoubleType,
     StringType,
     TimestampType,
-    StructType,
-    StructField,
-    DateType,
     FloatType,
 )
 
@@ -85,8 +81,8 @@ class SWXUserFeatureGenerator(Transformer):
     @pandas_udf("string", PandasUDFType.GROUPED_AGG)
     def get_CN(users) -> StringType():
         return users.where(
-            users.str.contains("cn") == False,
-            users.str[users[0].find("=") + 1 : users[0].find(",")],
+            users.str.contains("cn") is False,
+            users.str[users[0].find("=") + 1: users[0].find(",")],
         )[0]
 
     @staticmethod
@@ -135,7 +131,7 @@ class SWXUserFeatureGenerator(Transformer):
         return (events == 4).sum()
 
     @staticmethod
-    @pandas_udf("long", PandasUFType.GROUPED_AGG)
+    @pandas_udf("long", PandasUDFType.GROUPED_AGG)
     def get_USER_COUNT_AUTH_LOGOUT(events) -> LongType():
         return (events == 10).sum()
 

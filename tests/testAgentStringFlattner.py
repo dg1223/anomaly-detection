@@ -1,9 +1,9 @@
-from data.dataAgentstringflattener import agentflattener_datasets
+from data.dataAgentstringflattener import AgentFlattenerDatasets
 
 
 # if parser is now working, run test_1, edit code in agentstringflattener to activate parser and uncomment block below
 def test_1():
-    data_importer = agentflattener_datasets()
+    data_importer = AgentFlattenerDatasets()
     result, ans_1_data = data_importer.ds1_base()
 
     # content test
@@ -18,7 +18,7 @@ def test_1():
 
 # if parser is not working, run test_2, edit code in agentstringflattener to deactivate parser
 def test_2():
-    data_importer = agentflattener_datasets()
+    data_importer = AgentFlattenerDatasets()
     result, ans_1_data = data_importer.ds2_base()
 
     # content test

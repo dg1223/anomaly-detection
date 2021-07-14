@@ -4,6 +4,7 @@ spark = SparkSession.builder.getOrCreate()
 #
 # from pyspark.shell import spark
 
+
 class LoadTestData:
     """contains method to load parquet files"""
 
