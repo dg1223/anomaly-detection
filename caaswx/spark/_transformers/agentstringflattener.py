@@ -13,7 +13,7 @@ from pyspark.sql.types import (
 )
 
 
-class UserAgentFlattenerParser(Transformer):
+class AgentStringFlattener(Transformer):
     """
     User Feature transformer for the Streamworx project.
     """
@@ -68,7 +68,7 @@ class UserAgentFlattenerParser(Transformer):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
-        super(UserAgentFlattenerParser, self).__init__()
+        super(AgentStringFlattener, self).__init__()
         self._setDefault(
             windowLength=900,
             windowStep=900,
@@ -91,7 +91,7 @@ class UserAgentFlattenerParser(Transformer):
         """
     setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
               inputCols=None, outputCols=None)
-    Sets params for this UserAgentFlattenerParser.
+    Sets params for this AgentStringFlattener.
     """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
@@ -125,13 +125,13 @@ class UserAgentFlattenerParser(Transformer):
 
     def setWindowLength(self, value):
         """
-        Sets this UserAgentFlattenerParser's window length.
+        Sets this AgentStringFlattener's window length.
         """
         self._set(windowLength=value)
 
     def setWindowStep(self, value):
         """
-        Sets this UserAgentFlattenerParser's window step size.
+        Sets this AgentStringFlattener's window step size.
         """
         self._set(windowStep=value)
 

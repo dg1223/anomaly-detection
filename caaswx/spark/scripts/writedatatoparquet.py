@@ -17,7 +17,7 @@ PATH_DATA = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/"
 PATH_FLATTENER = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/flattener/"
 
 
-class WriteParquet:
+class WriteDataToParquet:
     """class to implement various kinds of methods to write parquets"""
 
     test_dataset = 0
@@ -108,7 +108,7 @@ class WriteParquet:
         return test_df, expected_result_df
 
 
-# obj = WriteParquet(
+# obj = WriteDataToParquet(
 #     td=,
 #     ed=,
 #     td_fn='test_data.parquet',

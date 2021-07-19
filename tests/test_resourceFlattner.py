@@ -1,5 +1,5 @@
 from caaswx.spark._transformers.resourcesflattener import ResourcesFlattener
-from caaswx.spark.scripts.loadTestData import LoadTestData
+from caaswx.spark.scripts.loadtestdata import LoadTestData
 
 ingest_data = LoadTestData()
 
