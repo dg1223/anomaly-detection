@@ -10,7 +10,7 @@ from pyspark.sql.types import (
 )
 
 
-class SWXUserFeatureGenerator(Transformer):
+class UserFeatureGenerator(Transformer):
     """
     Feature transformer for the swx project.
     """
@@ -44,7 +44,7 @@ class SWXUserFeatureGenerator(Transformer):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
-        super(SWXUserFeatureGenerator, self).__init__()
+        super(UserFeatureGenerator, self).__init__()
         self._setDefault(windowLength=900, windowStep=900)
         kwargs = self._input_kwargs
         self.setParams(**kwargs)
@@ -54,20 +54,20 @@ class SWXUserFeatureGenerator(Transformer):
         """
     setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
               inputCols=None, outputCols=None)
-    Sets params for this SWXUserFeatureGenerator.
+    Sets params for this UserFeatureGenerator.
     """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
     def setWindowLength(self, value):
         """
-        Sets this SWXUserFeatureGenerator's window length.
+        Sets this UserFeatureGenerator's window length.
         """
         self._set(windowLength=value)
 
     def setWindowStep(self, value):
         """
-        Sets this SWXUserFeatureGenerator's window step size.
+        Sets this UserFeatureGenerator's window step size.
         """
         self._set(windowStep=value)
 

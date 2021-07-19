@@ -6,7 +6,7 @@ from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import window
 
 
-class IPFeatureGeneratorPandas(Transformer):
+class IPFeatureGenerator(Transformer):
     """
     IP feature transformer for the Streamworx project.
     """
@@ -40,7 +40,7 @@ class IPFeatureGeneratorPandas(Transformer):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
-        super(IPFeatureGeneratorPandas, self).__init__()
+        super(IPFeatureGenerator, self).__init__()
         self._setDefault(windowLength=900, windowStep=900, entityName="SM_CLIENTIP")
         kwargs = self._input_kwargs
         self.setParams(**kwargs)
@@ -50,20 +50,20 @@ class IPFeatureGeneratorPandas(Transformer):
         """
         setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
                   inputCols=None, outputCols=None)
-        Sets params for this SWXUserFeatureGenerator.
+        Sets params for this IPFeatureGenerator.
         """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
     def setWindowLength(self, value):
         """
-        Sets this SWXUserFeatureGenerator's window length.
+        Sets this IPFeatureGenerator's window length.
         """
         self._set(windowLength=value)
 
     def setWindowStep(self, value):
         """
-        Sets this SWXUserFeatureGenerator's window step size.
+        Sets this IPFeatureGenerator's window step size.
         """
         self._set(windowStep=value)
 
