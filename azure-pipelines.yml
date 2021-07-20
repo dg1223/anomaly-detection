@@ -33,15 +33,3 @@ steps:
 - script: |
     python3 -m build --sdist --wheel
   displayName: 'Build Python Wheel for Libs'
-
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    ArtifactName: 'DatabricksBuild'
