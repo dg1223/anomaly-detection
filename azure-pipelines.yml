@@ -30,15 +30,8 @@ steps:
 
   displayName: 'Run Python Unit Tests for library code'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFiles: '**/TEST-*.xml'
-    failTaskOnFailedTests: true
-    publishRunAttachments: true
-
 - script: |
     python3 -m build --sdist --wheel
-    ls dist/
   displayName: 'Build Python Wheel for Libs'
 
 - task: ArchiveFiles@2
