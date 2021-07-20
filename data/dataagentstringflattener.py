@@ -6,7 +6,7 @@ from pyspark.sql.types import (
     ArrayType,
     TimestampType,
 )
-from caaswx.spark._transformers.agentstringflattener import UserAgentFlattenerParser
+from caaswx.spark._transformers.agentstringflattener import AgentStringFlattener
 
 from pyspark.shell import spark
 
@@ -19,7 +19,7 @@ test_schema = StructType(
 )
 
 
-class AgentFlattenerDatasets:
+class DataAgentStringFlattener:
     def ds1_base(self):
         ans_schema = StructType(
             [
@@ -101,7 +101,7 @@ class AgentFlattenerDatasets:
 
         test_df = spark.createDataFrame(test_1_data, schema=test_schema)
 
-        result = UserAgentFlattenerParser(
+        result = AgentStringFlattener(
             agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=True
         ).transform(test_df)
 
@@ -188,7 +188,7 @@ class AgentFlattenerDatasets:
             ),
         ).drop("windowtmp")
         ans_df = ans_df.select(["SM_CLIENTIP", "window", "SM_AGENTNAME"])
-        result = UserAgentFlattenerParser(
+        result = AgentStringFlattener(
             agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=False
         ).transform(test_df)
 

@@ -10,7 +10,6 @@ from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.types import StringType
 
-
 # CN Extractor: When you execute it please set the output to "SM_CN"
 # Otherwise, transformer can not be executed
 
@@ -67,6 +66,7 @@ def process_dataframe_with_window(dataset):
 # Feature generator based on Users (SM_CN)
 # Execute cn_extractor before this transformer
 # Otherwise, we have no SM_CN feature
+
 class UserFeatureGenerator(Transformer):
     """
     Feature transformer for the swx project.
