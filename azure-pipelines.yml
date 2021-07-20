@@ -50,6 +50,9 @@ steps:
     mkdir -p $(Build.BinariesDirectory)/libs
     cp $(Build.Repository.LocalPath)/dist/*.* $(Build.BinariesDirectory)/libs
 
+    mkdir -p $(Build.BinariesDirectory)/cicd-scripts
+    cp $(Build.Repository.LocalPath)/cicd-scripts/*.* $(Build.BinariesDirectory)/cicd-scripts
+
   displayName: 'Get Changes'
 
 - task: ArchiveFiles@2
