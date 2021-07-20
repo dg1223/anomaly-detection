@@ -1,3 +1,7 @@
+"""
+A module to generate features regarding to user features
+"""
+
 # Import Essential packages
 from pyspark import keyword_only
 from pyspark.ml import Transformer, UnaryTransformer
@@ -101,7 +105,7 @@ class UserFeatureGenerator(Transformer):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
-        super(UserFeatureGenerator, self).__init__()
+        super().__init__()
         self._setDefault(entity_name='SM_CN', window_length=900, window_step=900)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
