@@ -25,10 +25,10 @@ steps:
 - script: git checkout azureDevOps
   displayName: 'Get Latest Branch'
 
-- script: |
-    python -m pytest
+# - script: |
+#     python -m pytest
 
-  displayName: 'Run Python Unit Tests for library code'
+#   displayName: 'Run Python Unit Tests for library code'
 
 - script: |
     python3 -m build --sdist --wheel
