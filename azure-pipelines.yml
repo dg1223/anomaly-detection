@@ -15,8 +15,7 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    pip install requests setuptools wheel 
-    if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    pip install requests setuptools wheel pylint black flake8 flake8-comprehensions pep8-naming mypy pytest pyspark httpagentparser pandas numpy
   displayName: 'Load Python Dependencies'
 
 - checkout: self
@@ -38,21 +37,9 @@ steps:
     publishRunAttachments: true
 
 - script: |
-    cd $(Build.Repository.LocalPath)/libraries/python/dbxdemo
-    python3 setup.py sdist bdist_wheel
+    python3 -m build --sdist --wheel
     ls dist/
   displayName: 'Build Python Wheel for Libs'
-
-- script: |
-    git diff --name-only --diff-filter=AMR HEAD^1 HEAD | xargs -I '{}' cp --parents -r '{}' $(Build.BinariesDirectory)
-
-    mkdir -p $(Build.BinariesDirectory)/libraries/python/libs
-    cp $(Build.Repository.LocalPath)/libraries/python/dbxdemo/dist/*.* $(Build.BinariesDirectory)/libraries/python/libs
-
-    mkdir -p $(Build.BinariesDirectory)/cicd-scripts
-    cp $(Build.Repository.LocalPath)/cicd-scripts/*.* $(Build.BinariesDirectory)/cicd-scripts
-
-  displayName: 'Get Changes'
 
 - task: ArchiveFiles@2
   inputs:
