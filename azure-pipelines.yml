@@ -25,8 +25,7 @@ steps:
   displayName: 'Get Latest Branch'
 
 - script: |
-    python -m pytest --junit-xml=$(Build.Repository.LocalPath)/logs/TEST-LOCAL.xml
-$(Build.Repository.LocalPath)/libraries/python/dbxdemo/test*.py || true
+    python -m pytest --junit-xml=$(Build.Repository.LocalPath)/logs/TEST-LOCAL.xml $(Build.Repository.LocalPath)/libraries/python/dbxdemo/test*.py || true
 
   displayName: 'Run Python Unit Tests for library code'
 
