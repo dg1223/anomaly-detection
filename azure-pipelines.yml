@@ -2,7 +2,7 @@
 # azure-pipelines.yml
 
 trigger:
-- release
+- azureDevOps
 
 pool:
   name: Hosted Ubuntu 1604
