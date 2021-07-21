@@ -66,3 +66,10 @@ steps:
 - task: PublishBuildArtifacts@1
   inputs:
     ArtifactName: 'DatabricksBuild'
+
+- task: TwineAuthenticate@1
+  inputs:
+    artifactFeed: 'caaswx-feed1'
+
+- script: |
+   twine upload -r "caaswx-feed1" --config-file $(PYPIRC_PATH) dist/*
