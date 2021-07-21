@@ -44,25 +44,40 @@ steps:
     python3 -m build --sdist --wheel
   displayName: 'Build Python Wheel for Libs'
 
+# - script: |
+#     git diff --name-only --diff-filter=AMR HEAD^1 HEAD | xargs -I '{}' cp --parents -r '{}' $(Build.BinariesDirectory)
+
+#     mkdir -p $(Build.BinariesDirectory)/libs
+#     cp $(Build.Repository.LocalPath)/dist/*.* $(Build.BinariesDirectory)/libs
+
+#     mkdir -p $(Build.BinariesDirectory)/cicd-scripts
+#     cp $(Build.Repository.LocalPath)/cicd-scripts/*.* $(Build.BinariesDirectory)/cicd-scripts
+
+#   displayName: 'Get Changes'
+
+# - task: ArchiveFiles@2
+#   inputs:
+#     rootFolderOrFile: '$(Build.BinariesDirectory)'
+#     includeRootFolder: false
+#     archiveType: 'zip'
+#     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+#     replaceExistingArchive: true
+
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     ArtifactName: 'DatabricksBuild'
+
+# setup.py must exist
+# - script: |
+#     python -m pip install --upgrade pip
+#     python -m pip install --upgrade build setuptools twine
+#     pip install -r requirements.txt
+#     python -m build
+#   displayName: 'Install dependencies'
+
+- task: TwineAuthenticate@1
+  inputs:
+    artifactFeed: 'caaswx-feed'
+
 - script: |
-    git diff --name-only --diff-filter=AMR HEAD^1 HEAD | xargs -I '{}' cp --parents -r '{}' $(Build.BinariesDirectory)
-
-    mkdir -p $(Build.BinariesDirectory)/libs
-    cp $(Build.Repository.LocalPath)/dist/*.* $(Build.BinariesDirectory)/libs
-
-    mkdir -p $(Build.BinariesDirectory)/cicd-scripts
-    cp $(Build.Repository.LocalPath)/cicd-scripts/*.* $(Build.BinariesDirectory)/cicd-scripts
-
-  displayName: 'Get Changes'
-
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    ArtifactName: 'DatabricksBuild'
+   twine upload -r "caaswx-feed" --config-file $(PYPIRC_PATH) dist/*
