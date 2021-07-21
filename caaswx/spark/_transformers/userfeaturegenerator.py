@@ -25,7 +25,7 @@ class CnExtractor(UnaryTransformer):
     """
 
     def createTransformFunc(self):
-        return lambda x: x if "cn=" not in x else x[x.index("cn=") + 3: x.index(",")]
+        return lambda x: x if "cn=" not in x else x[x.index("cn=") + 3 : x.index(",")]
 
     def outputDataType(self):
         return StringType()
