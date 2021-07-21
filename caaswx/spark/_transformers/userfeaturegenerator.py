@@ -107,7 +107,7 @@ class UserFeatureGenerator(Transformer):
         """
         super().__init__()
         self._setDefault(entity_name='SM_CN', window_length=900, window_step=900)
-        kwargs = self._input_kwargs
+        kwargs = self._input_kwargs  # pylint: disable=E1101
         self.set_params(**kwargs)
 
     @keyword_only
@@ -117,7 +117,7 @@ class UserFeatureGenerator(Transformer):
                   inputCols=None, outputCols=None)
         Sets params for this UserFeatureGenerator.
         """
-        kwargs = self._input_kwargs
+        kwargs = self._input_kwargs  # pylint: disable=E1101
         return self._set(**kwargs)
 
     def set_window_length(self, value):
