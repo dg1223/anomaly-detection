@@ -14,8 +14,9 @@ from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.types import StringType
 
-# CN Extractor: When you execute it please set the output to "SM_CN"
-# Otherwise, transformer can not be executed
+
+# CN Extractor: When you execute it please set the output to "SM_CN" (The default one)
+# Otherwise, you have to reset the entity name for transformer
 
 class CnExtractor(UnaryTransformer):
     """
@@ -67,34 +68,33 @@ def process_dataframe_with_window(dataset):
     return dataset
 
 
-# Feature generator based on Users (SM_CN)
+# Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
 # Otherwise, we have no SM_CN feature
-
 class UserFeatureGenerator(Transformer):
     """
     Feature transformer for the swx project.
     """
 
     window_length = Param(
-        Params._dummy(),
-        "windowLength",
+        Params._dummy(),  # pylint: disable=W0212
+        "window_length",
         "Length of the sliding window used for entity resolution. " +
         "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt
     )
 
     window_step = Param(
-        Params._dummy(),
-        "windowStep",
+        Params._dummy(),  # pylint: disable=W0212
+        "window_step",
         "Length of the sliding window step-size used for entity resolution. " +
         "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt
     )
 
     entity_name = Param(
-        Params._dummy(),
-        "entityName",
+        Params._dummy(),  # pylint: disable=W0212
+        "entity_name",
         "Name of the column to perform aggregation on, together with the " +
         "sliding window.",
         typeConverter=TypeConverters.toString
