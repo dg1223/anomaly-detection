@@ -25,7 +25,7 @@ class CnExtractor(UnaryTransformer):
     """
 
     def createTransformFunc(self):
-        return lambda x: x if "cn=" not in x else x[x.index("cn=") + 3 : x.index(",")]
+        return lambda x: x if "cn=" not in x else x[x.index("cn=") + 3: x.index(",")]
 
     def outputDataType(self):
         return StringType()
@@ -78,7 +78,7 @@ class UserFeatureGenerator(Transformer):
     """
 
     window_length = Param(
-        Params._dummy(),  # pylint: disable=W0212
+        Params._dummy(),
         "window_length",
         "Length of the sliding window used for entity resolution. "
         + "Given as an integer in seconds.",
@@ -86,7 +86,7 @@ class UserFeatureGenerator(Transformer):
     )
 
     window_step = Param(
-        Params._dummy(),  # pylint: disable=W0212
+        Params._dummy(),
         "window_step",
         "Length of the sliding window step-size used for entity resolution. "
         + "Given as an integer in seconds.",
@@ -94,7 +94,7 @@ class UserFeatureGenerator(Transformer):
     )
 
     entity_name = Param(
-        Params._dummy(),  # pylint: disable=W0212
+        Params._dummy(),
         "entity_name",
         "Name of the column to perform aggregation on, together with the "
         + "sliding window.",
@@ -108,7 +108,7 @@ class UserFeatureGenerator(Transformer):
         """
         super().__init__()
         self._setDefault(entity_name="SM_CN", window_length=900, window_step=900)
-        kwargs = self._input_kwargs  # pylint: disable=E1101
+        kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
     @keyword_only
@@ -118,7 +118,7 @@ class UserFeatureGenerator(Transformer):
                   inputCols=None, outputCols=None)
         Sets params for this UserFeatureGenerator.
         """
-        kwargs = self._input_kwargs  # pylint: disable=E1101
+        kwargs = self._input_kwargs
         return self._set(**kwargs)
 
     def set_window_length(self, value):
