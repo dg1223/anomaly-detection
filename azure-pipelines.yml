@@ -1,9 +1,6 @@
 # Azure Databricks Build Pipeline
 # azure-pipelines.yml
 
-trigger:
-- azureDevOps
-
 pool:
   name: Hosted Ubuntu 1604
 
