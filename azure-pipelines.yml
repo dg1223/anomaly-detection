@@ -77,7 +77,7 @@ steps:
 
 - task: TwineAuthenticate@1
   inputs:
-    artifactFeed: 'cra-caa-feed'
+    artifactFeed: 'caaswx-feed'
 
 - script: |
-   twine upload -r "cra-caa-feed" --config-file $(PYPIRC_PATH) dist/*
+   twine upload -r "caaswx-feed" --config-file $(PYPIRC_PATH) dist/*
