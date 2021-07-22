@@ -6,7 +6,7 @@ from pyspark.sql.types import (
     ArrayType,
     TimestampType,
 )
-from src.caaswx.spark._transformers import AgentStringFlattener
+from src.caaswx.spark._transformers.agentstringflattener import AgentStringFlattener
 
 from pyspark.shell import spark
 
