@@ -2,32 +2,28 @@
 # azure-pipelines.yml
 pool:
   name: Hosted Ubuntu 1604
-
 steps:
 - task: UsePythonVersion@0
   displayName: 'Use Python 3.8'
   inputs:
     versionSpec: 3.8
-
 - script: |
     python -m pip install --upgrade pip
     pip install requests setuptools wheel pylint black flake8 flake8-comprehensions pep8-naming mypy pytest httpagentparser pandas numpy build twine
+    pip install -r requirements.txt
   displayName: 'Load Python Dependencies'
-
 - checkout: self
   persistCredentials: true
   clean: true
-
 - script: git checkout azureDevOps
   displayName: 'Get Latest Branch'
-
 - script: |
     python3 -m build --sdist --wheel
   displayName: 'Build Python Wheel for Libs'
-
 - task: TwineAuthenticate@1
   inputs:
     artifactFeed: 'caaswx-feed'
-
 - script: |
    twine upload -r "caaswx-feed" --config-file $(PYPIRC_PATH) dist/*
+
+
