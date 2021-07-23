@@ -9,7 +9,7 @@ steps:
     versionSpec: 3.8
 - script: |
     python -m pip install --upgrade pip
-    pip install requests setuptools wheel pylint black flake8 flake8-comprehensions pep8-naming mypy pytest httpagentparser pandas numpy build twine
+    pip install requests setuptools wheel pylint black flake8 flake8-comprehensions pep8-naming mypy pytest pyspark httpagentparser pandas numpy build twine
   displayName: 'Load Python Dependencies'
 - checkout: self
   persistCredentials: true
