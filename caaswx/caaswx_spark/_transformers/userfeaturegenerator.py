@@ -35,7 +35,7 @@ class CnExtractor(UnaryTransformer):
 
 
 # Please uncomment next 2 line to generate SM_CN feature siteminder_df is the dataframe name
-# cns = cn_extractor().setInputCol('SM_USERNAME').setOutputCol('SM_CN')
+# cns = CnExtractor().setInputCol('SM_USERNAME').setOutputCol('SM_CN')
 # siteminder_df = cns.transform(siteminder_df)
 
 
