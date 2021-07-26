@@ -18,6 +18,7 @@ PATH_FLATTENER = (
     "mnt/repo-related/caa-streamworx/caaswx/caaswx_spark/parquet_data/flattener/"
 )
 
+
 class WriteDataToParquet:
     """class to implement various kinds of methods to write parquets"""
 
