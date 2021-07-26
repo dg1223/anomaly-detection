@@ -2,7 +2,7 @@ from pyspark.sql.session import SparkSession
 
 spark = SparkSession.builder.getOrCreate()
 #
-# from pyspark.shell import spark
+# from pyspark.shell import caaswx_spark
 
 
 class LoadTestData:
