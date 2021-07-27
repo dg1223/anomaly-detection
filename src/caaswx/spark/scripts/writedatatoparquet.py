@@ -13,9 +13,9 @@ from pyspark.sql.functions import col
 sc = SparkContext("local")
 spark = SparkSession(sc)
 
-PATH_DATA = "mnt/repo-related/caa-streamworx/caaswx/caaswx_spark/parquet_data/"
+PATH_DATA = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/"
 PATH_FLATTENER = (
-    "mnt/repo-related/caa-streamworx/caaswx/caaswx_spark/parquet_data/flattener/"
+    "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/flattener/"
 )
 
 
