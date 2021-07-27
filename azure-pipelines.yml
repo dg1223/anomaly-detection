@@ -16,8 +16,6 @@ steps:
   clean: true
 - script: git checkout azureDevOps
   displayName: 'Get Latest Branch'
-- script: python -m pytest
-  displayName: 'Run Pytest'
 - script: |
     python3 -m build --sdist --wheel
   displayName: 'Build Python Wheel for Libs'
