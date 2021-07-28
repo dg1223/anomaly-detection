@@ -184,7 +184,7 @@ class UserFeatureGenerator(Transformer):
             F.count(
                 when(
                     (col("SM_USERNAME").contains("ams"))
-                    | (col("SM_EVENTID").contains("AMS")),
+                    | (col("SM_RESOURCE").contains("AMS")),
                     True,
                 )
             ).alias("COUNT_OU_AMS"),
