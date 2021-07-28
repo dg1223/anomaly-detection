@@ -1,308 +1,254 @@
-import numpy as np
-import pandas as pd
+"""
+A module to generate features regarding to session feature
+"""
+
+# Import Essential packages
 from pyspark import keyword_only
-from pyspark.ml import Transformer
+from pyspark.ml import Transformer, UnaryTransformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import window
+
+from pyspark.sql.window import Window
+import pyspark.sql.functions as F
+from pyspark.sql.functions import regexp_extract
+from pyspark.sql.functions import col, when, lag, isnull
+from pyspark.sql.types import StringType
+
+
+class CnExtractor(UnaryTransformer):
+    """
+    CN extractor: It is based on UnaryTransformerExtract CN features from SM_USERNAME
+    """
+
+    def createTransformFunc(self):
+        return lambda x: x if "cn=" not in x else x[x.index("cn=") + 3 : x.index(",")]
+
+    def outputDataType(self):
+        return StringType()
+
+    def validateInputType(self, inputType):
+        assert inputType == StringType(), f"Expected StringType() and found {inputType}"
+
+
+# Please uncomment next 2 line to generate SM_CN feature siteminder_df is the dataframe name
+# cns = CnExtractor().setInputCol('SM_USERNAME').setOutputCol('SM_CN')
+# siteminder_df = cns.transform(siteminder_df)
+
+
+def process_dataframe_with_window(dataset):
+    """
+    helper function for IPFeatureGenerator class
+    :param dataset: Siteminder Dataset
+    :return: processed datasets based on time window
+    """
+    ts_window = Window.partitionBy("SM_CN").orderBy("SM_TIMESTAMP")
+
+    dataset = dataset.withColumn(
+        "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+    )
+
+    dataset = dataset.withColumn(
+        "SM_CONSECUTIVE_TIME_DIFFERENCE",
+        when(
+            isnull(
+                dataset["SM_TIMESTAMP"].cast("long")
+                - dataset["SM_PREV_TIMESTAMP"].cast("long")
+            ),
+            0,
+        ).otherwise(
+            dataset["SM_TIMESTAMP"].cast("long")
+            - dataset["SM_PREV_TIMESTAMP"].cast("long")
+        ),
+    )
+
+    dataset = dataset.drop("SM_PREV_TIMESTAMP")
+    return dataset
 
 
 class IPFeatureGenerator(Transformer):
     """
-    IP feature transformer for the Streamworx project.
+    IP Feature transformer for the swx project.
     """
 
-    windowLength = Param(
+    window_length = Param(
         Params._dummy(),
-        "windowLength",
+        "window_length",
         "Length of the sliding window used for entity resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
-    windowStep = Param(
+    window_step = Param(
         Params._dummy(),
-        "windowStep",
+        "window_step",
         "Length of the sliding window step-size used for entity resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
-    entityName = Param(
+    entity_name = Param(
         Params._dummy(),
-        "entityName",
+        "entity_name",
         "Name of the column to perform aggregation on, together with the "
         + "sliding window.",
         typeConverter=TypeConverters.toString,
     )
 
     @keyword_only
-    def __init__(self, entityName="SM_CLIENTIP", windowLength=900, windowStep=900):
+    def __init__(self):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
-        super(IPFeatureGenerator, self).__init__()
-        self._setDefault(windowLength=900, windowStep=900, entityName="SM_CLIENTIP")
+        super().__init__()
+        self._setDefault(entity_name="SM_SESSIONID", window_length=900, window_step=900)
         kwargs = self._input_kwargs
-        self.setParams(**kwargs)
+        self.set_params(**kwargs)
 
     @keyword_only
-    def setParams(self, entityName="SM_CLIENTIP", windowLength=900, windowStep=900):
+    def set_params(self):
         """
-        setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
                   inputCols=None, outputCols=None)
-        Sets params for this IPFeatureGenerator.
+        Sets params for this SessionFeatureGenerator.
         """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
-    def setWindowLength(self, value):
+    def set_window_length(self, value):
         """
-        Sets this IPFeatureGenerator's window length.
+        Sets this SessionFeatureGenerator's window length.
         """
-        self._set(windowLength=value)
+        self._set(window_length=value)
 
-    def setWindowStep(self, value):
+    def set_window_step(self, value):
         """
-        Sets this IPFeatureGenerator's window step size.
+        Sets this SessionFeatureGenerator's window step size.
         """
-        self._set(windowStep=value)
+        self._set(window_step=value)
 
-    def setEntityName(self, value):
+    def set_entity_name(self, value):
         """
-        Sets the entity name
+        Sets this SessionFeatureGenerator's window step size.
         """
-        self._set(entityName=value)
-
-    @staticmethod
-    def __generateIPFeatures(self, input_df):
-        """
-        Generates IP features from the given dataframe of SM_CLIENTIP generateData2
-        Input: pandas.DataFrame of IP generateData2
-        Output: pandas.DataFrame of IP features
-        """
-
-        # Columns to be used extract IP features
-        key = input_df["SM_CLIENTIP"][0]
-        resources = input_df["SM_RESOURCE"]
-        timestamps = input_df["SM_TIMESTAMP"]
-        events = input_df["SM_EVENTID"]
-        actions = input_df["SM_ACTION"]
-        cn = input_df["SM_USERNAME"]
-        users = input_df["SM_USERNAME"]
-        sessions = input_df["SM_SESSIONID"]
-        cra_seq_group = input_df["CRA_SEQ"]
-        transactions = input_df["SM_TRANSACTIONID"]
-
-        # --FEATURES---------------------------------------------------------------------------------
-
-        ip_apps = ",".join(
-            resources.str.extractall(r"/([a-z]{1,4})/").iloc[:, 0].unique()
-        )
-        ip_avg_time_bt_records = abs(
-            timestamps.diff().dt.total_seconds().fillna(0).mean()
-        )
-        ip_max_time_bt_records = abs(
-            timestamps.diff().dt.total_seconds().fillna(0).max()
-        )
-        ip_min_time_bt_records = abs(
-            timestamps.diff().dt.total_seconds().fillna(0).min()
-        )
-        ip_count_admin_login = (events == 7).sum()
-        ip_count_admin_logout = (events == 8).sum()
-        ip_count_admin_reject = (events == 9).sum()
-
-        ip_count_auth_accept = (events == 1).sum()
-        ip_count_auth_attempt = (events == 3).sum()
-        ip_count_auth_challenge = (events == 4).sum()
-        ip_count_auth_logout = (events == 10).sum()
-        ip_count_auth_reject = (events == 2).sum()
-
-        ip_count_az_accept = (events == 5).sum()
-        ip_count_az_reject = (events == 6).sum()
-        ip_count_failed = (
-            (events == 6).sum() + (events == 2).sum() + (events == 9).sum()
-        )
-        ip_count_get = (actions.str.contains("GET")).sum()
-        ip_count_post = (actions.str.contains("POST")).sum()
-        ip_count_http_methods = (actions.str.contains("GET|POST")).sum()
-
-        ip_count_ou_ams = (cn.str.contains("ams|AMS")).sum()
-        ip_count_ou_cms = (cn.str.contains("cms|CMS")).sum()
-        ip_count_ou_identity = (cn.str.contains("ou=Identity")).sum()
-        ip_count_ou_cred = (cn.str.contains("ou=Credential")).sum()
-        ip_count_ou_securekey = (cn.str.contains("ou=SecureKey")).sum()
-
-        ip_count_portal_mya = (resources.str.contains("mima")).sum()
-        ip_count_portal_myba = (resources.str.contains("myba")).sum()
-
-        ip_count_unique_action = actions.nunique()
-        ip_count_unique_events = events.nunique()
-        ip_count_unique_users = users.nunique()
-        ip_count_unique_resource = resources.nunique()
-        ip_count_unique_sessions = sessions.nunique()
-
-        ip_count_portal_rac = (resources.str.contains("rep")).sum()
-        ip_count_records = cra_seq_group.count()
-        ip_count_visit = (events == 13).sum()
-
-        ip_count_validate_accept = (events == 11).sum()
-        ip_count_validate_reject = (events == 12).sum()
-
-        ip_sm_action = ", ".join(np.sort(actions.unique()))
-        ip_sm_usernames = ", ".join(np.sort(users.unique()))
-        ip_sm_session_id = ", ".join(np.sort(sessions.unique()))
-        ip_sm_portal = ", ".join(np.sort(resources.unique()))
-        ip_sm_transaction_id = ", ".join(np.sort(transactions.unique()))
-
-        ip_ou = ",".join(cn.str.extract(r"ou=(.*?),").iloc[:, 0].dropna().unique())
-        ip_rep_app = ",".join(
-            resources.str.extract(r"(rep.*?)/").iloc[:, 0].dropna().unique()
-        )
-        ip_timestamp = timestamps.loc[0]
-
-        ip_count_unique_ou = (
-            cn.str.extract(r"ou=(.*?),").iloc[:, 0].dropna().unique().size
-        )
-        ip_count_unique_username = (
-            cn.str.extract(r"cn=(.*?),").iloc[:, 0].dropna().unique().size
-        )
-        ip_count_unique_rep = (
-            resources.str.extract(r"rep(.*?)/").iloc[:, 0].dropna().unique().size
-        )
-
-        # --END OF FEATURES---------------------------------------------------------------------------------
-
-        # Construct the DataFrame
-        data = [
-            (key,)
-            + (ip_apps,)
-            + (ip_avg_time_bt_records,)
-            + (ip_max_time_bt_records,)
-            + (ip_min_time_bt_records,)
-            + (ip_count_admin_login,)
-            + (ip_count_admin_logout,)
-            + (ip_count_admin_reject,)
-            + (ip_count_auth_accept,)
-            + (ip_count_auth_attempt,)
-            + (ip_count_auth_challenge,)
-            + (ip_count_auth_logout,)
-            + (ip_count_auth_reject,)
-            + (ip_count_az_accept,)
-            + (ip_count_az_reject,)
-            + (ip_count_failed,)
-            + (ip_count_get,)
-            + (ip_count_post,)
-            + (ip_count_http_methods,)
-            + (ip_count_ou_ams,)
-            + (ip_count_ou_cms,)
-            + (ip_count_ou_identity,)
-            + (ip_count_ou_cred,)
-            + (ip_count_ou_securekey,)
-            + (ip_count_portal_mya,)
-            + (ip_count_portal_myba,)
-            + (ip_count_unique_action,)
-            + (ip_count_unique_events,)
-            + (ip_count_unique_users,)
-            + (ip_count_unique_resource,)
-            + (ip_count_unique_sessions,)
-            + (ip_count_portal_rac,)
-            + (ip_count_records,)
-            + (ip_count_visit,)
-            + (ip_count_validate_accept,)
-            + (ip_count_validate_reject,)
-            + (ip_sm_action,)
-            + (ip_sm_usernames,)
-            + (ip_sm_session_id,)
-            + (ip_sm_portal,)
-            + (ip_sm_transaction_id,)
-            + (ip_ou,)
-            + (ip_rep_app,)
-            + (ip_timestamp,)
-            + (ip_count_unique_ou,)
-            + (ip_count_unique_username,)
-            + (ip_count_unique_rep,)
-        ]
-
-        ans = pd.DataFrame(
-            data,
-            columns=[
-                "SM_CLIENTIP",
-                "IP_APP",
-                "IP_AVG_TIME_BT_RECORDS",
-                "IP_MAX_TIME_BT_RECORDS",
-                "IP_MIN_TIME_BT_RECORDS",
-                "IP_COUNT_ADMIN_LOGIN",
-                "IP_COUNT_ADMIN_LOGOUT",
-                "IP_COUNT_ADMIN_REJECT",
-                "IP_COUNT_AUTH_ACCEPT",
-                "IP_COUNT_AUTH_ATTEMPT",
-                "IP_COUNT_AUTH_CHALLENGE",
-                "IP_COUNT_AUTH_LOGOUT",
-                "IP_COUNT_AUTH_REJECT",
-                "IP_COUNT_AZ_ACCEPT",
-                "IP_COUNT_AZ_REJECT",
-                "IP_COUNT_FAILED",
-                "IP_COUNT_GET",
-                "IP_COUNT_POST",
-                "IP_COUNT_HTTP_METHODS",
-                "IP_COUNT_OU_AMS",
-                "IP_COUNT_OU_CMS",
-                "IP_COUNT_OU_IDENTITY",
-                "IP_COUNT_OU_CRED",
-                "IP_COUNT_OU_SECUREKEY",
-                "IP_COUNT_PORTAL_MYA",
-                "IP_COUNT_PORTAL_MYBA",
-                "IP_COUNT_UNIQUE_ACTION",
-                "IP_COUNT_UNIQUE_EVENTS",
-                "IP_COUNT_UNIQUE_USERS",
-                "IP_COUNT_UNIQUE_RESOURCE",
-                "IP_COUNT_UNIQUE_SESSIONS",
-                "IP_COUNT_PORTAL_RAC",
-                "IP_COUNT_RECORDS",
-                "IP_COUNT_VISIT",
-                "IP_COUNT_VALIDATE_ACCEPT",
-                "IP_COUNT_VALIDATE_REJECT",
-                "IP_SM_ACTION",
-                "IP_SM_USERNAMES",
-                "IP_SM_SESSIONID",
-                "IP_SM_PORTAL",
-                "IP_SM_TRANSACTIONID",
-                "IP_OU",
-                "IP_REP_APP",
-                "IP_TIMESTAMP",
-                "IP_COUNT_UNIQUE_OU",
-                "IP_COUNT_UNIQUE_USERNAME",
-                "IP_COUNT_UNIQUE_REP",
-            ],
-        )
-
-        return ans
+        self._set(entity_name=value)
 
     def _transform(self, dataset):
         """
-        Transforms the given dataset by deriving IP features and returning a new dataframe of those features
+        Transforms the given dataset by deriving IP features
+        and returning a new dataframe of those features
         """
+        dataset = process_dataframe_with_window(dataset)
+
         return dataset.groupby(
-            str(self.getOrDefault("entityName")),
+            str(self.getOrDefault("entity_name")),
             window(
                 "SM_TIMESTAMP",
-                str(self.getOrDefault("windowLength")) + " seconds",
-                str(self.getOrDefault("windowStep")) + " seconds",
+                str(self.getOrDefault("window_length")) + " seconds",
+                str(self.getOrDefault("window_step")) + " seconds",
             ),
-        ).applyInPandas(
-            self.__generateIPFeatures,
-            schema="SM_CLIENTIP String, IP_APP String, IP_AVG_TIME_BT_RECORDS float, IP_MAX_TIME_BT_RECORDS float, "
-            "IP_MIN_TIME_BT_RECORDS float, IP_COUNT_ADMIN_LOGIN long, IP_COUNT_ADMIN_LOGOUT long, "
-            "IP_COUNT_ADMIN_REJECT long, IP_COUNT_AUTH_ACCEPT long, IP_COUNT_AUTH_ATTEMPT long, "
-            "IP_COUNT_AUTH_CHALLENGE long, IP_COUNT_AUTH_LOGOUT long, IP_COUNT_AUTH_REJECT long, "
-            "IP_COUNT_AZ_ACCEPT long, IP_COUNT_AZ_REJECT long, IP_COUNT_FAILED long, IP_COUNT_GET long, "
-            "IP_COUNT_POST long, IP_COUNT_HTTP_METHODS long, IP_COUNT_OU_AMS long, IP_COUNT_OU_CMS long, "
-            "IP_COUNT_OU_IDENTITY long, IP_COUNT_OU_CRED long, IP_COUNT_OU_SECUREKEY long, IP_COUNT_PORTAL_MYA "
-            "long, IP_COUNT_PORTAL_MYBA long, IP_COUNT_UNIQUE_ACTION long, IP_COUNT_UNIQUE_EVENTS long, "
-            "IP_COUNT_UNIQUE_USERS long, IP_COUNT_UNIQUE_RESOURCE long, IP_COUNT_UNIQUE_SESSIONS long, "
-            "IP_COUNT_PORTAL_RAC long, IP_COUNT_RECORDS long, IP_COUNT_VISIT long, IP_COUNT_VALIDATE_ACCEPT "
-            "long, IP_COUNT_VALIDATE_REJECT long, IP_SM_ACTION String, IP_SM_USERNAMES String, IP_SM_SESSIONID "
-            "String, IP_SM_PORTAL String, IP_SM_TRANSACTIONID String, IP_OU String, IP_REP_APP String, "
-            "IP_TIMESTAMP timestamp, IP_COUNT_UNIQUE_OU long, IP_COUNT_UNIQUE_USERNAME long, "
-            "IP_COUNT_UNIQUE_REP long",
+        ).agg(
+            F.array_distinct(
+                F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            ).alias("IP_APP"),
+            F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_AVG_TIME_BT_RECORDS"),
+            F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MAX_TIME_BT_RECORDS"),
+            F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MIN_TIME_BT_RECORDS"),
+            F.count(when(col("SM_EVENTID") == 7, True)).alias("IP_COUNT_ADMIN_LOGIN"),
+            F.count(when(col("SM_EVENTID") == 8, True)).alias("IP_COUNT_ADMIN_LOGOUT"),
+            F.count(when(col("SM_EVENTID") == 9, True)).alias("IP_COUNT_ADMIN_REJECT"),
+            F.count(when(col("SM_EVENTID") == 1, True)).alias("IP_COUNT_AUTH_ACCEPT"),
+            F.count(when(col("SM_EVENTID") == 3, True)).alias("IP_COUNT_ADMIN_ATTEMPT"),
+            F.count(when(col("SM_EVENTID") == 4, True)).alias(
+                "IP_COUNT_AUTH_CHALLENGE"
+            ),
+            F.count(when(col("SM_EVENTID") == 10, True)).alias("IP_COUNT_AUTH_LOGOUT"),
+            F.count(when(col("SM_EVENTID") == 2, True)).alias("IP_COUNT_ADMIN_REJECT"),
+            F.count(when(col("SM_EVENTID") == 5, True)).alias("IP_COUNT_AZ_ACCEPT"),
+            F.count(when(col("SM_EVENTID") == 6, True)).alias("IP_COUNT_AZ_REJECT"),
+            F.count(
+                when(
+                    (col("SM_EVENTID") == 2)
+                    | (col("SM_EVENTID") == 6)
+                    | (col("SM_EVENTID") == 9),
+                    True,
+                )
+            ).alias("IP_COUNT_FAILED"),
+            F.count(when(col("SM_ACTION").contains("GET"), True)).alias("IP_COUNT_GET"),
+            F.count(when(col("SM_ACTION").contains("POST"), True)).alias(
+                "IP_COUNT_POST"
+            ),
+            F.count(
+                when(
+                    (col("SM_ACTION").contains("GET"))
+                    | (col("SM_ACTION").contains("POST")),
+                    True,
+                )
+            ).alias("IP_COUNT_HTTP_METHODS"),
+            F.count(
+                when(
+                    (col("SM_USERNAME").contains("ams"))
+                    | (col("SM_RESOURCE").contains("AMS")),
+                    True,
+                )
+            ).alias("IP_COUNT_OU_AMS"),
+            F.count(when(col("SM_USERNAME").contains("cra-cp"), True)).alias(
+                "IP_COUNT_OU_CMS"
+            ),
+            F.count(when(col("SM_USERNAME").contains("ou=Identity"), True)).alias(
+                "IP_COUNT_OU_IDENTITY"
+            ),
+            F.count(when(col("SM_USERNAME").contains("ou=Credential"), True)).alias(
+                "IP_COUNT_OU_CRED"
+            ),
+            F.count(when(col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
+                "IP_COUNT_OU_SECUREKEY"
+            ),
+            F.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
+                "IP_COUNT_PORTAL_MYA"
+            ),
+            F.count(when(col("SM_RESOURCE").contains("myba"), True)).alias(
+                "IP_COUNT_PORTAL_MYBA"
+            ),
+            F.countDistinct(col("SM_ACTION")).alias("IP_COUNT_UNIQUE_ACTIONS"),
+            F.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
+            F.countDistinct(col("SM_CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
+            F.countDistinct(col("SM_RESOURCE")).alias("IP_COUNT_UNIQUE_RESOURCES"),
+            F.countDistinct(col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
+            F.count(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)).alias(
+                "IP_COUNT_PORTAL_RAC"
+            ),
+            F.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
+            F.count(when(col("SM_EVENTID") == 13, True)).alias("IP_COUNT_VISIT"),
+            F.count(when(col("SM_EVENTID") == 11, True)).alias(
+                "IP_COUNT_VALIDATE_ACCEPT"
+            ),
+            F.count(when(col("SM_EVENTID") == 12, True)).alias(
+                "IP_COUNT_VALIDATE_REJECT"
+            ),
+            F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
+                "IP_UNIQUE_SM_ACTIONS"
+            ),
+            F.array_distinct(F.collect_list(col("SM_CN"))).alias("IP_UNIQUE_USERNAME"),
+            F.array_distinct(F.collect_list(col("SM_SESSIONID"))).alias(
+                "IP_UNIQUE_SM_SESSION"
+            ),
+            F.array_distinct(F.collect_list(col("SM_RESOURCE"))).alias(
+                "IP_UNIQUE_SM_PORTALS"
+            ),
+            F.array_distinct(F.collect_list(col("SM_TRANSACTIONID"))).alias(
+                "IP_UNIQUE_SM_TRANSACTIONS"
+            ),
+            F.array_distinct(
+                F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            ).alias("IP_UNIQUE_USER_OU"),
+            F.array_distinct(
+                F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            ).alias("IP_UNIQUE_REP_APP"),
+            F.min(col("SM_TIMESTAMP")).alias("IP_TIMESTAMP"),
+            F.countDistinct(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)).alias(
+                "IP_COUNT_UNIQUE_OU"
+            ),
+            F.count(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)).alias(
+                "IP_COUNT_UNIQUE_REP"
+            ),
         )
