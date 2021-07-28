@@ -25,8 +25,7 @@ steps:
   inputs:
     artifactFeed: 'caaswx-feed'
 - script: |
-   if [ -f "caaswx-feed" ]; then
-    twine upload -r "caaswx-feed" --config-file $(PYPIRC_PATH) dist/*
-   fi
+   twine upload -r "caaswx-feed" --config-file $(PYPIRC_PATH) dist/*
+
 
 
