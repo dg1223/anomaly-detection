@@ -116,19 +116,19 @@ class IPFeatureGenerator(Transformer):
 
     def set_window_length(self, value):
         """
-        Sets this SessionFeatureGenerator's window length.
+        Sets this IPFeatureGenerator's window length.
         """
         self._set(window_length=value)
 
     def set_window_step(self, value):
         """
-        Sets this SessionFeatureGenerator's window step size.
+        Sets this IPFeatureGenerator's window step size.
         """
         self._set(window_step=value)
 
     def set_entity_name(self, value):
         """
-        Sets this SessionFeatureGenerator's window step size.
+        Sets this IPFeatureGenerator's window step size.
         """
         self._set(entity_name=value)
 
