@@ -7,7 +7,6 @@ from pyspark.sql.types import (
 
 
 class DataCnExtractor:
-
     def generateCnExtractorData(self):
         testSchema = StructType(
             [
@@ -15,31 +14,15 @@ class DataCnExtractor:
             ]
         )
 
-        testData = [
-            (
-                'cn=hasgdvfashdgfahg,ou=Credential,ou=PR'
-            ),
-            (
-                'asjkdhfbjksdlbaf'
-            )
-        ]
+        testData = [("cn=hasgdvfashdgfahg,ou=Credential,ou=PR"), ("asjkdhfbjksdlbaf")]
 
         ansSchema = StructType(
-            [
-                StructField("SM_USERNAME", StringType()),
-                StructField("CN", StringType())
-            ]
+            [StructField("SM_USERNAME", StringType()), StructField("CN", StringType())]
         )
 
         answerData = [
-            (
-                'cn=hasgdvfashdgfahg,ou=Credential,ou=PR',
-                'hasgdvfashdgfahg'
-            ),
-            (
-                'asjkdhfbjksdlbaf',
-                'asjkdhfbjksdlbaf'
-            )
+            ("cn=hasgdvfashdgfahg,ou=Credential,ou=PR", "hasgdvfashdgfahg"),
+            ("asjkdhfbjksdlbaf", "asjkdhfbjksdlbaf"),
         ]
 
         testDf = spark.createDataFrame(testData, schema=testSchema)

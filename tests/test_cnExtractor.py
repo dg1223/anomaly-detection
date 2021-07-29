@@ -3,7 +3,7 @@ from src.caaswx.spark._transformers.cnextractor import CnExtractor
 
 
 def test_CnExtractor():
-    obj = CnExtractor('SM_USERNAME', 'CN')
+    obj = CnExtractor("SM_USERNAME", "CN")
     testDf, answerDf = DataCnExtractor.generateCnExtractorData()
     resultDf = obj.transform(testDf)
     sub1 = resultDf.subtract(answerDf)
