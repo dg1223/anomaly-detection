@@ -3,6 +3,7 @@ A module to generate features regarding to session feature
 """
 
 import pyspark.sql.functions as F
+
 # Import Essential packages
 from pyspark import keyword_only
 from pyspark.ml import Transformer
