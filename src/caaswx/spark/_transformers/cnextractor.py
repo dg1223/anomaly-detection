@@ -2,9 +2,9 @@ from pyspark.ml import UnaryTransformer
 from pyspark.sql.types import StringType
 
 
-class CnTransformer(UnaryTransformer):
+class CnExtractor(UnaryTransformer):
     def __init__(self, setImputCol, setOutputCol):
-        super(CnTransformer, self).__init__()
+        super(CnExtractor, self).__init__()
         self.setOutputCol(setOutputCol)
         self.setInputCol(setImputCol)
 
@@ -17,8 +17,8 @@ class CnTransformer(UnaryTransformer):
 
     def cleanUsername(self, row: str) -> str:
         row = row.split(",", 2)[0]
-        if 'cn=' in row:
-            return row.split('=')[1]
+        if "cn=" in row:
+            return row.split("=")[1]
         else:
             return row
 
