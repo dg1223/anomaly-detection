@@ -3,10 +3,10 @@ from pyspark.sql.types import StringType
 
 
 class CnExtractor(UnaryTransformer):
-    def __init__(self, setImputCol, setOutputCol):
+    def __init__(self, setInputCol, setOutputCol):
         super(CnExtractor, self).__init__()
         self.setOutputCol(setOutputCol)
-        self.setInputCol(setImputCol)
+        self.setInputCol(setInputCol)
 
     def outputDataType(self):
         return StringType()
