@@ -1,17 +1,9 @@
-from pyspark import SparkConf
-from pyspark import SparkContext
-from pyspark.sql import SQLContext
-
-conf = SparkConf()
-conf.setAppName("caaswx")
-sc = SparkContext(conf=conf)
+from pyspark.shell import spark
 from pyspark.sql.types import (
     StructType,
     StructField,
     StringType,
 )
-
-spark = SQLContext(sc)
 
 
 class DataCnExtractor:
