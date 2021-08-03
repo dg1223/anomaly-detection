@@ -10,5 +10,5 @@ def writeParquet(path: str, fileName: str, schema, data):
     return dataFrame
 
 
-def loadParquet(path: str, spark):
+def loadParquet(path: str):
     return spark.read.parquet(path)
