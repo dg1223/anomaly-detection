@@ -19,7 +19,7 @@ steps:
 - script: git checkout azureDevOps
   displayName: 'Get Latest Branch'
 - script: |
-    python3 -m build --sdist --wheel
+    python3 -m build --wheel
   displayName: 'Build Python Wheel for Libs'
 - task: TwineAuthenticate@1
   inputs:
