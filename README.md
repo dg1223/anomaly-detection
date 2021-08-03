@@ -5,7 +5,7 @@ caa-streamworx is a code repository for the backend data pipeline development of
 The code in this repository is written in python and meant to be deployed on a databricks service running in a CRA azure subscription. Thus, it is largely a spark-based project. Since the deployment takes place in Azure, some dev ops are staged in the appropriate azure services, and some additional development takes place in notebooks which are not version-controlled here.
 
 # Installation/Deployment
-[Deployment of a new release on databricks using Azure Dev Ops](https://github.com/CRA-CAA/caa-streamworx/files/6880599/Creating.a.new.library.release.pdf)
+[Deployment of a new release on databricks using Azure Dev Ops](https://github.com/CRA-CAA/caa-streamworx/files/6894297/library.Release.pdf)
 
 # Project Structure
 This project consists of three broad categories of assets for constructing pipelines and machine learning models:
