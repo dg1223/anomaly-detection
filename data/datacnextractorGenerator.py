@@ -1,15 +1,11 @@
-from pyspark.context import SparkContext
-from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
     StructType,
     StructField,
     StringType,
 )
 
-from src.caaswx.spark.scripts import loadWriteParquet
+from src.caaswx.spark.scripts.loadWriteParquet import writeParquet
 
-sc = SparkContext("local")
-spark = SparkSession(sc)
 
 
 def generateCnExtractorData():
@@ -36,12 +32,12 @@ def generateCnExtractorData():
         ("asjkdhfbjksdlbaf", "asjkdhfbjksdlbaf"),
     ]
 
-    df1 = loadWriteParquet.writeParquet("F:\CRA\caa-streamworx\data\parquet_data\cn_extractor_tests\\",
-                                        "SM_USERNAME_2_example.parquet",
+    df1 = writeParquet("/home/vmadmin/PycharmProjects/sw-test/sagar/caa-streamworx/data/parquet_data/cn_extractor_tests/",
+                                        "SM_USERNAME_2_examples.parquet",
                                         testSchema, testData)
 
-    df2 = loadWriteParquet.writeParquet("F:\CRA\caa-streamworx\data\parquet_data\cn_extractor_tests\\",
-                                        "expected_SM_USERNAME_2_example.parquet", ansSchema, ansData)
+    df2 = writeParquet("/home/vmadmin/PycharmProjects/sw-test/sagar/caa-streamworx/data/parquet_data/cn_extractor_tests/",
+                                        "expected_SM_USERNAME_2_examples.parquet", ansSchema, ansData)
 
     df1.show()
     df2.show()
