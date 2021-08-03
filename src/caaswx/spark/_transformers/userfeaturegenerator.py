@@ -2,41 +2,16 @@
 A module to generate features regarding to user features
 """
 
+import pyspark.sql.functions as F
+
 # Import Essential packages
 from pyspark import keyword_only
-from pyspark.ml import Transformer, UnaryTransformer
+from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
-from pyspark.sql.functions import window
-
-from pyspark.sql.window import Window
-import pyspark.sql.functions as F
-from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import col, when, lag, isnull
-from pyspark.sql.types import StringType
-
-
-# CN Extractor: When you execute it please set the output to "SM_CN" (The default one)
-# Otherwise, you have to reset the entity name for transformer
-
-
-class CnExtractor(UnaryTransformer):
-    """
-    CN extractor: It is based on UnaryTransformerExtract CN features from SM_USERNAME
-    """
-
-    def createTransformFunc(self):
-        return lambda x: x if "cn=" not in x else x[x.index("cn=") + 3 : x.index(",")]
-
-    def outputDataType(self):
-        return StringType()
-
-    def validateInputType(self, inputType):
-        assert inputType == StringType(), f"Expected StringType() and found {inputType}"
-
-
-# Please uncomment next 2 line to generate SM_CN feature siteminder_df is the dataframe name
-# cns = CnExtractor().setInputCol('SM_USERNAME').setOutputCol('SM_CN')
-# siteminder_df = cns.transform(siteminder_df)
+from pyspark.sql.functions import regexp_extract
+from pyspark.sql.functions import window
+from pyspark.sql.window import Window
 
 
 def process_dataframe_with_window(dataset):
