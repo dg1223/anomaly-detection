@@ -32,15 +32,15 @@ def generateCnExtractorData():
     ]
 
     df1 = writeParquet(
-        "/home/vmadmin/PycharmProjects/sw-test/sagar/caa-streamworx/data/parquet_data/cn_extractor_tests/",
-        "SM_USERNAME_2_examples.parquet",
+        "/home/vmadmin/PycharmProjects/sw-test/sagar/caa-streamworx/data/parquet_data/cn_extractor_tests"
+        "/SM_USERNAME_2_examples.parquet",
         testSchema,
         testData,
     )
 
     df2 = writeParquet(
-        "/home/vmadmin/PycharmProjects/sw-test/sagar/caa-streamworx/data/parquet_data/cn_extractor_tests/",
-        "expected_SM_USERNAME_2_examples.parquet",
+        "/home/vmadmin/PycharmProjects/sw-test/sagar/caa-streamworx/data/parquet_data/cn_extractor_tests"
+        "/expected_SM_USERNAME_2_examples.parquet",
         ansSchema,
         ansData,
     )
