@@ -1,3 +1,4 @@
+import os
 from pyspark.sql.session import SparkSession
 
 spark = SparkSession.builder.getOrCreate()
@@ -5,9 +6,9 @@ spark = SparkSession.builder.getOrCreate()
 # from pyspark.shell import spark
 
 
-def load_test_data(file_name):
+def load_test_data(folder, file_name):
     """load test parquet_data from parquet_data by passing file name"""
-    path = "./data/parquet_data/"
-    path = path + file_name
+    cwd = os.getcwd()
+    path = os.path.join(cwd, folder, file_name)
     df = spark.read.parquet(path)
     return df
