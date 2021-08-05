@@ -1,4 +1,4 @@
-"""Module for writing parquet files given datasets alongwoth their schema"""
+"""Module for writing parquet files given datasets along with their schema"""
 from pyspark.context import SparkContext
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
