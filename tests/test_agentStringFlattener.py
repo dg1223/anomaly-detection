@@ -1,11 +1,17 @@
-from data.dataagentstringflattener import DataAgentStringFlattener
-
+# from data.dataagentstringflattener import DataAgentStringFlattener
+from src.caaswx.spark.scripts.loadWriteParquet import loadParquet
 
 # if parser is now working, run test_1, edit code in AgentStringFlattener to activate parser and uncomment block below
 def test_1():
-    data_importer = DataAgentStringFlattener()
-    result, ans_1_data = data_importer.ds1_base()
-
+    data_1 = loadParquet(
+        "/home/nds838/Documents/caa-streamworx/data/parquet_data/agent_flattener_tests"
+        "/test_data_1_agentflattener.parquet"
+    )
+    ans_1_data = loadParquet(
+        "/home/nds838/Documents/caa-streamworx/data/parquet_data/agent_flattener_tests"
+        "/ans_data_1_agentflattener.parquet"
+    )
+    result = parser()
     # content test
     assert result.subtract(ans_1_data).count() == 0
 
@@ -18,14 +24,20 @@ def test_1():
 
 # if parser is not working, run test_2, edit code in AgentStringFlattener to deactivate parser
 def test_2():
-    data_importer = DataAgentStringFlattener()
-    result, ans_1_data = data_importer.ds2_base()
+    data_2 = loadParquet(
+        "/home/nds838/Documents/caa-streamworx/data/parquet_data/agent_flattener_tests"
+        "/test_data_2_agentflattener.parquet"
+    )
+    ans_2_data = loadParquet(
+        "/home/nds838/Documents/caa-streamworx/data/parquet_data/agent_flattener_tests"
+        "/ans_data_2_agentflattener.parquet"
+    )
 
     # content test
-    assert result.subtract(ans_1_data).count() == 0
+    assert result.subtract(ans_2_data).count() == 0
 
     # schema test
-    assert result.schema == ans_1_data.schema
+    assert result.schema == ans_2_data.schema
 
     # row test
-    assert result.count() == ans_1_data.count()
+    assert result.count() == ans_2_data.count()
