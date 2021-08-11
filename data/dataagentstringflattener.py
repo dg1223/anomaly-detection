@@ -105,11 +105,6 @@ class DataAgentStringFlattener:
             agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=True
         ).transform(test_df)
 
-        #         print("result: ")
-        #         print(result)
-        #         print("ans: ")
-        #         print(ans_df)
-
         return result, ans_df
 
     def ds2_base(self):
