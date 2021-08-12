@@ -5,14 +5,15 @@ from pyspark.sql.types import StringType
 
 
 class SMResourceCleaner(Transformer):
-
     def resourceClean(self, row):
 
-        if (row.startswith("/cmsws") and ("redirect" in row) and ("SAML" in row)) or ("SAMLRequest" in row):
-            row = '<SAML request>'
+        if (row.startswith("/cmsws") and ("redirect" in row) and ("SAML" in row)) or (
+            "SAMLRequest" in row
+        ):
+            row = "<SAML request>"
 
-        if re.search('(\/).*?(\?)', row) is not None:
-            row = re.search('(\/).*?(\?)', row)[0] + "*"
+        if re.search("(\/).*?(\?)", row) is not None:
+            row = re.search("(\/).*?(\?)", row)[0] + "*"
 
         return row
 
@@ -37,7 +38,8 @@ class SMResourceCleaner(Transformer):
     def _transform(self, dataset):
 
         resourceclean_udf = udf(self.resourceClean, StringType())
-        df = dataset.withColumn("Cleaned_SM_RESOURCE", resourceclean_udf(col("SM_RESOURCE")))
+        df = dataset.withColumn(
+            "Cleaned_SM_RESOURCE", resourceclean_udf(col("SM_RESOURCE"))
+        )
 
         return df
-
