@@ -1,5 +1,6 @@
 from src.caaswx.spark._transformers.smrecourcecleaner import SMResourceCleaner
 from src.caaswx.spark.scripts.loadtestdata import load_test_data
+from src.caaswx.spark.scripts.loadtestdata import load_path
 from src.caaswx.spark.scripts.nullswap import nullSwap
 from pyspark.sql.types import StructType
 from pyspark.sql.session import SparkSession
@@ -22,17 +23,17 @@ spark = SparkSession.builder.getOrCreate()
 
 
 def test_1():
-    local_path = pathlib.Path().resolve()
-    df = spark.read.parquet(str(local_path)+"/data/parquet_data/sm_resource_tests/test_data.parquet")
+    df = load_test_data(
+        "data", "parquet_data", "sm_resource_tests", "test_data.parquet"
+    )
+    json_schema_path = load_path("data", "JSON", "sm_resource_tests", "ans_data_schema.json")
     result = SMResourceCleaner().transform(df)
 
-    ans_1_data = spark.read.parquet(str(local_path)+"/data/parquet_data/sm_resource_tests/ans_data.parquet")
-    df2_schema_filePath = (
-        str(local_path)+"/data/JSON/sm_resource_tests/ans_data_schema.json"
+    ans_1_data = load_test_data(
+        "data", "parquet_data", "sm_resource_tests", "ans_data.parquet"
     )
 
-    # ans_1_data = spark.read.json(df2_filePath)
-    with open(df2_schema_filePath) as json_file:
+    with open(json_schema_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
