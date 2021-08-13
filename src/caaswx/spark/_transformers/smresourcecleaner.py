@@ -12,13 +12,13 @@ class SMResourceCleaner(Transformer):
       Suggested Categorization: Strings containing the prefix '/cmsws' and substrings 'redirect' and 'SAML'.
       Action: Replace with the string '<SAML request>'
     2) Query strings
-      Suggested Categorization: Strings containing the character '?' after the last occurence of '/'.
+      Suggested Categorization: Strings containing the character '?' after the last occurrence of '/'.
       Action: Replace everything after the relevant '?' by '*'.
     3) Other strings
       Suggested Categorization: Take whatever's left over from the previous two categories that isn't null.
       Action: Do nothing.
   
-    Input: The dataframe containing SM_RESOUCE that needs needs to be cleaned.
+    Input: The dataframe containing SM_RESOURCE that needs needs to be cleaned.
     Output: Dataframe appended with cleaned SM_RESOURCE. 
   
     Notes: In some entries there may exist some long 
