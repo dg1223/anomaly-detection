@@ -37,7 +37,7 @@ class SMResourceCleaner(Transformer):
 
     def _transform(self, dataset):
 
-        resourceclean_udf = udf(self.resourceClean, StringType())
+        resourceclean_udf = pyspark.sql.functions.udf(self.resourceClean, StringType())
         df = dataset.withColumn(
             "Cleaned_SM_RESOURCE", resourceclean_udf(col("SM_RESOURCE"))
         )
