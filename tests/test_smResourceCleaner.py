@@ -28,7 +28,7 @@ def test_1():
 
     ans_1_data = spark.read.parquet(str(local_path)+"/data/parquet_data/sm_resource_tests/ans_data.parquet")
     df2_schema_filePath = (
-        str(local_path)+"/data/parquet_data/sm_resource_tests/ans_data_schema.json"
+        str(local_path)+"/data/JSON/sm_resource_tests/ans_data_schema.json"
     )
 
     # ans_1_data = spark.read.json(df2_filePath)
