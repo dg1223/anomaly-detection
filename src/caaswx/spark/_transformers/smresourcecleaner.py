@@ -26,8 +26,17 @@ class SMResourceCleaner(Transformer):
 
     def _transform(self, dataset):
 
-        dataset = dataset.withColumn("Cleaned_SM_RESOURCE", regexp_replace(
-            dataset["SM_RESOURCE"], "((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|.*(SAMLRequest).*", "<SAML Request>"))
-        dataset = dataset.withColumn("Cleaned_SM_RESOURCE", regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\?.*$", "?*"))
+        dataset = dataset.withColumn(
+            "Cleaned_SM_RESOURCE",
+            regexp_replace(
+                dataset["SM_RESOURCE"],
+                "((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|.*(SAMLRequest).*",
+                "<SAML Request>",
+            ),
+        )
+        dataset = dataset.withColumn(
+            "Cleaned_SM_RESOURCE",
+            regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\?.*$", "?*"),
+        )
 
         return dataset
