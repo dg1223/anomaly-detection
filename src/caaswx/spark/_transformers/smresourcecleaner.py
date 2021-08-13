@@ -5,18 +5,6 @@ from pyspark.sql.types import StringType
 
 
 class SMResourceCleaner(Transformer):
-    def resourceClean(self, row):
-
-        if (row.startswith("/cmsws") and ("redirect" in row) and ("SAML" in row)) or (
-            "SAMLRequest" in row
-        ):
-            row = "<SAML request>"
-
-        if re.search("(\/).*?(\?)", row) is not None:
-            row = re.search("(\/).*?(\?)", row)[0] + "*"
-
-        return row
-
     """
     Consolidates SM_RESOURCE elements to simplify redundant data, based off of the following criteria:
     1) SAML Requests
@@ -28,18 +16,25 @@ class SMResourceCleaner(Transformer):
     3) Other strings
       Suggested Categorization: Take whatever's left over from the previous two categories that isn't null.
       Action: Do nothing.
-  
+
     Input: The dataframe containing SM_RESOUCE that needs needs to be cleaned.
-    Output: Dataframe appended with cleaned SM_RESOURCE. 
-  
-    Notes: In some entries there may exist some long 
+    Output: Dataframe appended with cleaned SM_RESOURCE.
+
+    Notes: In some entries there may exist some long
     """
 
     def _transform(self, dataset):
-
-        resourceclean_udf = udf(self.resourceClean, StringType())
-        df = dataset.withColumn(
-            "Cleaned_SM_RESOURCE", resourceclean_udf(col("SM_RESOURCE"))
+        dataset = dataset.withColumn(
+            "Cleaned_SM_RESOURCE",
+            regexp_replace(
+                dataset["SM_RESOURCE"],
+                "((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|.*(SAMLRequest).*",
+                "<SAML Request>",
+            ),
+        )
+        dataset = dataset.withColumn(
+            "Cleaned_SM_RESOURCE",
+            regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\?.*$", "?*"),
         )
 
-        return df
+        return dataset
