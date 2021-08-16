@@ -1,22 +1,10 @@
-from src.caaswx.spark._transformers.smrecourcecleaner import SMResourceCleaner
-from src.caaswx.spark.scripts.loadtestdata import load_test_data
-from src.caaswx.spark.scripts.nullswap import nullSwap
-from pyspark.sql.types import StructType
-from pyspark.sql.session import SparkSession
 import json
-import json
-import pyspark.sql.functions as f
-import pyspark.sql.types
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    ArrayType,
-    TimestampType,
-)
-from pyspark.sql.session import SparkSession
-import os
 import pathlib
+
+import pyspark.sql.types
+from pyspark.sql.session import SparkSession
+from src.caaswx.spark._transformers.smresourcecleaner import SMResourceCleaner
+from src.caaswx.spark.scripts.nullswap import nullSwap
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -47,4 +35,5 @@ def test_1():
     assert result.schema == ans_1_data.schema
 
     # row test
+
     assert result.count() == ans_1_data.count()
