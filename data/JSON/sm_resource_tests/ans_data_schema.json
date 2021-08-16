@@ -1,0 +1,1 @@
+"{\"fields\":[{\"metadata\":{},\"name\":\"SM_RESOURCE\",\"nullable\":true,\"type\":\"string\"},{\"metadata\":{},\"name\":\"Cleaned_SM_RESOURCE\",\"nullable\":true,\"type\":\"string\"}],\"type\":\"struct\"}"
