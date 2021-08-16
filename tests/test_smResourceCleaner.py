@@ -1,4 +1,4 @@
-from src.caaswx.spark._transformers.smrecourcecleaner import SMResourceCleaner
+from src.caaswx.spark._transformers.smresourcecleaner import SMResourceCleaner
 from src.caaswx.spark.scripts.loadtestdata import load_test_data
 from src.caaswx.spark.scripts.loadtestdata import load_path
 from src.caaswx.spark.scripts.nullswap import nullSwap
