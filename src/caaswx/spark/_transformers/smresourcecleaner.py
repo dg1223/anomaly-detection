@@ -4,6 +4,7 @@ from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType
 from pyspark.sql.functions import regexp_replace
 
+
 class SMResourceCleaner(Transformer):
     """
     Consolidates SM_RESOURCE elements to simplify redundant data, based off of the following criteria:
