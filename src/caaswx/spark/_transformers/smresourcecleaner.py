@@ -1,5 +1,6 @@
 import re
 from pyspark.ml import Transformer
+from pyspark.sql.functions import regexp_replace
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType
 
@@ -28,13 +29,13 @@ class SMResourceCleaner(Transformer):
             "Cleaned_SM_RESOURCE",
             regexp_replace(
                 dataset["SM_RESOURCE"],
-                "((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|.*(SAMLRequest).*",
+                r"((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|.*(SAMLRequest).*",
                 "<SAML Request>",
             ),
         )
         dataset = dataset.withColumn(
             "Cleaned_SM_RESOURCE",
-            regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\?.*$", "?*"),
+            regexp_replace(dataset["Cleaned_SM_RESOURCE"], r"\?.*$", "?*"),
         )
 
         return dataset
