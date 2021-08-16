@@ -11,12 +11,16 @@ spark = SparkSession.builder.getOrCreate()
 
 def test_1():
     local_path = pathlib.Path().resolve()
-    df = spark.read.parquet(str(local_path)+"/data/parquet_data/sm_resource_tests/test_data.parquet")
+    df = spark.read.parquet(
+        str(local_path) + "/data/parquet_data/sm_resource_tests/test_data.parquet"
+    )
     result = SMResourceCleaner().transform(df)
 
-    ans_1_data = spark.read.parquet(str(local_path)+"/data/parquet_data/sm_resource_tests/ans_data.parquet")
+    ans_1_data = spark.read.parquet(
+        str(local_path) + "/data/parquet_data/sm_resource_tests/ans_data.parquet"
+    )
     df2_schema_filePath = (
-        str(local_path)+"/data/JSON/sm_resource_tests/ans_data_schema.json"
+        str(local_path) + "/data/JSON/sm_resource_tests/ans_data_schema.json"
     )
 
     # ans_1_data = spark.read.json(df2_filePath)
@@ -35,5 +39,4 @@ def test_1():
     assert result.schema == ans_1_data.schema
 
     # row test
-
     assert result.count() == ans_1_data.count()
