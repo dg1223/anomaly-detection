@@ -15,7 +15,7 @@ class SMResourceCleaner(Transformer):
       Action: Replace everything after the relevant '?' by '*'.
     3) URLs ending with '%'
       Strip off the trailing '%'
-    4) URLs which start with 'SMASSERTIONREF' are quite long and contain the substring '/cmsws/public/saml2sso'. 
+    4) URLs which start with 'SMASSERTIONREF' are quite long and contain the substring '/cmsws/public/saml2sso'.
       To cleanup these long URLs, replace the entire string with '/cmsws/public/saml2sso'.
     5) Other strings
       Suggested Categorization: Take whatever's left over from the previous two categories that isn't null.
@@ -38,15 +38,18 @@ class SMResourceCleaner(Transformer):
             "Cleaned_SM_RESOURCE",
             regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\?.*$", "?*"),
         )
-        
+
         dataset = dataset.withColumn(
             "Cleaned_SM_RESOURCE",
             regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\%$", ""),
         )
         dataset = dataset.withColumn(
             "Cleaned_SM_RESOURCE",
-            regexp_replace(dataset["Cleaned_SM_RESOURCE"], ".*\%.*(\/cmsws\/public\/saml2sso).*", "/cmsws/public/saml2sso"),
+            regexp_replace(
+                dataset["Cleaned_SM_RESOURCE"],
+                ".*\%.*(\/cmsws\/public\/saml2sso).*",
+                "/cmsws/public/saml2sso",
+            ),
         )
 
         return dataset
-
