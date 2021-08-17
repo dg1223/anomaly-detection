@@ -30,24 +30,24 @@ class SMResourceCleaner(Transformer):
             "Cleaned_SM_RESOURCE",
             regexp_replace(
                 dataset["SM_RESOURCE"],
-                "((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|\/(SAMLRequest).*",
+                r"((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|\/(SAMLRequest).*",
                 "<SAML Request>",
             ),
         )
         dataset = dataset.withColumn(
             "Cleaned_SM_RESOURCE",
-            regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\?.*$", "?*"),
+            regexp_replace(dataset["Cleaned_SM_RESOURCE"], r"\?.*$", "?*"),
         )
 
         dataset = dataset.withColumn(
             "Cleaned_SM_RESOURCE",
-            regexp_replace(dataset["Cleaned_SM_RESOURCE"], "\%$", ""),
+            regexp_replace(dataset["Cleaned_SM_RESOURCE"], r"\%$", ""),
         )
         dataset = dataset.withColumn(
             "Cleaned_SM_RESOURCE",
             regexp_replace(
                 dataset["Cleaned_SM_RESOURCE"],
-                ".*\%.*(\/cmsws\/public\/saml2sso).*",
+                r".*\%.*(\/cmsws\/public\/saml2sso).*",
                 "/cmsws/public/saml2sso",
             ),
         )
