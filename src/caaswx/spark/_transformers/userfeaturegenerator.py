@@ -125,11 +125,10 @@ class UserFeatureGenerator(Transformer):
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(
-            F.count(when(col("SM_EVENTID") == 7, True)).alias("COUNT_ADMIN_LOGIN"),
             F.count(when(col("SM_EVENTID") == 8, True)).alias("COUNT_ADMIN_LOGOUT"),
             F.count(when(col("SM_EVENTID") == 1, True)).alias("COUNT_AUTH_ACCEPT"),
             F.count(when(col("SM_EVENTID") == 3, True)).alias("COUNT_ADMIN_ATTEMPT"),
-            F.count(when(col("SM_EVENTID") == 2, True)).alias("COUNT_ADMIN_REJECT"),
+            F.count(when(col("SM_EVENTID") == 2, True)).alias("COUNT_AUTH_REJECT"),
             F.count(when(col("SM_EVENTID") == 5, True)).alias("COUNT_AZ_ACCEPT"),
             F.count(when(col("SM_EVENTID") == 6, True)).alias("COUNT_AZ_REJECT"),
             F.count(when(col("SM_EVENTID") == 10, True)).alias("COUNT_AUTH_LOGOUT"),
