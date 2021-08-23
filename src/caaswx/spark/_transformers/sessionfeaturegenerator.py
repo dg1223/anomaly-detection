@@ -14,36 +14,6 @@ from pyspark.sql.functions import window
 from pyspark.sql.window import Window
 
 
-def process_dataframe_with_window(dataset):
-    """
-    helper function for SessionFeatureGenerator class
-    :param dataset: Siteminder Dataset
-    :return: processed datasets based on time window
-    """
-    ts_window = Window.partitionBy("SM_CN").orderBy("SM_TIMESTAMP")
-
-    dataset = dataset.withColumn(
-        "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
-    )
-
-    dataset = dataset.withColumn(
-        "SM_CONSECUTIVE_TIME_DIFFERENCE",
-        when(
-            isnull(
-                dataset["SM_TIMESTAMP"].cast("long")
-                - dataset["SM_PREV_TIMESTAMP"].cast("long")
-            ),
-            0,
-        ).otherwise(
-            dataset["SM_TIMESTAMP"].cast("long")
-            - dataset["SM_PREV_TIMESTAMP"].cast("long")
-        ),
-    )
-
-    dataset = dataset.drop("SM_PREV_TIMESTAMP")
-    return dataset
-
-
 class SessionFeatureGenerator(Transformer):
     """
     Feature transformer for the swx project.
@@ -112,7 +82,28 @@ class SessionFeatureGenerator(Transformer):
         self._set(entity_name=value)
 
     def _transform(self, dataset):
-        dataset = process_dataframe_with_window(dataset)
+
+        ts_window = Window.partitionBy("CN").orderBy("SM_TIMESTAMP")
+
+        dataset = dataset.withColumn(
+            "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+        )
+
+        dataset = dataset.withColumn(
+            "SM_CONSECUTIVE_TIME_DIFFERENCE",
+            when(
+                isnull(
+                    dataset["SM_TIMESTAMP"].cast("long")
+                    - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                ),
+                0,
+            ).otherwise(
+                dataset["SM_TIMESTAMP"].cast("long")
+                - dataset["SM_PREV_TIMESTAMP"].cast("long")
+            ),
+        )
+
+        dataset = dataset.drop("SM_PREV_TIMESTAMP")
 
         return dataset.groupby(
             str(self.getOrDefault("entity_name")),
