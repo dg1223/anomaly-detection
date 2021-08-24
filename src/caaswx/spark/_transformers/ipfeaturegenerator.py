@@ -183,7 +183,9 @@ class IPFeatureGenerator(Transformer):
             F.countDistinct(col("SM_CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
             F.countDistinct(col("SM_RESOURCE")).alias("IP_COUNT_UNIQUE_RESOURCES"),
             F.countDistinct(col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
-            F.count(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)).alias(
+            (F.size(F.array_distinct(
+                F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            ))-1).alias(
                 "IP_COUNT_PORTAL_RAC"
             ),
             F.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
@@ -216,8 +218,5 @@ class IPFeatureGenerator(Transformer):
             F.min(col("SM_TIMESTAMP")).alias("IP_TIMESTAMP"),
             F.countDistinct(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)).alias(
                 "IP_COUNT_UNIQUE_OU"
-            ),
-            F.count(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)).alias(
-                "IP_COUNT_UNIQUE_REP"
             ),
         )
