@@ -1,5 +1,33 @@
 """
 A module to generate features regarding to session feature
+Input: A dataframe with a CN row.
+Output: A dataframe with the following features extracted:
+
+SESSION_APPS	            A distinct list of root nodes from each record in SM_RESOURCE during time window. 
+COUNT_UNIQUE_APPS	        A count of distinct root nodes from each record in SM_RESOURCE during time window.
+SESSION_USER    	        A distinct list of CNs in CN during time window. 
+COUNT_ADMIN_LOGIN      	    Count of Admin Login events during the time window, defined by sm_eventid = 7.
+COUNT_ADMIN_LOGOUT  	    Count of Admin Logout events during the time window, defined by sm_eventid = 8.
+COUNT_ADMIN_REJECT  	    Count of Admin Reject events during the time window, defined by sm_eventid = 2.
+COUNT_FAILED        	    Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.
+COUNT_VISIT         	    Count of Visit events during the time window, defined by sm_eventid = 13.
+COUNT_GET	                Count of all GET HTTP actions in SM_ACTION during the time window.
+COUNT_POST	                Count of all POST HTTP actions in SM_ACTION during the time window.
+COUNT_HTTP_METHODS	        Count of all GET and POST HTTP actions in SM_ACTION  during the time window.
+COUNT_RECORDS	            Counts number of CRA_SEQs (dataset primary key)
+COUNT_UNIQUE_ACTIONS   	    Count of distinct HTTP Actions in SM_ACTION during the time window.
+COUNT_UNIQUE_EVENTS	        Count of distinct EventIDs in SM_EVENTID  during the time window.
+COUNT_UNIQUE_USERNAME	    Count of distinct CNs in CN during the time window.
+COUNT_UNIQUE_RESOURCES	    Count of distinct Resource Strings in SM_RESOURCE during the time window.
+COUNT_UNIQUE_REP	        A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
+SESSION_SM_ACTION	        A distinct list of HTTP Actions in SM_ACTION during time window. 
+SESSION_RESOURCE	        A distinct list of Resource Strings in SM_RESOURCE during time window.
+SESSION_REP_APP	            A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
+SESSSION_FIRST_TIME_SEEN	Minimum time at which a record was logged during the time window.
+SESSSION_LAST_TIME_SEEN	    Maximum time at which a record was logged during the time window.
+SDV_BT_RECORDS	            Standard deviation of timestamp deltas during the time window. 
+
+
 """
 
 import pyspark.sql.functions as F
