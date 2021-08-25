@@ -147,9 +147,14 @@ class SessionFeatureGenerator(Transformer):
             F.countDistinct(col("SM_EVENTID")).alias("COUNT_UNIQUE_EVENTS"),
             F.countDistinct(col("SM_CLIENTIP")).alias("COUNT_UNIQUE_IPS"),
             F.countDistinct(col("SM_RESOURCE")).alias("COUNT_UNIQUE_RESOURCES"),
-            F.count(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)).alias(
-                "COUNT_UNIQUE_REP"
-            ),
+            (
+                F.size(
+                    F.array_distinct(
+                        F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                    )
+                )
+                - 1
+            ).alias("COUNT_UNIQUE_REP"),
             F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
                 "SESSION_SM_ACTION"
             ),

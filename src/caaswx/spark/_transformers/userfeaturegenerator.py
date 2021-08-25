@@ -199,9 +199,14 @@ class UserFeatureGenerator(Transformer):
             F.array_distinct(
                 F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
             ).alias("UNIQUE_USER_OU"),
-            F.count(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)).alias(
-                "COUNT_PORTAL_RAC"
-            ),
+            (
+                F.size(
+                    F.array_distinct(
+                        F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                    )
+                )
+                - 1
+            ).alias("COUNT_UNIQUE_REP"),
             F.array_distinct(
                 F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
             ).alias("UNIQUE_PORTAL_RAC"),
