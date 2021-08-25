@@ -1,3 +1,19 @@
+"""
+A module to generate features regarding to session feature
+Input: A dataframe.
+Output: A dataframe with the following features:
+
+StartTime	                        The beginning of a time window
+EndTime	                            The end of a time window
+VolOfAllLoginAttempts	            Number of all login attempts in the specified time window
+VolOfAllFailedLogins	            Number of all failed login attempts in the specified time window
+MaxOfFailedLoginsWithSameIPs	    Maximum Number of all failed login attempts with same IPs
+NumOfIPsLoginMultiAccounts	        Number of IPs used for logging into multiple accounts
+NumOfReqsToChangePasswords	        Number of requests to change passwords; see #65
+NumOfUsersWithEqualIntervalBtnReqs	Number of users with at least interval_threshold intervals between consecutive requests that are equal up to precision interval_epsilon
+
+"""
+
 import re
 import pyspark
 import numpy as np
