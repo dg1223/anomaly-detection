@@ -247,29 +247,48 @@ class UserFeatureGenerator(Transformer):
             F.array_distinct(F.collect_list(col("SM_SESSIONID"))).alias(
                 "SM_SESSION_IDS"
             ),
-            F.countDistinct(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)).alias(
-                "COUNT_UNIQUE_OU"
-            ),
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            F.size(
+                F.array_remove(
+                    F.array_distinct(
+                        F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+                    ),
+                    "",
+                )
+            ).alias("COUNT_UNIQUE_OU"),
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+                ),
+                "",
             ).alias("UNIQUE_USER_OU"),
-            (
-                F.size(
+            F.size(
+                F.array_remove(
                     F.array_distinct(
                         F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
-                    )
+                    ),
+                    "",
                 )
-                - 1
             ).alias("COUNT_UNIQUE_REP"),
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                ),
+                "",
             ).alias("UNIQUE_PORTAL_RAC"),
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+                ),
+                "",
             ).alias("UNIQUE_USER_APPS"),
-            F.countDistinct(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)).alias(
-                "COUNTUNIQUE_USER_APPS"
-            ),
+            F.size(
+                F.array_remove(
+                    F.array_distinct(
+                        F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+                    ),
+                    "",
+                )
+            ).alias("COUNTUNIQUE_USER_APPS"),
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
