@@ -14,7 +14,7 @@ IP_COUNT_AUTH_ACCEPT	    Count of Auth Accept events during the time window, def
 IP_COUNT_ADMIN_ATTEMPT  	Count of Admin Accept events during the time window, defined by sm_eventid = 3.
 IP_COUNT_AUTH_CHALLENGE 	Count of Auth Challenge events during the time window, defined by sm_eventid = 4.
 IP_COUNT_AUTH_LOGOUT    	Count of Auth Logout events during the time window, defined by sm_eventid = 10.
-IP_COUNT_ADMIN_REJECT   	Count of Admin Reject events during the time window, defined by sm_eventid = 2.
+IP_COUNT_AUTH_REJECT   	    Count of Auth Reject events during the time window, defined by sm_eventid = 2.
 IP_COUNT_AZ_ACCEPT  	    Count of Az Accept events during the time window, defined by sm_eventid = 5.
 IP_COUNT_AZ_REJECT  	    Count of Az Reject events during the time window, defined by sm_eventid = 6.
 IP_COUNT_FAILED 	        Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.
@@ -178,7 +178,7 @@ class IPFeatureGenerator(Transformer):
                 "IP_COUNT_AUTH_CHALLENGE"
             ),
             F.count(when(col("SM_EVENTID") == 10, True)).alias("IP_COUNT_AUTH_LOGOUT"),
-            F.count(when(col("SM_EVENTID") == 2, True)).alias("IP_COUNT_ADMIN_REJECT"),
+            F.count(when(col("SM_EVENTID") == 2, True)).alias("IP_COUNT_AUTH_REJECT"),
             F.count(when(col("SM_EVENTID") == 5, True)).alias("IP_COUNT_AZ_ACCEPT"),
             F.count(when(col("SM_EVENTID") == 6, True)).alias("IP_COUNT_AZ_REJECT"),
             F.count(
