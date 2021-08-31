@@ -166,7 +166,9 @@ class IPFeatureGenerator(Transformer):
             F.array_distinct(
                 F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
             ).alias("IP_APP"),
-            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 15).alias("IP_AVG_TIME_BT_RECORDS"),
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 15).alias(
+                "IP_AVG_TIME_BT_RECORDS"
+            ),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MIN_TIME_BT_RECORDS"),
             F.count(when(col("SM_EVENTID") == 7, True)).alias("IP_COUNT_ADMIN_LOGIN"),
