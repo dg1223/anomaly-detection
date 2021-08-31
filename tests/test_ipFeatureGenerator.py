@@ -16,7 +16,7 @@ def test_1():
         "data", "parquet_data", "ip_feature_generator_tests", "df.parquet"
     )
 
-    result = IPFeatureGenerator(df)
+    result = IPFeatureGenerator.transform(df)
 
     ans_1_data = load_test_data(
         "data", "parquet_data", "ip_feature_generator_tests", "ans_data.parquet"
