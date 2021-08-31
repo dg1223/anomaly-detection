@@ -194,5 +194,7 @@ class SessionFeatureGenerator(Transformer):
             ).alias("SESSION_REP_APP"),
             F.min(col("SM_TIMESTAMP")).alias("SESSSION_FIRST_TIME_SEEN"),
             F.max(col("SM_TIMESTAMP")).alias("SESSSION_LAST_TIME_SEEN"),
-            F.round(F.stddev("SM_CONSECUTIVE_TIME_DIFFERENCE"),15).alias("SDV_BT_RECORDS"),
+            F.round(F.stddev("SM_CONSECUTIVE_TIME_DIFFERENCE"),15).alias(
+                "SDV_BT_RECORDS"
+            ),
         )
