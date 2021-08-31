@@ -66,7 +66,7 @@ from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
 from pyspark.sql.window import Window
-
+from cnextractor import CnExtractor
 
 # Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
@@ -106,7 +106,7 @@ class UserFeatureGenerator(Transformer):
         def __init__(self, *, window_length = 900, window_step = 900)
         """
         super().__init__()
-        self._setDefault(entity_name="SM_CN", window_length=900, window_step=900)
+        self._setDefault(entity_name="CN", window_length=900, window_step=900)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -139,9 +139,11 @@ class UserFeatureGenerator(Transformer):
         self._set(window_step=value)
 
     def _transform(self, dataset):
-
-        ts_window = Window.partitionBy("CN").orderBy("SM_TIMESTAMP")
-
+        pivot = str(self.getOrDefault("entity_name"))
+        dataset_copy = dataset
+        ts_window = Window.partitionBy(str(self.getOrDefault("entity_name"))).orderBy(
+            "SM_TIMESTAMP"
+        )
         dataset = dataset.withColumn(
             "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
         )
@@ -161,9 +163,12 @@ class UserFeatureGenerator(Transformer):
         )
 
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
-
-        return dataset.groupby(
-            str(self.getOrDefault("entity_name")),
+        ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
+            F.countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+        )
+        dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
+        dataset = dataset.groupby(
+            pivot,
             window(
                 "SM_TIMESTAMP",
                 str(self.getOrDefault("window_length")) + " seconds",
@@ -230,7 +235,7 @@ class UserFeatureGenerator(Transformer):
             F.countDistinct(col("SM_EVENTID")).alias("COUNT_UNIQUE_EVENTS"),
             F.countDistinct(col("SM_RESOURCE")).alias("COUNT_UNIQUE_RESOURCES"),
             F.countDistinct(col("SM_SESSIONID")).alias("COUNT_UNIQUE_SESSIONS"),
-            F.countDistinct(col("SM_CN")).alias("COUNT_UNIQUE_USERNAME"),
+            F.countDistinct(col("CN")).alias("COUNT_UNIQUE_USERNAME"),
             F.count(col("CRA_SEQ")).alias("COUNT_RECORDS"),
             F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
                 "UNIQUE_SM_ACTIONS"
@@ -247,50 +252,84 @@ class UserFeatureGenerator(Transformer):
             F.array_distinct(F.collect_list(col("SM_SESSIONID"))).alias(
                 "SM_SESSION_IDS"
             ),
-            F.size(
-                F.array_remove(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
-                    ),
-                    "",
-                )
-            ).alias("COUNT_UNIQUE_OU"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
-                ),
-                "",
+            F.countDistinct(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)).alias(
+                "COUNT_UNIQUE_OU"
+            ),
+            F.array_distinct(
+                F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
             ).alias("UNIQUE_USER_OU"),
-            F.size(
-                F.array_remove(
+            (
+                F.size(
                     F.array_distinct(
                         F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
-                    ),
-                    "",
+                    )
                 )
+                - 1
             ).alias("COUNT_UNIQUE_REP"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
-                ),
-                "",
+            F.array_distinct(
+                F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
             ).alias("UNIQUE_PORTAL_RAC"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
-                ),
-                "",
+            F.array_distinct(
+                F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
             ).alias("UNIQUE_USER_APPS"),
-            F.size(
-                F.array_remove(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
-                    ),
-                    "",
-                )
-            ).alias("COUNTUNIQUE_USER_APPS"),
+            F.countDistinct(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)).alias(
+                "COUNTUNIQUE_USER_APPS"
+            ),
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
             F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("AVG_TIME_BT_RECORDS"),
+            F.count(
+                when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
+            ).alias("UserLoginAttempts"),
+            F.count(
+                when(dataset["SM_RESOURCE"].contains("changePassword"), True)
+            ).alias("UserNumOfPasswordChange"),
+            F.sum("distinct_usernames_for_ip").alias(
+                "UserNumOfAccountsLoginWithSameIPs"
+            ),
+            F.sort_array(F.collect_set("SM_AGENTNAME")).alias("browsersList"),
         )
+
+        agent_window = Window.partitionBy(pivot).orderBy("window")
+        dataset = dataset.withColumn(
+            "SM_PREVIOUS_AGENTNAME", F.lag(dataset["browsersList"]).over(agent_window)
+        )
+        dataset = dataset.withColumn(
+            "UserIsUsingUnusualBrowser",
+            F.when(
+                (F.isnull("SM_PREVIOUS_AGENTNAME"))
+                | (dataset["browsersList"] == dataset["SM_PREVIOUS_AGENTNAME"]),
+                0,
+            ).otherwise(1),
+        )
+        dataset = dataset.drop("browsersList")
+        dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
+        UserAvgFailedLoginsWithSameIPs_df = (
+            dataset_copy.groupby(
+                pivot,
+                "SM_CLIENTIP",
+                window(
+                    "SM_TIMESTAMP",
+                    str(self.getOrDefault("window_length")) + " seconds",
+                    str(self.getOrDefault("window_step")) + " seconds",
+                ),
+            )
+            .agg(
+                F.count(
+                    when(
+                        (dataset_copy["SM_EVENTID"] == 2)
+                        | (dataset_copy["SM_EVENTID"] == 6)
+                        | (dataset_copy["SM_EVENTID"] == 9)
+                        | (dataset_copy["SM_EVENTID"] == 12),
+                        True,
+                    )
+                ).alias("countOfFailedLogins")
+            )
+            .groupBy(pivot, "window")
+            .agg(F.avg("countOfFailedLogins").alias("UserAvgFailedLoginsWithSameIPs"))
+        )
+
+        dataset = dataset.join(UserAvgFailedLoginsWithSameIPs_df, [pivot, "window"])
+
+        return dataset
