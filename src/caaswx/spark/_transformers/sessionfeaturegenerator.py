@@ -147,7 +147,7 @@ class SessionFeatureGenerator(Transformer):
             F.countDistinct(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)).alias(
                 "COUNT_UNIQUE_APPS"
             ),
-            F.array_distinct(F.collect_list(col("SM_CN"))).alias("SESSION_USER"),
+            F.array_distinct(F.collect_list(col("CN"))).alias("SESSION_USER"),
             F.count(when(col("SM_EVENTID") == 7, True)).alias("COUNT_ADMIN_LOGIN"),
             F.count(when(col("SM_EVENTID") == 8, True)).alias("COUNT_ADMIN_LOGOUT"),
             F.count(when(col("SM_EVENTID") == 3, True)).alias("COUNT_AUTH_ATTEMPT"),
@@ -194,5 +194,5 @@ class SessionFeatureGenerator(Transformer):
             ).alias("SESSION_REP_APP"),
             F.min(col("SM_TIMESTAMP")).alias("SESSSION_FIRST_TIME_SEEN"),
             F.max(col("SM_TIMESTAMP")).alias("SESSSION_LAST_TIME_SEEN"),
-            F.stddev("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("SDV_BT_RECORDS"),
+            F.round(F.stddev("SM_CONSECUTIVE_TIME_DIFFERENCE"),15).alias("SDV_BT_RECORDS"),
         )
