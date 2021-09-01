@@ -295,8 +295,9 @@ class UserFeatureGenerator(Transformer):
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
-            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"),5).alias("AVG_TIME_BT_RECORDS"),
-
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 5).alias(
+                "AVG_TIME_BT_RECORDS"
+            ),
             F.count(
                 when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
             ).alias("UserLoginAttempts"),
@@ -307,7 +308,6 @@ class UserFeatureGenerator(Transformer):
                 "UserNumOfAccountsLoginWithSameIPs"
             ),
             F.sort_array(F.collect_set("SM_AGENTNAME")).alias("browsersList"),
-
         )
 
         agent_window = Window.partitionBy(pivot).orderBy("window")
@@ -352,4 +352,3 @@ class UserFeatureGenerator(Transformer):
         dataset = dataset.join(UserAvgFailedLoginsWithSameIPs_df, [pivot, "window"])
 
         return dataset
-
