@@ -65,33 +65,6 @@ from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
 from pyspark.sql.window import Window
-from pyspark.ml import UnaryTransformer
-from pyspark.sql.types import StringType
-
-
-class CnExtractor(UnaryTransformer):
-    def __init__(self, setInputCol, setOutputCol):
-        super(CnExtractor, self).__init__()
-        self.setOutputCol(setOutputCol)
-        self.setInputCol(setInputCol)
-
-    def outputDataType(self):
-        return StringType()
-
-    def validateInputType(self, inputType) -> None:
-        if inputType != StringType():
-            raise Exception("Invalid inputType")
-
-    def cleanUsername(self, row: str) -> str:
-        row = row.split(",", 2)[0]
-        if "cn=" in row:
-            return row.split("=")[1]
-        else:
-            return row
-
-    def createTransformFunc(self):
-        return self.cleanUsername
-
 
 # Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
@@ -322,9 +295,8 @@ class UserFeatureGenerator(Transformer):
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
-            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 5).alias(
-                "AVG_TIME_BT_RECORDS"
-            ),
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"),5).alias("AVG_TIME_BT_RECORDS"),
+
             F.count(
                 when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
             ).alias("UserLoginAttempts"),
@@ -335,6 +307,7 @@ class UserFeatureGenerator(Transformer):
                 "UserNumOfAccountsLoginWithSameIPs"
             ),
             F.sort_array(F.collect_set("SM_AGENTNAME")).alias("browsersList"),
+
         )
 
         agent_window = Window.partitionBy(pivot).orderBy("window")
@@ -379,3 +352,4 @@ class UserFeatureGenerator(Transformer):
         dataset = dataset.join(UserAvgFailedLoginsWithSameIPs_df, [pivot, "window"])
 
         return dataset
+
