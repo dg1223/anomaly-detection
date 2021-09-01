@@ -92,6 +92,7 @@ class CnExtractor(UnaryTransformer):
     def createTransformFunc(self):
         return self.cleanUsername
 
+
 # Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
 # Otherwise, we have no SM_CN feature
@@ -321,7 +322,9 @@ class UserFeatureGenerator(Transformer):
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
-            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"),5).alias("AVG_TIME_BT_RECORDS"),
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 5).alias(
+                "AVG_TIME_BT_RECORDS"
+            ),
             F.count(
                 when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
             ).alias("UserLoginAttempts"),
