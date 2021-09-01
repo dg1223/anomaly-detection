@@ -12,11 +12,12 @@ spark = SparkSession.builder.getOrCreate()
 
 def test_1():
 
-    test_df = spark.read.parquet(
-        "./data/parquet_data/ip_feature_generator_tests/df.parquet"
+    test_df = load_test_data(
+        "data", "parquet_data", "ip_feature_generator_tests", "df.parquet"
     )
-    ans_1_data = spark.read.parquet(
-        "./data/parquet_data/ip_feature_generator_tests/ans_data.parquet"
+
+    ans_1_data = load_test_data(
+        "data", "parquet_data", "ip_feature_generator_tests", "ans_data.parquet"
     )
 
     fg = IPFeatureGenerator()
