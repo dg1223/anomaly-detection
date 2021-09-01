@@ -166,7 +166,9 @@ class IPFeatureGenerator(Transformer):
             F.array_distinct(
                 F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
             ).alias("IP_APP"),
-            F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_AVG_TIME_BT_RECORDS"),
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 15).alias(
+                "IP_AVG_TIME_BT_RECORDS"
+            ),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MIN_TIME_BT_RECORDS"),
             F.count(when(col("SM_EVENTID") == 7, True)).alias("IP_COUNT_ADMIN_LOGIN"),
@@ -227,7 +229,7 @@ class IPFeatureGenerator(Transformer):
             ),
             F.countDistinct(col("SM_ACTION")).alias("IP_COUNT_UNIQUE_ACTIONS"),
             F.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
-            F.countDistinct(col("SM_CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
+            F.countDistinct(col("CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
             F.countDistinct(col("SM_RESOURCE")).alias("IP_COUNT_UNIQUE_RESOURCES"),
             F.countDistinct(col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
             (
@@ -249,7 +251,7 @@ class IPFeatureGenerator(Transformer):
             F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
                 "IP_UNIQUE_SM_ACTIONS"
             ),
-            F.array_distinct(F.collect_list(col("SM_CN"))).alias("IP_UNIQUE_USERNAME"),
+            F.array_distinct(F.collect_list(col("CN"))).alias("IP_UNIQUE_USERNAME"),
             F.array_distinct(F.collect_list(col("SM_SESSIONID"))).alias(
                 "IP_UNIQUE_SM_SESSION"
             ),

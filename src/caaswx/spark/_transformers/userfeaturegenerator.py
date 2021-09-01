@@ -2,7 +2,6 @@
 A module to generate features regarding to session feature
 Input: A dataframe with a CN row.
 Output: A dataframe with the following features extracted:
-
 COUNT_ADMIN_LOGOUT              	Count of Admin Logout events during the time window, defined by sm_eventid = 8.
 COUNT_AUTH_ACCEPT	                Count of Auth Accept events during the time window, defined by sm_eventid = 1.
 COUNT_ADMIN_ATTEMPT             	Count of Admin Accept events during the time window, defined by sm_eventid = 3.
@@ -20,13 +19,13 @@ COUNT_FAILED                    	Count of all Reject events during the time wind
 COUNT_GET	                        Count of all GET HTTP actions in SM_ACTION during the time window.
 COUNT_POST	                        Count of all POST HTTP actions in SM_ACTION during the time window.
 COUNT_HTTP_METHODS	                Count of all GET and POST HTTP actions in SM_ACTION  during the time window.
-COUNT_OU_AMS	                    Count of all “ams” or “AMS” occurrences in SM_USERNAME OR SM_RESOURCE during the time window.
-COUNT_OU_CMS                    	Count of all “cra-cp” occurrences in SM_USERNAME during the time window.
-COUNT_OU_IDENTITY               	Count of all “ou=Identity” occurrences in SM_USERNAME during the time window.
-COUNT_OU_CRED                   	Count of all “ou=Credential” occurrences in SM_USERNAME during the time window.
-COUNT_OU_SECUREKEY              	Count of all “ou=SecureKey” occurrences in SM_USERNAME during the time window.
-COUNT_PORTAL_MYA                	Count of all “mima” occurrences in SM_RESOURCE during the time window.
-COUNT_PORTAL_MYBA               	Count of all “myba” occurrences in SM_RESOURCE during the time window.
+COUNT_OU_AMS	                    Count of all ams or AMS occurrences in SM_USERNAME OR SM_RESOURCE during the time window.
+COUNT_OU_CMS                    	Count of all cra-cp occurrences in SM_USERNAME during the time window.
+COUNT_OU_IDENTITY               	Count of all ou=Identity occurrences in SM_USERNAME during the time window.
+COUNT_OU_CRED                   	Count of all ou=Credential occurrences in SM_USERNAME during the time window.
+COUNT_OU_SECUREKEY              	Count of all ou=SecureKey occurrences in SM_USERNAME during the time window.
+COUNT_PORTAL_MYA                	Count of all mima occurrences in SM_RESOURCE during the time window.
+COUNT_PORTAL_MYBA               	Count of all myba occurrences in SM_RESOURCE during the time window.
 COUNT_UNIQUE_ACTIONS            	Count of distinct HTTP Actions in SM_ACTION during the time window.
 COUNT_UNIQUE_IPS                	Count of distinct IPs in SM_CLIENTIP during the time window.
 COUNT_UNIQUE_EVENTS	                Count of distinct EventIDs in SM_EVENTID  during the time window.
@@ -34,15 +33,15 @@ COUNT_UNIQUE_USERNAME	            Count of distinct CNs in CN during the time wi
 COUNT_UNIQUE_RESOURCES          	Count of distinct Resource Strings in SM_RESOURCE during the time window.
 COUNT_UNIQUE_SESSIONS           	Count of distinct SessionIDs in SM_SESSIONID during the time window.
 COUNT_RECORDS	                    Counts number of CRA_SEQs (dataset primary key)
-UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window. 
-UNIQUE_SM_CLIENTIPS	                A distinct list of IPs in SM_CLIENTIPS during time window. 
-UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window. 
+UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window.
+UNIQUE_SM_CLIENTIPS	                A distinct list of IPs in SM_CLIENTIPS during time window.
+UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window.
 UNIQUE_SM_TRANSACTIONS          	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.
 SM_SESSION_IDS                  	A distinct list of SessionIDs in SM_SESSIONID during the time window.
-COUNT_UNIQUE_OU                 	A count of distinct Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.
-UNIQUE_USER_OU                  	A distinct list of Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.
-COUNT_PORTAL_RAC                	A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
-UNIQUE_PORTAL_RAC               	A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
+COUNT_UNIQUE_OU                 	A count of distinct Entries containing ou= and a string ending in , in SM_USERNAME during time window.
+UNIQUE_USER_OU                  	A distinct list of Entries containing ou= and a string ending in , in SM_USERNAME during time window.
+COUNT_PORTAL_RAC                	A count of Entries containing rep followed by a string ending in / in SM_RESOURCE during time window.
+UNIQUE_PORTAL_RAC               	A distinct list of Entries containing rep followed by a string ending in / in SM_RESOURCE during time window.
 UNIQUE_USER_APPS                	A distinct list of root nodes from each record in SM_RESOURCE during time window.
 COUNTUNIQUE_USER_APPS           	A count of distinct root nodes from each record in SM_RESOURCE during time window.
 USER_TIMESTAMP	                    Minimum timestamp in SM_TIMESTAMP during time window.
@@ -50,7 +49,7 @@ AVG_TIME_BT_RECORDS             	Average time between records during the time wi
 MAX_TIME_BT_RECORDS	                Maximum time between records during the time window.
 MIN_TIME_BT_RECORDS	                Minimum time between records during the time window.
 UserLoginAttempts	                Total number of login attempts from the user within the specified time window
-UserAvgFailedLoginsWithSameIPs	    Average number of failed logins with same IPs from the user (Note: the user may use multiple IPs; for each of the IPs, count the failed logins; then compute the average values of failed logins from all the IPs used by the same user)	
+UserAvgFailedLoginsWithSameIPs	    Average number of failed logins with same IPs from the user (Note: the user may use multiple IPs; for each of the IPs, count the failed logins; then compute the average values of failed logins from all the IPs used by the same user)
 UserNumOfAccountsLoginWithSameIPs	Total number of accounts visited by the IPs used by this user (this might be tricky to implement and expensive to compute, open to nixing).
 UserNumOfPasswordChange	            Total number of requests for changing passwords by the user (See Seeing a password change from the events in `raw_logs` #65)
 UserIsUsingUnusualBrowser	        Whether or not the browser used by the user in current time window is same as that in the previous time window, or any change within the current time window
@@ -66,7 +65,6 @@ from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
 from pyspark.sql.window import Window
-from cnextractor import CnExtractor
 
 # Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
@@ -297,7 +295,9 @@ class UserFeatureGenerator(Transformer):
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
-            F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("AVG_TIME_BT_RECORDS"),
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 5).alias(
+                "AVG_TIME_BT_RECORDS"
+            ),
             F.count(
                 when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
             ).alias("UserLoginAttempts"),
