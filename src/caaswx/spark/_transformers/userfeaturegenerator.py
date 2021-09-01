@@ -2,7 +2,6 @@
 A module to generate features regarding to session feature
 Input: A dataframe with a CN row.
 Output: A dataframe with the following features extracted:
-
 COUNT_ADMIN_LOGOUT              	Count of Admin Logout events during the time window, defined by sm_eventid = 8.
 COUNT_AUTH_ACCEPT	                Count of Auth Accept events during the time window, defined by sm_eventid = 1.
 COUNT_ADMIN_ATTEMPT             	Count of Admin Accept events during the time window, defined by sm_eventid = 3.
@@ -20,13 +19,13 @@ COUNT_FAILED                    	Count of all Reject events during the time wind
 COUNT_GET	                        Count of all GET HTTP actions in SM_ACTION during the time window.
 COUNT_POST	                        Count of all POST HTTP actions in SM_ACTION during the time window.
 COUNT_HTTP_METHODS	                Count of all GET and POST HTTP actions in SM_ACTION  during the time window.
-COUNT_OU_AMS	                    Count of all “ams” or “AMS” occurrences in SM_USERNAME OR SM_RESOURCE during the time window.
-COUNT_OU_CMS                    	Count of all “cra-cp” occurrences in SM_USERNAME during the time window.
-COUNT_OU_IDENTITY               	Count of all “ou=Identity” occurrences in SM_USERNAME during the time window.
-COUNT_OU_CRED                   	Count of all “ou=Credential” occurrences in SM_USERNAME during the time window.
-COUNT_OU_SECUREKEY              	Count of all “ou=SecureKey” occurrences in SM_USERNAME during the time window.
-COUNT_PORTAL_MYA                	Count of all “mima” occurrences in SM_RESOURCE during the time window.
-COUNT_PORTAL_MYBA               	Count of all “myba” occurrences in SM_RESOURCE during the time window.
+COUNT_OU_AMS	                    Count of all ams or AMS occurrences in SM_USERNAME OR SM_RESOURCE during the time window.
+COUNT_OU_CMS                    	Count of all cra-cp occurrences in SM_USERNAME during the time window.
+COUNT_OU_IDENTITY               	Count of all ou=Identity occurrences in SM_USERNAME during the time window.
+COUNT_OU_CRED                   	Count of all ou=Credential occurrences in SM_USERNAME during the time window.
+COUNT_OU_SECUREKEY              	Count of all ou=SecureKey occurrences in SM_USERNAME during the time window.
+COUNT_PORTAL_MYA                	Count of all mima occurrences in SM_RESOURCE during the time window.
+COUNT_PORTAL_MYBA               	Count of all myba occurrences in SM_RESOURCE during the time window.
 COUNT_UNIQUE_ACTIONS            	Count of distinct HTTP Actions in SM_ACTION during the time window.
 COUNT_UNIQUE_IPS                	Count of distinct IPs in SM_CLIENTIP during the time window.
 COUNT_UNIQUE_EVENTS	                Count of distinct EventIDs in SM_EVENTID  during the time window.
@@ -34,15 +33,15 @@ COUNT_UNIQUE_USERNAME	            Count of distinct CNs in CN during the time wi
 COUNT_UNIQUE_RESOURCES          	Count of distinct Resource Strings in SM_RESOURCE during the time window.
 COUNT_UNIQUE_SESSIONS           	Count of distinct SessionIDs in SM_SESSIONID during the time window.
 COUNT_RECORDS	                    Counts number of CRA_SEQs (dataset primary key)
-UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window. 
-UNIQUE_SM_CLIENTIPS	                A distinct list of IPs in SM_CLIENTIPS during time window. 
-UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window. 
+UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window.
+UNIQUE_SM_CLIENTIPS	                A distinct list of IPs in SM_CLIENTIPS during time window.
+UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window.
 UNIQUE_SM_TRANSACTIONS          	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.
 SM_SESSION_IDS                  	A distinct list of SessionIDs in SM_SESSIONID during the time window.
-COUNT_UNIQUE_OU                 	A count of distinct Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.
-UNIQUE_USER_OU                  	A distinct list of Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.
-COUNT_PORTAL_RAC                	A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
-UNIQUE_PORTAL_RAC               	A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
+COUNT_UNIQUE_OU                 	A count of distinct Entries containing ou= and a string ending in , in SM_USERNAME during time window.
+UNIQUE_USER_OU                  	A distinct list of Entries containing ou= and a string ending in , in SM_USERNAME during time window.
+COUNT_PORTAL_RAC                	A count of Entries containing rep followed by a string ending in / in SM_RESOURCE during time window.
+UNIQUE_PORTAL_RAC               	A distinct list of Entries containing rep followed by a string ending in / in SM_RESOURCE during time window.
 UNIQUE_USER_APPS                	A distinct list of root nodes from each record in SM_RESOURCE during time window.
 COUNTUNIQUE_USER_APPS           	A count of distinct root nodes from each record in SM_RESOURCE during time window.
 USER_TIMESTAMP	                    Minimum timestamp in SM_TIMESTAMP during time window.
@@ -50,7 +49,7 @@ AVG_TIME_BT_RECORDS             	Average time between records during the time wi
 MAX_TIME_BT_RECORDS	                Maximum time between records during the time window.
 MIN_TIME_BT_RECORDS	                Minimum time between records during the time window.
 UserLoginAttempts	                Total number of login attempts from the user within the specified time window
-UserAvgFailedLoginsWithSameIPs	    Average number of failed logins with same IPs from the user (Note: the user may use multiple IPs; for each of the IPs, count the failed logins; then compute the average values of failed logins from all the IPs used by the same user)	
+UserAvgFailedLoginsWithSameIPs	    Average number of failed logins with same IPs from the user (Note: the user may use multiple IPs; for each of the IPs, count the failed logins; then compute the average values of failed logins from all the IPs used by the same user)
 UserNumOfAccountsLoginWithSameIPs	Total number of accounts visited by the IPs used by this user (this might be tricky to implement and expensive to compute, open to nixing).
 UserNumOfPasswordChange	            Total number of requests for changing passwords by the user (See Seeing a password change from the events in `raw_logs` #65)
 UserIsUsingUnusualBrowser	        Whether or not the browser used by the user in current time window is same as that in the previous time window, or any change within the current time window
@@ -66,7 +65,32 @@ from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
 from pyspark.sql.window import Window
+from pyspark.ml import UnaryTransformer
+from pyspark.sql.types import StringType
 
+
+class CnExtractor(UnaryTransformer):
+    def __init__(self, setInputCol, setOutputCol):
+        super(CnExtractor, self).__init__()
+        self.setOutputCol(setOutputCol)
+        self.setInputCol(setInputCol)
+
+    def outputDataType(self):
+        return StringType()
+
+    def validateInputType(self, inputType) -> None:
+        if inputType != StringType():
+            raise Exception("Invalid inputType")
+
+    def cleanUsername(self, row: str) -> str:
+        row = row.split(",", 2)[0]
+        if "cn=" in row:
+            return row.split("=")[1]
+        else:
+            return row
+
+    def createTransformFunc(self):
+        return self.cleanUsername
 
 # Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
@@ -106,7 +130,7 @@ class UserFeatureGenerator(Transformer):
         def __init__(self, *, window_length = 900, window_step = 900)
         """
         super().__init__()
-        self._setDefault(entity_name="SM_CN", window_length=900, window_step=900)
+        self._setDefault(entity_name="CN", window_length=900, window_step=900)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -139,9 +163,11 @@ class UserFeatureGenerator(Transformer):
         self._set(window_step=value)
 
     def _transform(self, dataset):
-
-        ts_window = Window.partitionBy("CN").orderBy("SM_TIMESTAMP")
-
+        pivot = str(self.getOrDefault("entity_name"))
+        dataset_copy = dataset
+        ts_window = Window.partitionBy(str(self.getOrDefault("entity_name"))).orderBy(
+            "SM_TIMESTAMP"
+        )
         dataset = dataset.withColumn(
             "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
         )
@@ -161,9 +187,12 @@ class UserFeatureGenerator(Transformer):
         )
 
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
-
-        return dataset.groupby(
-            str(self.getOrDefault("entity_name")),
+        ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
+            F.countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+        )
+        dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
+        dataset = dataset.groupby(
+            pivot,
             window(
                 "SM_TIMESTAMP",
                 str(self.getOrDefault("window_length")) + " seconds",
@@ -230,7 +259,7 @@ class UserFeatureGenerator(Transformer):
             F.countDistinct(col("SM_EVENTID")).alias("COUNT_UNIQUE_EVENTS"),
             F.countDistinct(col("SM_RESOURCE")).alias("COUNT_UNIQUE_RESOURCES"),
             F.countDistinct(col("SM_SESSIONID")).alias("COUNT_UNIQUE_SESSIONS"),
-            F.countDistinct(col("SM_CN")).alias("COUNT_UNIQUE_USERNAME"),
+            F.countDistinct(col("CN")).alias("COUNT_UNIQUE_USERNAME"),
             F.count(col("CRA_SEQ")).alias("COUNT_RECORDS"),
             F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
                 "UNIQUE_SM_ACTIONS"
@@ -292,5 +321,58 @@ class UserFeatureGenerator(Transformer):
             F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
             F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
             F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
-            F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("AVG_TIME_BT_RECORDS"),
+            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"),5).alias("AVG_TIME_BT_RECORDS"),
+            F.count(
+                when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
+            ).alias("UserLoginAttempts"),
+            F.count(
+                when(dataset["SM_RESOURCE"].contains("changePassword"), True)
+            ).alias("UserNumOfPasswordChange"),
+            F.sum("distinct_usernames_for_ip").alias(
+                "UserNumOfAccountsLoginWithSameIPs"
+            ),
+            F.sort_array(F.collect_set("SM_AGENTNAME")).alias("browsersList"),
         )
+
+        agent_window = Window.partitionBy(pivot).orderBy("window")
+        dataset = dataset.withColumn(
+            "SM_PREVIOUS_AGENTNAME", F.lag(dataset["browsersList"]).over(agent_window)
+        )
+        dataset = dataset.withColumn(
+            "UserIsUsingUnusualBrowser",
+            F.when(
+                (F.isnull("SM_PREVIOUS_AGENTNAME"))
+                | (dataset["browsersList"] == dataset["SM_PREVIOUS_AGENTNAME"]),
+                0,
+            ).otherwise(1),
+        )
+        dataset = dataset.drop("browsersList")
+        dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
+        UserAvgFailedLoginsWithSameIPs_df = (
+            dataset_copy.groupby(
+                pivot,
+                "SM_CLIENTIP",
+                window(
+                    "SM_TIMESTAMP",
+                    str(self.getOrDefault("window_length")) + " seconds",
+                    str(self.getOrDefault("window_step")) + " seconds",
+                ),
+            )
+            .agg(
+                F.count(
+                    when(
+                        (dataset_copy["SM_EVENTID"] == 2)
+                        | (dataset_copy["SM_EVENTID"] == 6)
+                        | (dataset_copy["SM_EVENTID"] == 9)
+                        | (dataset_copy["SM_EVENTID"] == 12),
+                        True,
+                    )
+                ).alias("countOfFailedLogins")
+            )
+            .groupBy(pivot, "window")
+            .agg(F.avg("countOfFailedLogins").alias("UserAvgFailedLoginsWithSameIPs"))
+        )
+
+        dataset = dataset.join(UserAvgFailedLoginsWithSameIPs_df, [pivot, "window"])
+
+        return dataset
