@@ -141,12 +141,20 @@ class SessionFeatureGenerator(Transformer):
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+                ),
+                "",
             ).alias("SESSION_APPS"),
-            F.countDistinct(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)).alias(
-                "COUNT_UNIQUE_APPS"
-            ),
+            F.size(
+                F.array_remove(
+                    F.array_distinct(
+                        F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+                    ),
+                    "",
+                )
+            ).alias("COUNT_UNIQUE_APPS"),
             F.array_distinct(F.collect_list(col("CN"))).alias("SESSION_USER"),
             F.count(when(col("SM_EVENTID") == 7, True)).alias("COUNT_ADMIN_LOGIN"),
             F.count(when(col("SM_EVENTID") == 8, True)).alias("COUNT_ADMIN_LOGOUT"),
@@ -177,20 +185,27 @@ class SessionFeatureGenerator(Transformer):
             F.countDistinct(col("SM_RESOURCE")).alias("COUNT_UNIQUE_RESOURCES"),
             (
                 F.size(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                    F.array_remove(
+                        F.array_distinct(
+                            F.collect_list(
+                                regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
+                            )
+                        ),
+                        "",
                     )
-                )
-                - 1
-            ).alias("COUNT_UNIQUE_REP"),
+                ).alias("COUNT_UNIQUE_REP")
+            ),
             F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
                 "SESSION_SM_ACTION"
             ),
             F.array_distinct(F.collect_list(col("SM_RESOURCE"))).alias(
                 "SESSION_RESOURCE"
             ),
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                ),
+                "",
             ).alias("SESSION_REP_APP"),
             F.min(col("SM_TIMESTAMP")).alias("SESSSION_FIRST_TIME_SEEN"),
             F.max(col("SM_TIMESTAMP")).alias("SESSSION_LAST_TIME_SEEN"),
