@@ -242,9 +242,9 @@ class IPFeatureGenerator(Transformer):
                             F.collect_list(
                                 regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
                             )
-                        )
+                        ),
+                        "",
                     ),
-                    "",
                 )
             ).alias("IP_COUNT_PORTAL_RAC"),
             F.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
