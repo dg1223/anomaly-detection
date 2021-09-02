@@ -58,7 +58,15 @@ from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
-from pyspark.sql.types import StructType, ArrayType, TimestampType, LongType, StringType, StructField, DoubleType
+from pyspark.sql.types import (
+    StructType,
+    ArrayType,
+    TimestampType,
+    LongType,
+    StringType,
+    StructField,
+    DoubleType,
+)
 from pyspark.sql.window import Window
 
 
@@ -137,18 +145,28 @@ class IPFeatureGenerator(Transformer):
             for sf in st1:
                 sf.nullable = st2[sf.name].nullable
                 if isinstance(sf.dataType, StructType):
-                    if not set([sf.name for sf in st1]).issubset(set([sf.name for sf in st2])):
-                        raise ValueError("Keys for first schema aren't a subset of the second.")
+                    if not set([sf.name for sf in st1]).issubset(
+                        set([sf.name for sf in st2])
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the second."
+                        )
                     nullSwap(sf.dataType, st2[sf.name].dataType)
                 if isinstance(sf.dataType, ArrayType):
                     sf.dataType.containsNull = st2[sf.name].dataType.containsNull
 
-        sch_dict = {"SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()], "SM_EVENTID": ["SM_EVENTID", LongType()],
-                    "SM_RESOURCE": ["SM_RESOURCE", StringType()], "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
-                    "CN": ["CN", StringType()],"SM_ACTION": ["SM_ACTION", StringType()],
-                    "SM_USERNAME": ["SM_USERNAME", StringType()],"SM_SESSIONID": ["SM_SESSIONID", StringType()],
-                    "CRA_SEQ": ["CRA_SEQ", DoubleType()],"SM_TRANSACTIONID": ["SM_TRANSACTIONID", StringType()]
-                    }
+        sch_dict = {
+            "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+            "SM_EVENTID": ["SM_EVENTID", LongType()],
+            "SM_RESOURCE": ["SM_RESOURCE", StringType()],
+            "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
+            "CN": ["CN", StringType()],
+            "SM_ACTION": ["SM_ACTION", StringType()],
+            "SM_USERNAME": ["SM_USERNAME", StringType()],
+            "SM_SESSIONID": ["SM_SESSIONID", StringType()],
+            "CRA_SEQ": ["CRA_SEQ", DoubleType()],
+            "SM_TRANSACTIONID": ["SM_TRANSACTIONID", StringType()],
+        }
         sch_list = []
         for x in sch_dict.keys():
             sch_list.append(StructField(sch_dict[x][0], sch_dict[x][1]))
