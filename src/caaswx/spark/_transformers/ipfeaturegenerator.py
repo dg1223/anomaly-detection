@@ -58,6 +58,15 @@ from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
+from pyspark.sql.types import (
+    StructType,
+    ArrayType,
+    TimestampType,
+    LongType,
+    StringType,
+    StructField,
+    DoubleType,
+)
 from pyspark.sql.window import Window
 
 
@@ -128,11 +137,51 @@ class IPFeatureGenerator(Transformer):
         """
         self._set(entity_name=value)
 
+    def test_Schema(self, incomingSchema):
+        def nullSwap(st1, st2):
+            """Function to swap datatype null parameter within a nested dataframe schema"""
+            if not set([sf.name for sf in st1]).issubset(set([sf.name for sf in st2])):
+                raise ValueError("Keys for first schema aren't a subset of the second.")
+            for sf in st1:
+                sf.nullable = st2[sf.name].nullable
+                if isinstance(sf.dataType, StructType):
+                    if not set([sf.name for sf in st1]).issubset(
+                        set([sf.name for sf in st2])
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the second."
+                        )
+                    nullSwap(sf.dataType, st2[sf.name].dataType)
+                if isinstance(sf.dataType, ArrayType):
+                    sf.dataType.containsNull = st2[sf.name].dataType.containsNull
+
+        sch_dict = {
+            "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+            "SM_EVENTID": ["SM_EVENTID", LongType()],
+            "SM_RESOURCE": ["SM_RESOURCE", StringType()],
+            "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
+            "CN": ["CN", StringType()],
+            "SM_ACTION": ["SM_ACTION", StringType()],
+            "SM_USERNAME": ["SM_USERNAME", StringType()],
+            "SM_SESSIONID": ["SM_SESSIONID", StringType()],
+            "CRA_SEQ": ["CRA_SEQ", DoubleType()],
+            "SM_TRANSACTIONID": ["SM_TRANSACTIONID", StringType()],
+        }
+        sch_list = []
+        for x in sch_dict.keys():
+            sch_list.append(StructField(sch_dict[x][0], sch_dict[x][1]))
+        schema = StructType(sch_list)
+        nullSwap(schema, incomingSchema)
+        if not (sum([x not in schema for x in incomingSchema]) > 0):
+            raise ValueError("Keys for first schema aren't a subset of the second.")
+
     def _transform(self, dataset):
         """
         Transforms the given dataset by deriving IP features
         and returning a new dataframe of those features
         """
+        self.test_Schema(dataset.schema)
+
         ts_window = Window.partitionBy("CN").orderBy("SM_TIMESTAMP")
 
         dataset = dataset.withColumn(
