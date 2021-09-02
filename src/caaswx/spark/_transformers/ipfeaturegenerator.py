@@ -163,8 +163,11 @@ class IPFeatureGenerator(Transformer):
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+                ),
+                "",
             ).alias("IP_APP"),
             F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 15).alias(
                 "IP_AVG_TIME_BT_RECORDS"
@@ -234,11 +237,15 @@ class IPFeatureGenerator(Transformer):
             F.countDistinct(col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
             (
                 F.size(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
-                    )
+                    F.array_remove(
+                        F.array_distinct(
+                            F.collect_list(
+                                regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
+                            )
+                        ),
+                        "",
+                    ),
                 )
-                - 1
             ).alias("IP_COUNT_PORTAL_RAC"),
             F.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
             F.count(when(col("SM_EVENTID") == 13, True)).alias("IP_COUNT_VISIT"),
@@ -261,14 +268,25 @@ class IPFeatureGenerator(Transformer):
             F.array_distinct(F.collect_list(col("SM_TRANSACTIONID"))).alias(
                 "IP_UNIQUE_SM_TRANSACTIONS"
             ),
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+                ),
+                "",
             ).alias("IP_UNIQUE_USER_OU"),
-            F.array_distinct(
-                F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            F.array_remove(
+                F.array_distinct(
+                    F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                ),
+                "",
             ).alias("IP_UNIQUE_REP_APP"),
             F.min(col("SM_TIMESTAMP")).alias("IP_TIMESTAMP"),
-            F.countDistinct(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)).alias(
-                "IP_COUNT_UNIQUE_OU"
-            ),
+            F.size(
+                F.array_remove(
+                    F.array_distinct(
+                        F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+                    ),
+                    "",
+                )
+            ).alias("IP_COUNT_UNIQUE_OU"),
         )
