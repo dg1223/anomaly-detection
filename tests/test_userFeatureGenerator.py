@@ -3,9 +3,7 @@ import pathlib
 
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-from src.caaswx.spark._transformers.userfeaturegenerator import (
-    UserFeatureGenerator,
-)
+from src.caaswx.spark._transformers.userfeaturegenerator import UserFeatureGenerator
 from src.caaswx.spark.scripts.nullswap import nullSwap
 from src.caaswx.spark.scripts.loadtestdata import load_test_data, load_path
 
