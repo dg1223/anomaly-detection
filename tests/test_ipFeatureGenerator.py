@@ -20,6 +20,17 @@ def test_1():
         "data", "parquet_data", "ip_feature_generator_tests", "ans_data.parquet"
     )
 
+    df2_schema_filePath = load_path(
+        "data", "JSON", "ip_feature_generator_tests", "ans_data_schema.json"
+    )
+
+    # ans_1_data = spark.read.json(df2_filePath)
+    with open(df2_schema_filePath) as json_file:
+        ans_1_data_schema = json.load(json_file)
+
+    ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
+        json.loads(ans_1_data_schema)
+    )
     fg = IPFeatureGenerator()
     result = fg.transform(test_df)
 
@@ -28,3 +39,7 @@ def test_1():
 
     # row test
     assert result.count() == ans_1_data.count()
+
+    # schema test
+    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    assert result.schema == ans_1_data.schema
