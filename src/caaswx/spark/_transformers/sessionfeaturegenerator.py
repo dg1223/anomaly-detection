@@ -46,6 +46,7 @@ from pyspark.sql.types import (
     StringType,
     StructField,
     TimestampType,
+    DoubleType,
 )
 from pyspark.sql.window import Window
 
@@ -142,7 +143,7 @@ class SessionFeatureGenerator(Transformer):
             "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
             "CN": ["CN", StringType()],
             "SM_ACTION": ["SM_ACTION", StringType()],
-            "CRA_SEQ": ["CRA_SEQ", LongType()],
+            "CRA_SEQ": ["CRA_SEQ", DoubleType()],
         }
         sch_list = []
         for x in sch_dict.keys():
