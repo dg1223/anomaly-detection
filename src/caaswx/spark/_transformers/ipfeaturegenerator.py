@@ -91,21 +91,13 @@ class IPFeatureGenerator(Transformer):
         typeConverter=TypeConverters.toInt,
     )
 
-    entity_name = Param(
-        Params._dummy(),
-        "entity_name",
-        "Name of the column to perform aggregation on, together with the "
-        + "sliding window.",
-        typeConverter=TypeConverters.toString,
-    )
-
     @keyword_only
     def __init__(self):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
         super().__init__()
-        self._setDefault(entity_name="SM_SESSIONID", window_length=900, window_step=900)
+        self._setDefault(window_length=900, window_step=900)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -130,12 +122,6 @@ class IPFeatureGenerator(Transformer):
         Sets this IPFeatureGenerator's window step size.
         """
         self._set(window_step=value)
-
-    def set_entity_name(self, value):
-        """
-        Sets this IPFeatureGenerator's window step size.
-        """
-        self._set(entity_name=value)
 
     def test_Schema(self, incomingSchema):
         def nullSwap(st1, st2):
@@ -182,7 +168,7 @@ class IPFeatureGenerator(Transformer):
         """
         self.test_Schema(dataset.schema)
 
-        ts_window = Window.partitionBy("CN").orderBy("SM_TIMESTAMP")
+        ts_window = Window.partitionBy("SM_CLIENTIP").orderBy("SM_TIMESTAMP")
 
         dataset = dataset.withColumn(
             "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
@@ -205,7 +191,7 @@ class IPFeatureGenerator(Transformer):
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
 
         return dataset.groupby(
-            str(self.getOrDefault("entity_name")),
+            "SM_CLIENTIP",
             window(
                 "SM_TIMESTAMP",
                 str(self.getOrDefault("window_length")) + " seconds",
