@@ -1,3 +1,4 @@
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 from pyspark.sql.types import StringType
 import pyspark.sql.functions as F
 from pyspark.sql.functions import when, col, regexp_replace
@@ -9,7 +10,6 @@ from pyspark.ml.param.shared import (
     HasOutputCol,
 )
 from pyspark import keyword_only
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
