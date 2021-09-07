@@ -1,12 +1,6 @@
-import re
-from pyspark.ml import Transformer
-from pyspark.sql.functions import col, udf, regexp_replace
+from pyspark.sql.functions import regexp_replace
 from pyspark.sql.types import StringType
-from pyspark.ml import Transformer
 from pyspark.ml.param.shared import (
-    TypeConverters,
-    Param,
-    Params,
     HasInputCol,
     HasOutputCol,
 )
