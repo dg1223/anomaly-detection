@@ -41,7 +41,7 @@ class SparkNativeTransformer(Transformer):
             sch_list.append(StructField(sch_dict[x][0], sch_dict[x][1]))
         schema = StructType(sch_list)
         nullSwap(schema, incomingSchema)
-        if not (sum([x not in schema for x in incomingSchema]) > 0):
+        if any([x not in incomingSchema for x in schema]):
             raise ValueError("Keys for first schema aren't a subset of the second.")
 
     def transform(self, dataset, params=None):
