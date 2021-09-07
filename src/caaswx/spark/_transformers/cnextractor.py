@@ -18,12 +18,17 @@ class CnExtractor(Transformer, HasInputCol, HasOutputCol):
 
     Notes:
     - Assumes the "cn=" and its contents are not at the end of the SM_USERNAME
+    - Reminder that dict must change if SM_USERNAME is no longer used
     """
 
     @keyword_only
     def __init__(self):
+        """
+        init (by default)
+        inputCol: SM_USERNAME
+        outputCol: CN
+        """
         super(CnExtractor, self).__init__()
-
         self._setDefault(
             inputCol="SM_USERNAME",
             outputCol="CN"
@@ -40,35 +45,46 @@ class CnExtractor(Transformer, HasInputCol, HasOutputCol):
         return self._set(**kwargs)
 
     def set_input_col(self, value):
+        """
+        Sets the input column value
+        """
         self._set(inputCol=value)
 
     def set_output_col(self, value):
+        """
+        Sets the output column value
+        """
         self._set(outputCol=value)
 
-    def _transform(self, dataset):
-        #     print(type(self.inputCol))
-        #     input = ""
-        inputc = self.inputCol
-        #     input = "SM_USERNAME"
-        outputc = "CN2"
-        print(inputc)
-        #     print(getInputCol())
+    sch_dict = {
+        "SM_USERNAME": ["SM_USERNAME", StringType()],
+    }
 
+    def _transform(self, dataset):
+        """
+        Transform the new CN column
+        Params:
+        - dataset: dataframe containing SM_USERNAME, to have CN extracted
+
+        Returns:
+        - dataset with CN appended
+        """
         dataset = dataset.withColumn(
-            outputc,
+            self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset[inputc],
+                dataset[self.getOrDefault("inputCol")],
                 r".*(cn=)",
                 ""
             )
         )
         dataset = dataset.withColumn(
-            outputc,
+            self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset[outputc],
+                dataset[self.getOrDefault("outputCol")],
                 r"(,.*)$",
                 ""
             )
         )
 
         return dataset
+
