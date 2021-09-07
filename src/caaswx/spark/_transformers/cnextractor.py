@@ -2,7 +2,13 @@ from pyspark.ml import Transformer
 from pyspark.sql.types import StringType
 import pyspark.sql.functions as F
 from pyspark.sql.functions import when, col, regexp_replace
-from pyspark.ml.param.shared import TypeConverters, Param, Params, HasInputCol, HasOutputCol
+from pyspark.ml.param.shared import (
+    TypeConverters,
+    Param,
+    Params,
+    HasInputCol,
+    HasOutputCol,
+)
 from pyspark import keyword_only
 
 
@@ -29,10 +35,7 @@ class CnExtractor(Transformer, HasInputCol, HasOutputCol):
         outputCol: CN
         """
         super(CnExtractor, self).__init__()
-        self._setDefault(
-            inputCol="SM_USERNAME",
-            outputCol="CN"
-        )
+        self._setDefault(inputCol="SM_USERNAME", outputCol="CN")
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -71,20 +74,11 @@ class CnExtractor(Transformer, HasInputCol, HasOutputCol):
         """
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
-            regexp_replace(
-                dataset[self.getOrDefault("inputCol")],
-                r".*(cn=)",
-                ""
-            )
+            regexp_replace(dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""),
         )
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
-            regexp_replace(
-                dataset[self.getOrDefault("outputCol")],
-                r"(,.*)$",
-                ""
-            )
+            regexp_replace(dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""),
         )
 
         return dataset
-
