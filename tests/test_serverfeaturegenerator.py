@@ -33,7 +33,7 @@ def test_no_of_users():
     )
 
     # write the schema in JSON file
-    with open(df2_schema_filePath, 'w') as outfile:
+    with open(df2_schema_filePath, "w") as outfile:
         json.dump(result.schema.json(), outfile)
 
     with open(df2_schema_filePath) as json_file:
@@ -142,6 +142,7 @@ def test_mulitple_ip_fails():
 
     nullSwap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
+
 
 def test_two_windows():
     fg = ServerFeatureGenerator()
@@ -270,4 +271,3 @@ def test_two_windows_multiple_ips():
 
     nullSwap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
-
