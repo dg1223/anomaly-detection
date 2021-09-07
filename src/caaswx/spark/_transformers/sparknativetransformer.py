@@ -8,7 +8,7 @@ from pyspark.sql.types import (
     StructField,
     DateType,
     FloatType,
-    ArrayType
+    ArrayType,
 )
 
 from pyspark.ml import Transformer
@@ -21,7 +21,6 @@ store schema as dict with blah format
 
 
 class SparkNativeTransformer(Transformer):
-
     def test_Schema(self, incomingSchema, sch_dict):
         def nullSwap(st1, st2):
             """Function to swap datatype null parameter within a nested dataframe schema"""
@@ -30,8 +29,12 @@ class SparkNativeTransformer(Transformer):
             for sf in st1:
                 sf.nullable = st2[sf.name].nullable
                 if isinstance(sf.dataType, StructType):
-                    if not set([sf.name for sf in st1]).issubset(set([sf.name for sf in st2])):
-                        raise ValueError("Keys for first schema aren't a subset of the second.")
+                    if not set([sf.name for sf in st1]).issubset(
+                        set([sf.name for sf in st2])
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the second."
+                        )
                     nullSwap(sf.dataType, st2[sf.name].dataType)
                 if isinstance(sf.dataType, ArrayType):
                     sf.dataType.containsNull = st2[sf.name].dataType.containsNull

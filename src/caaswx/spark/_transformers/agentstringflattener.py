@@ -189,7 +189,11 @@ class AgentStringFlattener(SparkNativeTransformer):
 
         return base
 
-    sch_dict = {"SM_CLIENTIP":["SM_CLIENTIP",StringType()],"SM_TIMESTAMP":["SM_TIMESTAMP",TimestampType()], "SM_AGENTNAME":["SM_AGENTNAME",StringType()]}
+    sch_dict = {
+        "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
+        "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+        "SM_AGENTNAME": ["SM_AGENTNAME", StringType()],
+    }
 
     def _transform(self, dataset):
         """

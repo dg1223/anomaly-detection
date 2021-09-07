@@ -26,9 +26,7 @@ class SMResourceCleaner(SparkNativeTransformer):
     Notes: In some entries there may exist some long
     """
 
-    sch_dict = {
-        "SM_RESOURCE": ["SM_RESOURCE", StringType()]
-    }
+    sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
 
     def _transform(self, dataset):
         dataset = dataset.withColumn(
