@@ -2,9 +2,10 @@ import re
 from pyspark.ml import Transformer
 from pyspark.sql.functions import col, udf, regexp_replace
 from pyspark.sql.types import StringType
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 
-class SMResourceCleaner(Transformer):
+class SMResourceCleaner(SparkNativeTransformer):
     """
     Consolidates SM_RESOURCE elements to simplify redundant data, based off of the following criteria:
     1) SAML Requests
@@ -24,6 +25,10 @@ class SMResourceCleaner(Transformer):
     Output: Dataframe appended with cleaned SM_RESOURCE.
     Notes: In some entries there may exist some long
     """
+
+    sch_dict = {
+        "SM_RESOURCE": ["SM_RESOURCE", StringType()]
+    }
 
     def _transform(self, dataset):
         dataset = dataset.withColumn(
