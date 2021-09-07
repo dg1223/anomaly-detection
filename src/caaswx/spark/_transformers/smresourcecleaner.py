@@ -2,10 +2,19 @@ import re
 from pyspark.ml import Transformer
 from pyspark.sql.functions import col, udf, regexp_replace
 from pyspark.sql.types import StringType
+from pyspark.ml import Transformer
+from pyspark.ml.param.shared import (
+    TypeConverters,
+    Param,
+    Params,
+    HasInputCol,
+    HasOutputCol,
+)
 from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
+from pyspark import keyword_only
 
 
-class SMResourceCleaner(SparkNativeTransformer):
+class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
     Consolidates SM_RESOURCE elements to simplify redundant data, based off of the following criteria:
     1) SAML Requests
@@ -26,30 +35,62 @@ class SMResourceCleaner(SparkNativeTransformer):
     Notes: In some entries there may exist some long
     """
 
+    @keyword_only
+    def __init__(self):
+        """
+        init (by default)
+        inputCol: SM_RESOURCE
+        outputCol: Cleaned_SM_RESOURCE
+        """
+        super(SMResourceCleaner, self).__init__()
+        self._setDefault(inputCol="SM_RESOURCE", outputCol="Cleaned_SM_RESOURCE")
+        kwargs = self._input_kwargs
+        self.set_params(**kwargs)
+
+    @keyword_only
+    def set_params(self):
+        """
+        Sets params for the SM_RESOURCE Cleaner
+        """
+        kwargs = self._input_kwargs
+        return self._set(**kwargs)
+
+    def set_input_col(self, value):
+        """
+        Sets the input column value
+        """
+        self._set(inputCol=value)
+
+    def set_output_col(self, value):
+        """
+        Sets the output column value
+        """
+        self._set(outputCol=value)
+
     sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
 
     def _transform(self, dataset):
         dataset = dataset.withColumn(
-            "Cleaned_SM_RESOURCE",
+            self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset["SM_RESOURCE"],
+                dataset[self.getOrDefault("inputCol")],
                 r"((\/cmsws).*((redirect).*(SAML)|(SAML).*(redirect))).*|\/(SAMLRequest).*",
                 "<SAML Request>",
             ),
         )
         dataset = dataset.withColumn(
-            "Cleaned_SM_RESOURCE",
-            regexp_replace(dataset["Cleaned_SM_RESOURCE"], r"\?.*$", "?*"),
+            self.getOrDefault("outputCol"),
+            regexp_replace(dataset[self.getOrDefault("outputCol")], r"\?.*$", "?*"),
         )
 
         dataset = dataset.withColumn(
-            "Cleaned_SM_RESOURCE",
-            regexp_replace(dataset["Cleaned_SM_RESOURCE"], r"\%$", ""),
+            self.getOrDefault("outputCol"),
+            regexp_replace(dataset[self.getOrDefault("outputCol")], r"\%$", ""),
         )
         dataset = dataset.withColumn(
-            "Cleaned_SM_RESOURCE",
+            self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset["Cleaned_SM_RESOURCE"],
+                dataset[self.getOrDefault("outputCol")],
                 r".*\%.*(\/cmsws\/public\/saml2sso).*",
                 "/cmsws/public/saml2sso",
             ),
