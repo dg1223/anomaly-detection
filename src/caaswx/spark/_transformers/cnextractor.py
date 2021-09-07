@@ -11,16 +11,15 @@ from pyspark.ml.param.shared import (
 )
 from pyspark import keyword_only
 
+
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
     Creates a CN column using the existing SM_USERNAME column
     by:
     - Removing the "cn=" all chars before it
     - Removing the characters after the first comma (including the comma)
-
     Input: Dataframe containing an SM_USERNAME that has a CN
     Output: Same dataframe with a CN column appended
-
     Notes:
     - Assumes the "cn=" and its contents are not at the end of the SM_USERNAME
     - Reminder that dict must change if SM_USERNAME is no longer used
@@ -67,7 +66,6 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
         Transform the new CN column
         Params:
         - dataset: dataframe containing SM_USERNAME, to have CN extracted
-
         Returns:
         - dataset with CN appended
         """
