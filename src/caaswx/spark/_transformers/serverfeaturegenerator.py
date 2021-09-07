@@ -14,64 +14,29 @@ NumOfUsersWithEqualIntervalBtnReqs	Number of users with at least interval_thresh
 
 """
 
-import re
-import pyspark
-import numpy as np
+import pyspark.sql.functions as F
 from pyspark import keyword_only
 from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
-from pyspark.sql.functions import window, col, pandas_udf, PandasUDFType
-from pyspark.sql.types import (
-    LongType,
-    DoubleType,
-    StringType,
-    TimestampType,
-    StructType,
-    StructField,
-    DateType,
-    FloatType,
-)
-from pyspark.sql.window import Window
-import pyspark.sql.functions as F
 from pyspark.sql.functions import (
-    date_format,
-    to_date,
-    datediff,
-    lit,
-    to_timestamp,
-    countDistinct,
-    regexp_extract,
-    first,
-)
-from pyspark.sql.functions import (
-    col,
-    pandas_udf,
-    PandasUDFType,
-    max,
-    min,
-    udf,
     when,
-    collect_list,
-    collect_set,
     lag,
     isnull,
-    count,
 )
+from pyspark.sql.functions import window
 from pyspark.sql.types import (
     LongType,
-    DoubleType,
     StringType,
     TimestampType,
     StructType,
     StructField,
-    DateType,
-    FloatType,
-    IntegerType,
     ArrayType,
 )
+from pyspark.sql.window import Window
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 
-class ServerFeatureGenerator(Transformer):
+class ServerFeatureGenerator(SparkNativeTransformer):
     """
     Server feature transformer for the swx project.
     """
@@ -208,40 +173,15 @@ class ServerFeatureGenerator(Transformer):
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
         return dataset
 
-    def test_Schema(self, incomingSchema):
-        def nullSwap(st1, st2):
-            """Function to swap datatype null parameter within a nested dataframe schema"""
-            if not set([sf.name for sf in st1]).issubset(set([sf.name for sf in st2])):
-                raise ValueError("Keys for first schema aren't a subset of the second.")
-            for sf in st1:
-                sf.nullable = st2[sf.name].nullable
-                if isinstance(sf.dataType, StructType):
-                    if not set([sf.name for sf in st1]).issubset(
-                        set([sf.name for sf in st2])
-                    ):
-                        raise ValueError(
-                            "Keys for first schema aren't a subset of the second."
-                        )
-                    nullSwap(sf.dataType, st2[sf.name].dataType)
-                if isinstance(sf.dataType, ArrayType):
-                    sf.dataType.containsNull = st2[sf.name].dataType.containsNull
-
-        sch_dict = {
-            "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
-            "SM_EVENTID": ["SM_EVENTID", LongType()],
-            "SM_RESOURCE": ["SM_RESOURCE", StringType()],
-            "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
-        }
-        sch_list = []
-        for x in sch_dict.keys():
-            sch_list.append(StructField(sch_dict[x][0], sch_dict[x][1]))
-        schema = StructType(sch_list)
-        nullSwap(schema, incomingSchema)
-        if not (sum([x not in schema for x in incomingSchema]) > 0):
-            raise ValueError("Keys for first schema aren't a subset of the second.")
+    sch_dict = {
+        "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+        "SM_EVENTID": ["SM_EVENTID", LongType()],
+        "SM_RESOURCE": ["SM_RESOURCE", StringType()],
+        "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
+    }
 
     def _transform(self, dataset):
-        self.test_Schema(dataset.schema)
+
         dataset = self.process_DataFrame_with_Window(dataset)
 
         first_five_features_df = dataset.groupby(
