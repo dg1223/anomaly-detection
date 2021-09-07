@@ -49,10 +49,9 @@ from pyspark.sql.types import (
     DoubleType,
 )
 from pyspark.sql.window import Window
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 
-class SessionFeatureGenerator(SparkNativeTransformer):
+class SessionFeatureGenerator(Transformer):
     """
     Feature transformer for the swx project.
     """
@@ -73,21 +72,13 @@ class SessionFeatureGenerator(SparkNativeTransformer):
         typeConverter=TypeConverters.toInt,
     )
 
-    entity_name = Param(
-        Params._dummy(),
-        "entityName",
-        "Name of the column to perform aggregation on, together with the "
-        + "sliding window.",
-        typeConverter=TypeConverters.toString,
-    )
-
     @keyword_only
     def __init__(self):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
         super().__init__()
-        self._setDefault(entity_name="SM_SESSIONID", window_length=900, window_step=900)
+        self._setDefault(window_length=900, window_step=900)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -113,13 +104,25 @@ class SessionFeatureGenerator(SparkNativeTransformer):
         """
         self._set(window_step=value)
 
-    def set_entity_name(self, value):
-        """
-        Sets this SessionFeatureGenerator's window step size.
-        """
-        self._set(entity_name=value)
+    def test_Schema(self, incomingSchema):
+        def nullSwap(st1, st2):
+            """Function to swap datatype null parameter within a nested dataframe schema"""
+            if not set([sf.name for sf in st1]).issubset(set([sf.name for sf in st2])):
+                raise ValueError("Keys for first schema aren't a subset of the second.")
+            for sf in st1:
+                sf.nullable = st2[sf.name].nullable
+                if isinstance(sf.dataType, StructType):
+                    if not set([sf.name for sf in st1]).issubset(
+                        set([sf.name for sf in st2])
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the second."
+                        )
+                    nullSwap(sf.dataType, st2[sf.name].dataType)
+                if isinstance(sf.dataType, ArrayType):
+                    sf.dataType.containsNull = st2[sf.name].dataType.containsNull
 
-    sch_dict = {
+        sch_dict = {
             "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
             "SM_EVENTID": ["SM_EVENTID", LongType()],
             "SM_RESOURCE": ["SM_RESOURCE", StringType()],
@@ -128,10 +131,17 @@ class SessionFeatureGenerator(SparkNativeTransformer):
             "SM_ACTION": ["SM_ACTION", StringType()],
             "CRA_SEQ": ["CRA_SEQ", DoubleType()],
         }
+        sch_list = []
+        for x in sch_dict.keys():
+            sch_list.append(StructField(sch_dict[x][0], sch_dict[x][1]))
+        schema = StructType(sch_list)
+        nullSwap(schema, incomingSchema)
+        if not (sum([x not in schema for x in incomingSchema]) > 0):
+            raise ValueError("Keys for first schema aren't a subset of the second.")
 
     def _transform(self, dataset):
 
-        ts_window = Window.partitionBy("CN").orderBy("SM_TIMESTAMP")
+        ts_window = Window.partitionBy("SM_SESSIONID").orderBy("SM_TIMESTAMP")
 
         dataset = dataset.withColumn(
             "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
@@ -154,7 +164,7 @@ class SessionFeatureGenerator(SparkNativeTransformer):
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
 
         return dataset.groupby(
-            str(self.getOrDefault("entity_name")),
+            "SM_SESSIONID",
             window(
                 "SM_TIMESTAMP",
                 str(self.getOrDefault("window_length")) + " seconds",

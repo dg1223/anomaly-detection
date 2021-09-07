@@ -41,5 +41,6 @@ def test_1():
     assert result.count() == ans_1_data.count()
 
     # schema test
+
     nullSwap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
