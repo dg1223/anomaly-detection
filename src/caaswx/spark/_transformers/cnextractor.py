@@ -1,4 +1,3 @@
-from pyspark.ml import Transformer
 from pyspark.sql.types import StringType
 import pyspark.sql.functions as F
 from pyspark.sql.functions import when, col, regexp_replace
@@ -10,9 +9,9 @@ from pyspark.ml.param.shared import (
     HasOutputCol,
 )
 from pyspark import keyword_only
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
-
-class CnExtractor(Transformer, HasInputCol, HasOutputCol):
+class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
     Creates a CN column using the existing SM_USERNAME column
     by:
