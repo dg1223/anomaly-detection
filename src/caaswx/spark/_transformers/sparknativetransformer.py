@@ -14,9 +14,15 @@ from pyspark.sql.types import (
 from pyspark.ml import Transformer
 
 """
-implement _transform
-and create member attribute sch_dict
-store schema as dict with blah format
+This class inherits from the Transformer class and overrides Transform to add input schema checking.
+For correct operation it is imperative that _transform be implemented in the child class and 
+a dictionary "sch_dict" be implemented as a class attribute in the child class.
+The sch_dict is to be formatted as follows:
+    sch_dict = {
+        "Columen_1": ["Columen_1", __Type()],
+        "Columen_2": ["Columen_2", __Type()],
+    }
+    where __Type() are pyspark.sql.types
 """
 
 
