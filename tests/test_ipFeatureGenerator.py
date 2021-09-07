@@ -13,7 +13,7 @@ spark = SparkSession.builder.getOrCreate()
 def test_1():
 
     test_df = load_test_data(
-        "data", "parquet_data", "ip_feature_generator_tests", "df.parquet"
+        "data", "parquet_data", "ip_feature_generator_tests", "data_df.parquet"
     )
 
     ans_1_data = load_test_data(
