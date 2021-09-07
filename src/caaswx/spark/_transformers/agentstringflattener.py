@@ -9,11 +9,21 @@ from pyspark.sql.functions import (
     udf,
 )
 from pyspark.sql.types import (
+    LongType,
+    DoubleType,
     StringType,
+    TimestampType,
+    StructType,
+    StructField,
+    DateType,
+    FloatType,
+    IntegerType,
+    ArrayType,
 )
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 
-class AgentStringFlattener(Transformer):
+class AgentStringFlattener(SparkNativeTransformer):
     """
     User Feature transformer for the Streamworx project.
     """
@@ -178,6 +188,12 @@ class AgentStringFlattener(Transformer):
                     base.append(parsed_string)
 
         return base
+
+    sch_dict = {
+        "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
+        "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+        "SM_AGENTNAME": ["SM_AGENTNAME", StringType()],
+    }
 
     def _transform(self, dataset):
         """

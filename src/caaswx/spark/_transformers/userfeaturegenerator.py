@@ -73,11 +73,12 @@ from pyspark.sql.types import (
     StructField,
 )
 from pyspark.sql.window import Window
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 # Feature generator based on Users (SM_CN or the column name you named)
 # Execute cn_extractor before this transformer
 # Otherwise, we have no SM_CN feature
-class UserFeatureGenerator(Transformer):
+class UserFeatureGenerator(SparkNativeTransformer):
     """
     Feature transformer for the swx project.
     """
@@ -144,45 +145,18 @@ class UserFeatureGenerator(Transformer):
         """
         self._set(window_step=value)
 
-    def test_Schema(self, incomingSchema):
-        def nullSwap(st1, st2):
-            """Function to swap datatype null parameter within a nested dataframe schema"""
-            if not set([sf.name for sf in st1]).issubset(set([sf.name for sf in st2])):
-                raise ValueError("Keys for first schema aren't a subset of the second.")
-            for sf in st1:
-                sf.nullable = st2[sf.name].nullable
-                if isinstance(sf.dataType, StructType):
-                    if not set([sf.name for sf in st1]).issubset(
-                        set([sf.name for sf in st2])
-                    ):
-                        raise ValueError(
-                            "Keys for first schema aren't a subset of the second."
-                        )
-                    nullSwap(sf.dataType, st2[sf.name].dataType)
-                if isinstance(sf.dataType, ArrayType):
-                    sf.dataType.containsNull = st2[sf.name].dataType.containsNull
-
-        sch_dict = {
-            "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
-            "SM_EVENTID": ["SM_EVENTID", LongType()],
-            "SM_RESOURCE": ["SM_RESOURCE", StringType()],
-            "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
-            "SM_USERNAME": ["SM_USERNAME", StringType()],
-            "SM_ACTION": ["SM_ACTION", StringType()],
-            "SM_SESSIONID": ["SM_SESSIONID", StringType()],
-            "SM_TRANSACTIONID": ["SM_TRANSACTIONID", StringType()],
-        }
-        sch_list = []
-        for x in sch_dict.keys():
-            sch_list.append(StructField(sch_dict[x][0], sch_dict[x][1]))
-        schema = StructType(sch_list)
-        nullSwap(schema, incomingSchema)
-        if not (sum([x not in schema for x in incomingSchema]) > 0):
-            raise ValueError("Keys for first schema aren't a subset of the second.")
+    sch_dict = {
+        "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+        "SM_EVENTID": ["SM_EVENTID", LongType()],
+        "SM_RESOURCE": ["SM_RESOURCE", StringType()],
+        "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
+        "SM_USERNAME": ["SM_USERNAME", StringType()],
+        "SM_ACTION": ["SM_ACTION", StringType()],
+        "SM_SESSIONID": ["SM_SESSIONID", StringType()],
+        "SM_TRANSACTIONID": ["SM_TRANSACTIONID", StringType()],
+    }
 
     def _transform(self, dataset):
-
-        self.test_Schema(dataset.schema)
 
         pivot = str(self.getOrDefault("entity_name"))
         dataset_copy = dataset

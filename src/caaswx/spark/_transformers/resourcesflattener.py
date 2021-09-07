@@ -7,15 +7,16 @@ from pyspark.ml.param.shared import TypeConverters, Param, Params
 
 # Importing window module for performing time slicing while grouping parquet_data
 from pyspark.sql.functions import window
+from pyspark.sql.types import TimestampType, StringType
 from pyspark.sql.window import Window
 
 # Importing the Transformer class to be extended by Flattener classes
-from pyspark.ml import Transformer
+from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
 
 import pyspark.sql.functions as func
 
 
-class ResourcesFlattener(Transformer):
+class ResourcesFlattener(SparkNativeTransformer):
     """
     User Feature transformer for the Streamworx project.
     """
@@ -110,6 +111,11 @@ class ResourcesFlattener(Transformer):
         Sets this ResourcesFlattener's maximum resource count.
         """
         self._set(max_resource_count=value)
+
+    sch_dict = {
+        "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
+        "SM_RESOURCE": ["SM_RESOURCE", StringType()],
+    }
 
     def _transform(self, dataset):
         """

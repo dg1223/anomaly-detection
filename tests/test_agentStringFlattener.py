@@ -21,7 +21,9 @@ spark = SparkSession.builder.getOrCreate()
 
 
 def test_1():
-    df = spark.read.parquet("./data/parquet_data/agentStringFlattener_tests/df.parquet")
+    df = spark.read.parquet(
+        "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
+    )
     result = AgentStringFlattener(
         agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=True
     ).transform(df)
@@ -54,7 +56,9 @@ def test_1():
 
 
 def test_2():
-    df = spark.read.parquet("./data/parquet_data/agentStringFlattener_tests/df.parquet")
+    df = spark.read.parquet(
+        "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
+    )
     result = AgentStringFlattener(
         agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=False
     ).transform(df)
