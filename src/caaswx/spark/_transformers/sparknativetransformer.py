@@ -19,8 +19,8 @@ For correct operation it is imperative that _transform be implemented in the chi
 a dictionary "sch_dict" be implemented as a class attribute in the child class.
 The sch_dict is to be formatted as follows:
     sch_dict = {
-        "Columen_1": ["Columen_1", __Type()],
-        "Columen_2": ["Columen_2", __Type()],
+        "Column_1": ["Columen_1", __Type()],
+        "Column_2": ["Columen_2", __Type()],
     }
     where __Type() are pyspark.sql.types
 """
