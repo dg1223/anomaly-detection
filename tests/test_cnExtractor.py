@@ -3,7 +3,7 @@ from src.caaswx.spark.scripts.loadWriteParquet import loadParquet
 
 
 def test_CnExtractor():
-    obj = CnExtractor("SM_USERNAME", "CN")
+    obj = CnExtractor()
     testDf = loadParquet(
         "data", "parquet_data", "cn_extractor_tests", "SM_USERNAME_2_examples.parquet"
     )
