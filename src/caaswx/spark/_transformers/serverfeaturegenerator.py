@@ -1,17 +1,30 @@
 """
-A module to generate features regarding to session feature
-Input: A dataframe.
+A module to generate features related to server. The ServerFeatureGenerator will aggregate simply on time window and encompass details about login attempts in different time window along with users' behaviours.
+
+Input: A Spark dataframe.
+
+Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
+
+Column Name                 Data type                                                          Description
+thisgetOrDefault("partioning_entity")          string           input paramter to the transformer signifying the column to be targeted for aggregation for generating the immediate preious timestamp. It is by default set to "SM_USERNAME".
+
+SM_EVENTID                   integer                 Marks the particular event that caused the logging to occur.
+SM_CLIENTIP                  string                  The IP address for the client machine that is trying to utilize a protected resource. It has been hashed for preserving the confidentiality
+SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
+SM_AGENTNAME                 string                  The name associated with the agent that is being used in conjunction with the policy server.
+SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+
 Output: A dataframe with the following features:
 
-StartTime	                        The beginning of a time window
-EndTime	                            The end of a time window
-VolOfAllLoginAttempts	            Number of all login attempts in the specified time window
-VolOfAllFailedLogins	            Number of all failed login attempts in the specified time window
-MaxOfFailedLoginsWithSameIPs	    Maximum Number of all failed login attempts with same IPs
-NumOfIPsLoginMultiAccounts	        Number of IPs used for logging into multiple accounts
-NumOfReqsToChangePasswords	        Number of requests to change passwords; see #65
-NumOfUsersWithEqualIntervalBtnReqs	Number of users with at least interval_threshold intervals between consecutive requests that are equal up to precision interval_epsilon
-
+Column_name                         Description                                                                           Datatype
+StartTime	                        The beginning of a time window                                                        timestamp
+EndTime	                            The end of a time window                                                              timestamp
+VolOfAllLoginAttempts	            Number of all login attempts in the specified time window                             integer
+VolOfAllFailedLogins	            Number of all failed login attempts in the specified time window                      integer
+MaxOfFailedLoginsWithSameIPs	    Maximum Number of all failed login attempts with same IPs                             integer
+NumOfIPsLoginMultiAccounts	        Number of IPs used for logging into multiple accounts                                 integer
+NumOfReqsToChangePasswords	        Number of requests to change passwords                                                integer
+NumOfUsersWithEqualIntervalBtnReqs	Number of users with at least interval_threshold intervals between consecutive requests that are equal up to precision interval_epsilon    integer
 """
 
 import pyspark.sql.functions as F
@@ -88,7 +101,21 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         partioning_entity="SM_USERNAME",
     ):
         """
-        def __init__(self, *, window_length = self.getOrDefault("window_length"), window_step = self.getOrDefault("window_step"), interval_threshold=self.getOrDefault("interval_threshold"), interval_epsilon=self.getOrDefault("interval_epsilon"))
+        :param window_length: Sets this ServerFeatureGenerator's window length.
+        :param window_step: Sets this ServerFeatureGenerator's window step.
+        :param interval_threshold: An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs
+        :param interval_epsilon: A float used to define feature NumOfUsersWithEqualIntervalBtnReqs
+        :param partioning_entity: A string used to define the pivot column for partitioning the time window
+        :type window_length: long
+        :type window_step: long
+        :type interval_threshold: integer
+        :type interval_epsilon: float
+        :type partioning_entity: string
+
+        :Example:
+        >>> from serverfeaturegenerator import ServerFeatureGenerator
+        >>> feature_generator = ServerFeatureGenerator(window_length = 1800, window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3, partioning_entity = "CN")
+        >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super(ServerFeatureGenerator, self).__init__()
         self._setDefault(

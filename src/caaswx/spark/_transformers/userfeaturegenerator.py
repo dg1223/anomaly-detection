@@ -1,60 +1,89 @@
 """
-A module to generate features regarding to session feature
-Input: A dataframe with a CN row.
-Output: A dataframe with the following features extracted:
-COUNT_ADMIN_LOGOUT              	Count of Admin Logout events during the time window, defined by sm_eventid = 8.
-COUNT_AUTH_ACCEPT	                Count of Auth Accept events during the time window, defined by sm_eventid = 1.
-COUNT_ADMIN_ATTEMPT             	Count of Admin Accept events during the time window, defined by sm_eventid = 3.
-COUNT_ADMIN_REJECT              	Count of Admin Reject events during the time window, defined by sm_eventid = 2.
-COUNT_AZ_ACCEPT                    	Count of Az Accept events during the time window, defined by sm_eventid = 5.
-COUNT_AZ_REJECT                 	Count of Az Reject events during the time window, defined by sm_eventid = 6.
-COUNT_AUTH_LOGOUT               	Count of Auth Logout events during the time window, defined by sm_eventid = 10.
-COUNT_VISIT                     	Count of Visit events during the time window, defined by sm_eventid = 13.
-COUNT_AUTH_CHALLENGE            	Count of Auth Challenge events during the time window, defined by sm_eventid = 4.
-COUNT_ADMIN_REJECT              	Count of Admin Reject events during the time window, defined by sm_eventid = 9.
-COUNT_ADMIN_LOGIN               	Count of Admin Login events during the time window, defined by sm_eventid = 7.
-COUNT_VALIDATE_ACCEPT           	Count of Validate Accept events during the time window, defined by sm_eventid = 11.
-COUNT_VALIDATE_REJECT           	Count of Validate Reject events during the time window, defined by sm_eventid = 12.
-COUNT_FAILED                    	Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.
-COUNT_GET	                        Count of all GET HTTP actions in SM_ACTION during the time window.
-COUNT_POST	                        Count of all POST HTTP actions in SM_ACTION during the time window.
-COUNT_HTTP_METHODS	                Count of all GET and POST HTTP actions in SM_ACTION  during the time window.
-COUNT_OU_AMS	                    Count of all ams or AMS occurrences in SM_USERNAME OR SM_RESOURCE during the time window.
-COUNT_OU_CMS                    	Count of all cra-cp occurrences in SM_USERNAME during the time window.
-COUNT_OU_IDENTITY               	Count of all ou=Identity occurrences in SM_USERNAME during the time window.
-COUNT_OU_CRED                   	Count of all ou=Credential occurrences in SM_USERNAME during the time window.
-COUNT_OU_SECUREKEY              	Count of all ou=SecureKey occurrences in SM_USERNAME during the time window.
-COUNT_PORTAL_MYA                	Count of all mima occurrences in SM_RESOURCE during the time window.
-COUNT_PORTAL_MYBA               	Count of all myba occurrences in SM_RESOURCE during the time window.
-COUNT_UNIQUE_ACTIONS            	Count of distinct HTTP Actions in SM_ACTION during the time window.
-COUNT_UNIQUE_IPS                	Count of distinct IPs in SM_CLIENTIP during the time window.
-COUNT_UNIQUE_EVENTS	                Count of distinct EventIDs in SM_EVENTID  during the time window.
-COUNT_UNIQUE_USERNAME	            Count of distinct CNs in CN during the time window.
-COUNT_UNIQUE_RESOURCES          	Count of distinct Resource Strings in SM_RESOURCE during the time window.
-COUNT_UNIQUE_SESSIONS           	Count of distinct SessionIDs in SM_SESSIONID during the time window.
-COUNT_RECORDS	                    Counts number of CRA_SEQs (dataset primary key)
-UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window.
-UNIQUE_SM_CLIENTIPS	                A distinct list of IPs in SM_CLIENTIPS during time window.
-UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window.
-UNIQUE_SM_TRANSACTIONS          	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.
-SM_SESSION_IDS                  	A distinct list of SessionIDs in SM_SESSIONID during the time window.
-COUNT_UNIQUE_OU                 	A count of distinct Entries containing ou= and a string ending in , in SM_USERNAME during time window.
-UNIQUE_USER_OU                  	A distinct list of Entries containing ou= and a string ending in , in SM_USERNAME during time window.
-COUNT_PORTAL_RAC                	A count of Entries containing rep followed by a string ending in / in SM_RESOURCE during time window.
-UNIQUE_PORTAL_RAC               	A distinct list of Entries containing rep followed by a string ending in / in SM_RESOURCE during time window.
-UNIQUE_USER_APPS                	A distinct list of root nodes from each record in SM_RESOURCE during time window.
-COUNTUNIQUE_USER_APPS           	A count of distinct root nodes from each record in SM_RESOURCE during time window.
-USER_TIMESTAMP	                    Minimum timestamp in SM_TIMESTAMP during time window.
-AVG_TIME_BT_RECORDS             	Average time between records during the time window.
-MAX_TIME_BT_RECORDS	                Maximum time between records during the time window.
-MIN_TIME_BT_RECORDS	                Minimum time between records during the time window.
-UserLoginAttempts	                Total number of login attempts from the user within the specified time window
-UserAvgFailedLoginsWithSameIPs	    Average number of failed logins with same IPs from the user (Note: the user may use multiple IPs; for each of the IPs, count the failed logins; then compute the average values of failed logins from all the IPs used by the same user)
-UserNumOfAccountsLoginWithSameIPs	Total number of accounts visited by the IPs used by this user (this might be tricky to implement and expensive to compute, open to nixing).
-UserNumOfPasswordChange	            Total number of requests for changing passwords by the user (See Seeing a password change from the events in `raw_logs` #65)
-UserIsUsingUnusualBrowser	        Whether or not the browser used by the user in current time window is same as that in the previous time window, or any change within the current time window
-"""
+A module to generate features related to users. It encompasses the features of user behavioural analytics
 
+Input: A Spark dataframe
+Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
+
+Column Name                 Data type                                                          Description
+
+CRA_SEQ                      long                    Serves as the primary key for the Siteminder data and can be used for counting unique rows via aggregation steps.
+this.getOrDefault("entityName")                         string                 Pivot Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
+
+SM_ACTION                    string                  Records the  HTTP action. Get, Post, and Put. It can contain NULLs.
+SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+
+SM_CATEGORYID                integer                 The identifier for the type of logging.
+SM_EVENTID                   integer                 Marks the particular event that caused the logging to occur.
+SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
+SM_USERNAME                  string                  The username for the user currently logged in with this session. Usernames encompass CNs along with abstract information about CMS and AMS requests. It may contain SAML requests, NULLs and blank values. The general format of this column includes various abbreviated expressions of various applications separated by "/".
+CN                           string                  Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
+SM_CLIENTIP                  string                  The IP address for the client machine that is trying to utilize a protected resource.
+SM_SESSIONID                 string                  The session identifier for this user’s activity.
+SM_TRANSACTIONID             string                  Records the transaction number for every activity of the ongoing session.
+SM_AGENTNAME                 string                  The name associated with the agent that is being used in conjunction with the policy server.
+
+
+
+Output: A dataframe with the following features extracted:
+
+Column Name                         Description                                                                                                      Datatype
+COUNT_ADMIN_LOGOUT              	Count of Admin Logout events during the time window, defined by sm_eventid = 8.                                   integer
+COUNT_AUTH_ACCEPT	                Count of Auth Accept events during the time window, defined by sm_eventid = 1.                                    integer
+COUNT_ADMIN_ATTEMPT             	Count of Admin Accept events during the time window, defined by sm_eventid = 3.                                   integer
+COUNT_ADMIN_REJECT              	Count of Admin Reject events during the time window, defined by sm_eventid = 2.                                   integer
+COUNT_AZ_ACCEPT                    	Count of Az Accept events during the time window, defined by sm_eventid = 5.                                      integer
+COUNT_AZ_REJECT                 	Count of Az Reject events during the time window, defined by sm_eventid = 6.                                      integer
+COUNT_AUTH_LOGOUT               	Count of Auth Logout events during the time window, defined by sm_eventid = 10.                                   integer
+COUNT_VISIT                     	Count of Visit events during the time window, defined by sm_eventid = 13.                                         integer
+COUNT_AUTH_CHALLENGE            	Count of Auth Challenge events during the time window, defined by sm_eventid = 4.                                 integer
+COUNT_ADMIN_REJECT              	Count of Admin Reject events during the time window, defined by sm_eventid = 9.                                   integer
+COUNT_ADMIN_LOGIN               	Count of Admin Login events during the time window, defined by sm_eventid = 7.                                    integer
+COUNT_VALIDATE_ACCEPT           	Count of Validate Accept events during the time window, defined by sm_eventid = 11.                               integer
+COUNT_VALIDATE_REJECT           	Count of Validate Reject events during the time window, defined by sm_eventid = 12.                               integer
+COUNT_FAILED                    	Count of all Reject events during the time window, defined by sm_eventid = 2, 6, 9 and 12.                        integer
+COUNT_GET	                        Count of all GET HTTP actions in SM_ACTION during the time window.                                                integer
+COUNT_POST	                        Count of all POST HTTP actions in SM_ACTION during the time window.                                               integer
+COUNT_HTTP_METHODS	                Count of all GET and POST HTTP actions in SM_ACTION  during the time window.                                      integer
+COUNT_OU_AMS	                    Count of all “ams” or “AMS” occurrences in SM_USERNAME OR SM_RESOURCE during the time window.                     integer
+COUNT_OU_CMS                    	Count of all “cra-cp” occurrences in SM_USERNAME during the time window.                                          integer
+COUNT_OU_IDENTITY               	Count of all “ou=Identity” occurrences in SM_USERNAME during the time window.                                     integer
+COUNT_OU_CRED                   	Count of all “ou=Credential” occurrences in SM_USERNAME during the time window.                                   integer
+COUNT_OU_SECUREKEY              	Count of all “ou=SecureKey” occurrences in SM_USERNAME during the time window.                                    integer
+COUNT_PORTAL_MYA                	Count of all “mima” occurrences in SM_RESOURCE during the time window.                                            integer
+COUNT_PORTAL_MYBA               	Count of all “myba” occurrences in SM_RESOURCE during the time window.                                            integer
+COUNT_UNIQUE_ACTIONS            	Count of distinct HTTP Actions in SM_ACTION during the time window.                                               integer
+COUNT_UNIQUE_IPS                	Count of distinct IPs in SM_CLIENTIP during the time window.                                                      integer
+COUNT_UNIQUE_EVENTS	                Count of distinct EventIDs in SM_EVENTID  during the time window.                                                 integer
+COUNT_UNIQUE_USERNAME	            Count of distinct CNs in CN during the time window.                                                               integer
+COUNT_UNIQUE_RESOURCES          	Count of distinct Resource Strings in SM_RESOURCE during the time window.                                         integer
+COUNT_UNIQUE_SESSIONS           	Count of distinct SessionIDs in SM_SESSIONID during the time window.                                              integer
+COUNT_RECORDS	                    Counts number of CRA_SEQs (dataset primary key)                                                                   integer
+UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window.                                                  array<string>
+UNIQUE_SM_CLIENTIPS	                A distinct list of IPs in SM_CLIENTIPS during time window.                                                        array<string>
+UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window.                                            array<string>
+UNIQUE_SM_TRANSACTIONS          	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.                                        array<string>
+SM_SESSION_IDS                  	A distinct list of SessionIDs in SM_SESSIONID during the time window.                                             array<string>
+COUNT_UNIQUE_OU                 	A count of distinct Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.        integer
+UNIQUE_USER_OU                  	A distinct list of Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.         array<string>
+COUNT_PORTAL_RAC                	A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.         integer
+UNIQUE_PORTAL_RAC               	A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window. array<string>
+UNIQUE_USER_APPS                	A distinct list of root nodes from each record in SM_RESOURCE during time window.                                 array<string>
+COUNTUNIQUE_USER_APPS           	A count of distinct root nodes from each record in SM_RESOURCE during time window.                                integer
+USER_TIMESTAMP	                    Minimum timestamp in SM_TIMESTAMP during time window.                                                             timestamp
+AVG_TIME_BT_RECORDS             	Average time between records during the time window.                                                              double
+MAX_TIME_BT_RECORDS	                Maximum time between records during the time window.                                                              double
+MIN_TIME_BT_RECORDS	                Minimum time between records during the time window.                                                              double
+UserLoginAttempts	                Total number of login attempts from the user within the specified time window
+UserAvgFailedLoginsWithSameIPs	    Average number of failed logins with same IPs from the user (Note: the user may use multiple IPs; for each of the IPs, count the failed logins; then compute the average values of failed logins from all the IPs used by the same user)	                                                  double
+
+UserNumOfAccountsLoginWithSameIPs	Total number of accounts visited by the IPs used by this user (this might be tricky to implement and expensive to compute, open to nixing).                                                                                                                                                       integer
+
+UserNumOfPasswordChange	            Total number of requests for changing passwords by the user (See Seeing a password change from the events in `raw_logs` #65)
+                                                                                                                                                      integer
+
+UserIsUsingUnusualBrowser	        Whether or not the browser used by the user in current time window is same as that in the previous time window, or any change within the current time window                                                                                                                                   integer
+
+"""
 import pyspark.sql.functions as F
 
 # Import Essential packages
@@ -110,7 +139,17 @@ class UserFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-        def __init__(self, *, window_length = 900, window_step = 900)
+          :param entity_name: Pivot Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
+          :param window_length: Sets this UserFeatureGenerator's window length.
+          :param window_step: Sets this UserFeatureGenerator's window step.
+          :type entity_name: string
+          :type window_length: long
+          :type window_step: long
+
+          :Example:
+          >>> from userfeaturegenerator import UserFeatureGenerator
+          >>> feature_generator = UserFeatureGenerator(entity_name = "SM_USERNAME", window_length = 1800, window_step = 1800)
+          >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(entity_name="CN", window_length=900, window_step=900)

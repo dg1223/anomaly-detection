@@ -1,54 +1,70 @@
 """
-A module to generate features regarding to session feature
-Input: A dataframe with CN row.
+A module to generate features related to IP features. This transformer encompasses the IP addresses' behaviour and analytics
+Input: A Spark dataframe
+Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
+
+Column Name                 Data type                                                          Description
+SM_ACTION                    string                  Records the  HTTP action. Get, Post, and Put. It can contain NULLs.
+CN                           string                  Column expecting the CommonNames for each user. It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
+
+SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+
+SM_EVENTID                   integer                 Marks the particular event that caused the logging to occur.
+SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
+SM_USERNAME                  string                  The username for the user currently logged in with this session. Usernames encompass CNs along with abstract information about CMS and AMS requests. It may contain SAML requests, NULLs and blank values. The general format of this column includes various abbreviated expressions of various applications separated by "/".
+
+SM_CLIENTIP                  string                  The IP address for the client machine that is trying to utilize a protected resource.
+SM_SESSIONID                 string                  The session identifier for this user’s activity.
+
+
 Output: A dataframe with the following features:
 
-IP_APP                  	A distinct list of root nodes from each record in SM_RESOURCE during time window. 
-IP_AVG_TIME_BT_RECORDS  	Average time between records during the time window.
-IP_MAX_TIME_BT_RECORDS 	    Maximum time between records during the time window.
-IP_MIN_TIME_BT_RECORDS 	    Minimum time between records during the time window.
-IP_COUNT_ADMIN_LOGIN        Count of Admin Login events during the time window, defined by sm_eventid = 7.
-IP_COUNT_ADMIN_LOGOUT  	    Count of Admin Logout events during the time window, defined by sm_eventid = 8.
-IP_COUNT_ADMIN_REJECT   	Count of Admin Reject events during the time window, defined by sm_eventid = 9.
-IP_COUNT_AUTH_ACCEPT	    Count of Auth Accept events during the time window, defined by sm_eventid = 1.
-IP_COUNT_ADMIN_ATTEMPT  	Count of Admin Accept events during the time window, defined by sm_eventid = 3.
-IP_COUNT_AUTH_CHALLENGE 	Count of Auth Challenge events during the time window, defined by sm_eventid = 4.
-IP_COUNT_AUTH_LOGOUT    	Count of Auth Logout events during the time window, defined by sm_eventid = 10.
-IP_COUNT_AUTH_REJECT   	    Count of Auth Reject events during the time window, defined by sm_eventid = 2.
-IP_COUNT_AZ_ACCEPT  	    Count of Az Accept events during the time window, defined by sm_eventid = 5.
-IP_COUNT_AZ_REJECT  	    Count of Az Reject events during the time window, defined by sm_eventid = 6.
-IP_COUNT_FAILED 	        Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.
-IP_COUNT_GET	            Count of all GET HTTP actions in SM_ACTION during the time window.
-IP_COUNT_POST	            Count of all POST HTTP actions in SM_ACTION during the time window.
-IP_COUNT_HTTP_METHODS	    Count of all GET and POST HTTP actions in SM_ACTION  during the time window.
-IP_COUNT_OU_AMS	            Count of all “ams” or “AMS” occurrences in SM_USERNAME OR SM_RESOURCE during the time window.
-IP_COUNT_OU_CMS         	Count of all “cra-cp” occurrences in SM_USERNAME during the time window.
-IP_COUNT_OU_IDENTITY       	Count of all “ou=Identity” occurrences in SM_USERNAME during the time window.
-IP_COUNT_OU_CRED        	Count of all “ou=Credential” occurrences in SM_USERNAME during the time window.
-IP_COUNT_OU_SECUREKEY   	Count of all “ou=SecureKey” occurrences in SM_USERNAME during the time window.
-IP_COUNT_PORTAL_MYA     	Count of all “mima” occurrences in SM_RESOURCE during the time window.
-IP_COUNT_PORTAL_MYBA       	Count of all “myba” occurrences in SM_RESOURCE during the time window.
-IP_COUNT_UNIQUE_ACTIONS 	Count of distinct HTTP Actions in SM_ACTION during the time window.
-IP_COUNT_UNIQUE_EVENTS	    Count of distinct EventIDs in SM_EVENTID  during the time window.
-IP_COUNT_UNIQUE_USERNAME	Count of distinct CNs in CN during the time window.
-IP_COUNT_UNIQUE_RESOURCES  	Count of distinct Resource Strings in SM_RESOURCE during the time window.
-IP_COUNT_UNIQUE_SESSIONS	Count of distinct SessionIDs in SM_SESSIONID during the time window.
-IP_COUNT_PORTAL_RAC     	A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
-IP_COUNT_RECORDS	        Counts number of CRA_SEQs (dataset primary key)
-IP_COUNT_VISIT          	Count of Visit events during the time window, defined by sm_eventid = 13.
-IP_COUNT_VALIDATE_ACCEPT   	Count of Validate Accept events during the time window, defined by sm_eventid = 11.
-IP_COUNT_VALIDATE_REJECT	Count of Validate Reject events during the time window, defined by sm_eventid = 12.
-IP_UNIQUE_SM_ACTIONS	    A distinct list of HTTP Actions in SM_ACTION during time window. 
-IP_UNIQUE_USERNAME	        A distinct list of CNs in CN during time window. 
-IP_UNIQUE_SM_SESSION	    A distinct list of SessionIDs in SM_SESSIONID during time window. 
-IP_UNIQUE_SM_PORTALS    	A distinct list of Resource Strings in SM_RESOURCE during time window. 
-IP_UNIQUE_SM_TRANSACTIONS  	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.
-IP_UNIQUE_USER_OU       	A distinct list of Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.
-IP_UNIQUE_REP_APP       	A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
-IP_TIMESTAMP	            Earliest timestamp during time window.
-IP_COUNT_UNIQUE_OU      	A count of distinct Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.
+Column_name                                           Description                                                                                   Datatype
+IP_APP                  	A distinct list of root nodes from each record in SM_RESOURCE during time window.                                      array<string>
+IP_AVG_TIME_BT_RECORDS  	Average time between records during the time window.                                                                   double
+IP_MAX_TIME_BT_RECORDS 	    Maximum time between records during the time window.                                                                   double
+IP_MIN_TIME_BT_RECORDS 	    Minimum time between records during the time window.                                                                   double
+IP_COUNT_ADMIN_LOGIN        Count of Admin Login events during the time window, defined by sm_eventid = 7.                                         integer
+IP_COUNT_ADMIN_LOGOUT  	    Count of Admin Logout events during the time window, defined by sm_eventid = 8.                                        integer
+IP_COUNT_ADMIN_REJECT   	Count of Admin Reject events during the time window, defined by sm_eventid = 9.                                        integer
+IP_COUNT_AUTH_ACCEPT	    Count of Auth Accept events during the time window, defined by sm_eventid = 1.                                         integer
+IP_COUNT_ADMIN_ATTEMPT  	Count of Admin Accept events during the time window, defined by sm_eventid = 3.                                        integer
+IP_COUNT_AUTH_CHALLENGE 	Count of Auth Challenge events during the time window, defined by sm_eventid = 4.                                      integer
+IP_COUNT_AUTH_LOGOUT    	Count of Auth Logout events during the time window, defined by sm_eventid = 10.                                        integer
+IP_COUNT_AUTH_REJECT   	    Count of Auth Reject events during the time window, defined by sm_eventid = 2.                                         integer
+IP_COUNT_AZ_ACCEPT  	    Count of Az Accept events during the time window, defined by sm_eventid = 5.                                           integer
+IP_COUNT_AZ_REJECT  	    Count of Az Reject events during the time window, defined by sm_eventid = 6.                                           integer
+IP_COUNT_FAILED 	        Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.                                 integer
+IP_COUNT_GET	            Count of all GET HTTP actions in SM_ACTION during the time window.                                                     integer
+IP_COUNT_POST	            Count of all POST HTTP actions in SM_ACTION during the time window.                                                    integer
+IP_COUNT_HTTP_METHODS	    Count of all GET and POST HTTP actions in SM_ACTION  during the time window.                                           integer
+IP_COUNT_OU_AMS	            Count of all “ams” or “AMS” occurrences in SM_USERNAME OR SM_RESOURCE during the time window.                          integer
+IP_COUNT_OU_CMS         	Count of all “cra-cp” occurrences in SM_USERNAME during the time window.                                               integer
+IP_COUNT_OU_IDENTITY       	Count of all “ou=Identity” occurrences in SM_USERNAME during the time window.                                          integer
+IP_COUNT_OU_CRED        	Count of all “ou=Credential” occurrences in SM_USERNAME during the time window.                                        integer
+IP_COUNT_OU_SECUREKEY   	Count of all “ou=SecureKey” occurrences in SM_USERNAME during the time window.                                         integer
+IP_COUNT_PORTAL_MYA     	Count of all “mima” occurrences in SM_RESOURCE during the time window.                                                 integer
+IP_COUNT_PORTAL_MYBA       	Count of all “myba” occurrences in SM_RESOURCE during the time window.                                                 integer
+IP_COUNT_UNIQUE_ACTIONS 	Count of distinct HTTP Actions in SM_ACTION during the time window.                                                    integer
+IP_COUNT_UNIQUE_EVENTS	    Count of distinct EventIDs in SM_EVENTID  during the time window.                                                      integer
+IP_COUNT_UNIQUE_USERNAME	Count of distinct CNs in CN during the time window.                                                                    integer
+IP_COUNT_UNIQUE_RESOURCES  	Count of distinct Resource Strings in SM_RESOURCE during the time window.                                              integer
+IP_COUNT_UNIQUE_SESSIONS	Count of distinct SessionIDs in SM_SESSIONID during the time window.                                                   integer
+IP_COUNT_PORTAL_RAC     	A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.              integer
+IP_COUNT_RECORDS	        Counts number of CRA_SEQs (dataset primary key)                                                                        integer
+IP_COUNT_VISIT          	Count of Visit events during the time window, defined by sm_eventid = 13.                                              integer
+IP_COUNT_VALIDATE_ACCEPT   	Count of Validate Accept events during the time window, defined by sm_eventid = 11.                                    integer
+IP_COUNT_VALIDATE_REJECT	Count of Validate Reject events during the time window, defined by sm_eventid = 12.                                    integer
+IP_UNIQUE_SM_ACTIONS	    A distinct list of HTTP Actions in SM_ACTION during time window.                                                       array<string>
+IP_UNIQUE_USERNAME	        A distinct list of CNs in CN during time window.                                                                       array<string>
+IP_UNIQUE_SM_SESSION	    A distinct list of SessionIDs in SM_SESSIONID during time window.                                                      array<string>
+IP_UNIQUE_SM_PORTALS    	A distinct list of Resource Strings in SM_RESOURCE during time window.                                                 array<string>
+IP_UNIQUE_SM_TRANSACTIONS  	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.                                             array<string>
+IP_UNIQUE_USER_OU       	A distinct list of Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.              array<string>
+IP_UNIQUE_REP_APP       	A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.      array<string>
+IP_TIMESTAMP	            Earliest timestamp during time window.                                                                                 timestamp
+IP_COUNT_UNIQUE_OU      	A count of distinct Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.             integer
 """
-
 import pyspark.sql.functions as F
 
 # Import Essential packages
@@ -95,7 +111,15 @@ class IPFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-        def __init__(self, *, window_length = 900, window_step = 900)
+          :param window_length: Sets this UserFeatureGenerator's window length.
+          :param window_step: Sets this UserFeatureGenerator's window step.
+          :type window_length: long
+          :type window_step: long
+
+          :Example:
+          >>> from ipfeaturegenerator import IPFeatureGenerator
+          >>> feature_generator = IPFeatureGenerator(window_length = 1800, window_step = 1800)
+          >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(window_length=900, window_step=900)

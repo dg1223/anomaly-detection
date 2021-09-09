@@ -1,7 +1,19 @@
-# Importing various datatype supported by Spark for specifying the schemas
-# of result dataframes
+"""
+A module for Flatenning the resources into a list with respect to the input pivot column.
+Input: A Spark dataframe
+Expected columns in the input dataframe
 
-# Importing OOP decorators
+Column Name                 Data type                                                          Description
+SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
+SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+this.getOrDefault("entity_name")                  string                     Pivot Column for creating the time window of usage of different resources with respect to the passed column
+
+
+Output: Input dataset with an additional column containing a list of strings containing the utilized resources by the pivot entity.
+
+Additional_Column_Name                                           Description                                                    Datatype
+SM_RESOURCE                             A list of resources used by the pivot entity.                              array<string>
+"""
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 
@@ -62,7 +74,19 @@ class ResourcesFlattener(SparkNativeTransformer):
         max_resource_count=-1,
     ):
         """
-        def __init__(self, *, window_length = 900, window_step = 900)
+          :param window_length: Length of the sliding window used for entity resolution (in seconds).
+          :param window_step: Length of the sliding window step-size used for entity resolution (in seconds).
+          :param entity_name: Name of the column to perform aggregation on, together with the sliding window
+          :param max_resource_count: Maximum count of resources allowed in the resource list within the sliding window.
+          :type window_length: long
+          :type window_step: long
+          :type entity_name: string
+          :type max_resource_count: long
+
+          :Example:
+          >>> from resourcesflattener import ResourcesFlattener
+          >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800, entity_name = "SM_USERNAME", max_resource_count = 3)
+          >>> datafame_with_CN = flattener.transform(input_dataset)
         """
         super(ResourcesFlattener, self).__init__()
         self._setDefault(

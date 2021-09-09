@@ -25,7 +25,21 @@ from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTra
 
 class AgentStringFlattener(SparkNativeTransformer):
     """
-    User Feature transformer for the Streamworx project.
+    A module to flatten and clean the SM_AGENTNAME column of the Siteminder dataset.
+    Input: A Spark dataframe
+    Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
+
+    Column Name                 Data type                                                          Description
+    SM_AGENTNAME                 string                  The name associated with the agent that is being used in conjunction with the policy server.
+    SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
+    SM_CLIENTIP                  string                  The IP address for the client machine that is trying to utilize a protected resource.
+    this.getOrDefault("entityName")                         string                 Pivot Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "SM_USERNAME"). It is an alpha-numeric string and it contains NULL values.
+
+    Output: Input dataframe with an additional column containing the flattended and cleaned agentnames
+
+    Additional_Column_Name                                           Description                                                                    Datatype
+    SM_AGENTNAME                                    Contains a list of flattened and cleaned agentnames                                         array<string>
+
     """
 
     windowLength = Param(
@@ -76,7 +90,21 @@ class AgentStringFlattener(SparkNativeTransformer):
         windowStep=900,
     ):
         """
-        def __init__(self, *, window_length = 900, window_step = 900)
+          :param entity_name: Column to be grouped by when cleaning the columns
+          :param agentSizeLimit: Defines a limit on number of agent strings in the output column
+          :param runParser: It's a booleab value: if off will only flatten the agent strings, if on will also parse them
+          :param window_length: Sets this UserFeatureGenerator's window length.
+          :param window_step: Sets this UserFeatureGenerator's window step.
+          :type entity_name: string
+          :type agentSizeLimit: long
+          :type runParser: boolean
+          :type window_length: long
+          :type window_step: long
+
+          :Example:
+          >>> from agentstringflattener import AgentStringFlattener
+          >>> flattener = AgentStringFlattener(window_length = 1800, window_step = 1800)
+          >>> features = flattener.transform(input_dataset)
         """
         super(AgentStringFlattener, self).__init__()
         self._setDefault(

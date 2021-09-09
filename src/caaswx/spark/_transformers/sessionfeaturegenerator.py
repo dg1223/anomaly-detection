@@ -1,33 +1,47 @@
 """
-A module to generate features regarding to session feature
-Input: A dataframe with a CN row.
+A module to generate features related to session features. This transformer encompasses the Session's behaviour and analytics.
+input: A Spark dataframe
+
+Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
+
+Column Name                 Data type                                                          Description
+SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+
+SM_EVENTID                   integer                 Marks the particular event that caused the logging to occur.
+SM_ACTION                    string                  Records the  HTTP action. Get, Post, and Put. It can contain NULLs.
+CRA_SEQ                      long                    Serves as the primary key for the Siteminder data and can be used for counting unique rows via aggregation steps.
+SM_CLIENTIP                  string                  The IP address for the client machine that is trying to utilize a protected resource.
+SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
+SM_SESSIONID                 string                  The session identifier for this user’s activity.
+CN                           string                  Column expecting the CommonNames for each user to be inputted. It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
+
+
 Output: A dataframe with the following features extracted:
 
-SESSION_APPS	            A distinct list of root nodes from each record in SM_RESOURCE during time window. 
-COUNT_UNIQUE_APPS	        A count of distinct root nodes from each record in SM_RESOURCE during time window.
-SESSION_USER    	        A distinct list of CNs in CN during time window. 
-COUNT_ADMIN_LOGIN      	    Count of Admin Login events during the time window, defined by sm_eventid = 7.
-COUNT_ADMIN_LOGOUT  	    Count of Admin Logout events during the time window, defined by sm_eventid = 8.
-COUNT_ADMIN_REJECT  	    Count of Admin Reject events during the time window, defined by sm_eventid = 2.
-COUNT_FAILED        	    Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.
-COUNT_VISIT         	    Count of Visit events during the time window, defined by sm_eventid = 13.
-COUNT_GET	                Count of all GET HTTP actions in SM_ACTION during the time window.
-COUNT_POST	                Count of all POST HTTP actions in SM_ACTION during the time window.
-COUNT_HTTP_METHODS	        Count of all GET and POST HTTP actions in SM_ACTION  during the time window.
-COUNT_RECORDS	            Counts number of CRA_SEQs (dataset primary key)
-COUNT_UNIQUE_ACTIONS   	    Count of distinct HTTP Actions in SM_ACTION during the time window.
-COUNT_UNIQUE_EVENTS	        Count of distinct EventIDs in SM_EVENTID  during the time window.
-COUNT_UNIQUE_USERNAME	    Count of distinct CNs in CN during the time window.
-COUNT_UNIQUE_RESOURCES	    Count of distinct Resource Strings in SM_RESOURCE during the time window.
-COUNT_UNIQUE_REP	        A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
-SESSION_SM_ACTION	        A distinct list of HTTP Actions in SM_ACTION during time window. 
-SESSION_RESOURCE	        A distinct list of Resource Strings in SM_RESOURCE during time window.
-SESSION_REP_APP	            A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.
-SESSSION_FIRST_TIME_SEEN	Minimum time at which a record was logged during the time window.
-SESSSION_LAST_TIME_SEEN	    Maximum time at which a record was logged during the time window.
-SDV_BT_RECORDS	            Standard deviation of timestamp deltas during the time window. 
-
-
+Column_name                                           Description                                                                                   Datatype
+SESSION_APPS	            A distinct list of root nodes from each record in SM_RESOURCE during time window.                                      array<string>
+COUNT_UNIQUE_APPS	        A count of distinct root nodes from each record in SM_RESOURCE during time window.                                     integer
+SESSION_USER    	        A distinct list of CNs in CN during time window.                                                                       array<s tring>
+COUNT_ADMIN_LOGIN      	    Count of Admin Login events during the time window, defined by sm_eventid = 7.                                         integer
+COUNT_ADMIN_LOGOUT  	    Count of Admin Logout events during the time window, defined by sm_eventid = 8.                                        integer
+COUNT_ADMIN_REJECT  	    Count of Admin Reject events during the time window, defined by sm_eventid = 2.                                        integer
+COUNT_FAILED        	    Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.                                 integer
+COUNT_VISIT         	    Count of Visit events during the time window, defined by sm_eventid = 13.                                              integer
+COUNT_GET	                Count of all GET HTTP actions in SM_ACTION during the time window.                                                     integer
+COUNT_POST	                Count of all POST HTTP actions in SM_ACTION during the time window.                                                    integer
+COUNT_HTTP_METHODS	        Count of all GET and POST HTTP actions in SM_ACTION  during the time window.                                           integer
+COUNT_RECORDS	            Counts number of CRA_SEQs (dataset primary key)                                                                        integer
+COUNT_UNIQUE_ACTIONS   	    Count of distinct HTTP Actions in SM_ACTION during the time window.                                                    integer
+COUNT_UNIQUE_EVENTS	        Count of distinct EventIDs in SM_EVENTID  during the time window.                                                      integer
+COUNT_UNIQUE_USERNAME	    Count of distinct CNs in CN during the time window.                                                                    integer
+COUNT_UNIQUE_RESOURCES	    Count of distinct Resource Strings in SM_RESOURCE during the time window.                                              integer
+COUNT_UNIQUE_REP	        A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.              integer
+SESSION_SM_ACTION	        A distinct list of HTTP Actions in SM_ACTION during time window.                                                       array<string>
+SESSION_RESOURCE	        A distinct list of Resource Strings in SM_RESOURCE during time window.                                                 array<string>
+SESSION_REP_APP	            A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.      array<string>
+SESSSION_FIRST_TIME_SEEN	Minimum time at which a record was logged during the time window.                                                      timestamp
+SESSSION_LAST_TIME_SEEN	    Maximum time at which a record was logged during the time window.                                                      timestamp
+SDV_BT_RECORDS	            Standard deviation of timestamp deltas during the time window.                                                         float
 """
 
 import pyspark.sql.functions as F
@@ -50,7 +64,6 @@ from pyspark.sql.types import (
 )
 from pyspark.sql.window import Window
 from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
-
 
 class SessionFeatureGenerator(SparkNativeTransformer):
     """
@@ -76,7 +89,15 @@ class SessionFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-        def __init__(self, *, window_length = 900, window_step = 900)
+          :param window_length: Sets this UserFeatureGenerator's window length.
+          :param window_step: Sets this UserFeatureGenerator's window step.
+          :type window_length: long
+          :type window_step: long
+
+          :Example:
+          >>> from sessionfeaturegenerator import SessionFeatureGenerator
+          >>> feature_generator = SessionFeatureGenerator(window_length = 1800, window_step = 1800)
+          >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(window_length=900, window_step=900)
