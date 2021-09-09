@@ -27,26 +27,25 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     Expected columns in the input dataframe
 
     Column Name                 Data type                                                          Description
-    SM_USERNAME                  string                  The username for the user currently logged in with this session. Usernames encompass CNs along with abstract information about CMS and AMS requests. It may contain SAML requests, NULLs and blank values. The general format of this column includes various abbreviated expressions of various applications separated by "/".
-
-
+    SM_USERNAME                  string                  The username for the user currently logged in with this session. Usernames encompass CNs along with abstract information about CMS and AMS requests.
+                                                         It may contain SAML requests, NULLs and blank values.
     Output: Input dataframe with an additional column containing the extracted CommonNames from the SM_USERNAME's values
 
     Additional_Column_Name                                           Description                                                                                   Datatype
-    CN                          Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.                                          string
+    this.getOrDefault("OutputCol")      Column containing the CommonNames for each user. It is an alpha-numeric string and it may contain NULL values.             string
     """
 
     @keyword_only
     def __init__(self):
         """
-        :param setInputCol: Sets the input column to be processed within the transformer
-        :param setOutputCol: Sets the name of the output column
+        :param setInputCol: Input column to be processed within the transformer which must contain "CN" strings like "cn=<AN_ALPHANUMERIC_STRING>"
+        :param OutputCol: Name of the output column to be set after extracting the CN from the SM_USERNAME column's comma separated strings
         :type setInputCol: string
-        :type setInputCol: string
+        :type OutputCol: string
 
         :Example:
         >>> from cnextractor import CnExtractor
-        >>> cne = CnExtractor(setInputCol="SM_USERNAME", setOutputCol="CN")
+        >>> cne = CnExtractor(setInputCol="SM_USERNAME", OutputCol="CN")
         >>> datafame_with_CN = cne.transform(input_dataset)
         """
         super(CnExtractor, self).__init__()
