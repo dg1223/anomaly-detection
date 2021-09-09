@@ -45,18 +45,6 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
-    def set_input_col(self, value):
-        """
-        Sets the input column value
-        """
-        self._set(inputCol=value)
-
-    def set_output_col(self, value):
-        """
-        Sets the output column value
-        """
-        self._set(outputCol=value)
-
     sch_dict = {
         "SM_USERNAME": ["SM_USERNAME", StringType()],
     }
