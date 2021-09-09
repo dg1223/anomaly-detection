@@ -39,15 +39,15 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     @keyword_only
     def __init__(self):
         """
-          :param setInputCol: Sets the input column to be processed within the transformer
-          :param setOutputCol: Sets the name of the output column
-          :type setInputCol: string
-          :type setInputCol: string
+        :param setInputCol: Sets the input column to be processed within the transformer
+        :param setOutputCol: Sets the name of the output column
+        :type setInputCol: string
+        :type setInputCol: string
 
-          :Example:
-          >>> from cnextractor import CnExtractor
-          >>> cne = CnExtractor(setInputCol="SM_USERNAME", setOutputCol="CN")
-          >>> datafame_with_CN = cne.transform(input_dataset)
+        :Example:
+        >>> from cnextractor import CnExtractor
+        >>> cne = CnExtractor(setInputCol="SM_USERNAME", setOutputCol="CN")
+        >>> datafame_with_CN = cne.transform(input_dataset)
         """
         super(CnExtractor, self).__init__()
         self._setDefault(inputCol="SM_USERNAME", outputCol="CN")

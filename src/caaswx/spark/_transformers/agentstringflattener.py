@@ -90,21 +90,21 @@ class AgentStringFlattener(SparkNativeTransformer):
         windowStep=900,
     ):
         """
-          :param entity_name: Column to be grouped by when cleaning the columns
-          :param agentSizeLimit: Defines a limit on number of agent strings in the output column
-          :param runParser: It's a booleab value: if off will only flatten the agent strings, if on will also parse them
-          :param window_length: Sets this UserFeatureGenerator's window length.
-          :param window_step: Sets this UserFeatureGenerator's window step.
-          :type entity_name: string
-          :type agentSizeLimit: long
-          :type runParser: boolean
-          :type window_length: long
-          :type window_step: long
+        :param entity_name: Column to be grouped by when cleaning the columns
+        :param agentSizeLimit: Defines a limit on number of agent strings in the output column
+        :param runParser: It's a booleab value: if off will only flatten the agent strings, if on will also parse them
+        :param window_length: Sets this UserFeatureGenerator's window length.
+        :param window_step: Sets this UserFeatureGenerator's window step.
+        :type entity_name: string
+        :type agentSizeLimit: long
+        :type runParser: boolean
+        :type window_length: long
+        :type window_step: long
 
-          :Example:
-          >>> from agentstringflattener import AgentStringFlattener
-          >>> flattener = AgentStringFlattener(window_length = 1800, window_step = 1800)
-          >>> features = flattener.transform(input_dataset)
+        :Example:
+        >>> from agentstringflattener import AgentStringFlattener
+        >>> flattener = AgentStringFlattener(window_length = 1800, window_step = 1800)
+        >>> features = flattener.transform(input_dataset)
         """
         super(AgentStringFlattener, self).__init__()
         self._setDefault(

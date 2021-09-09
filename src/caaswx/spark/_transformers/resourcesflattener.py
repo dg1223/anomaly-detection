@@ -74,19 +74,19 @@ class ResourcesFlattener(SparkNativeTransformer):
         max_resource_count=-1,
     ):
         """
-          :param window_length: Length of the sliding window used for entity resolution (in seconds).
-          :param window_step: Length of the sliding window step-size used for entity resolution (in seconds).
-          :param entity_name: Name of the column to perform aggregation on, together with the sliding window
-          :param max_resource_count: Maximum count of resources allowed in the resource list within the sliding window.
-          :type window_length: long
-          :type window_step: long
-          :type entity_name: string
-          :type max_resource_count: long
+        :param window_length: Length of the sliding window used for entity resolution (in seconds).
+        :param window_step: Length of the sliding window step-size used for entity resolution (in seconds).
+        :param entity_name: Name of the column to perform aggregation on, together with the sliding window
+        :param max_resource_count: Maximum count of resources allowed in the resource list within the sliding window.
+        :type window_length: long
+        :type window_step: long
+        :type entity_name: string
+        :type max_resource_count: long
 
-          :Example:
-          >>> from resourcesflattener import ResourcesFlattener
-          >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800, entity_name = "SM_USERNAME", max_resource_count = 3)
-          >>> datafame_with_CN = flattener.transform(input_dataset)
+        :Example:
+        >>> from resourcesflattener import ResourcesFlattener
+        >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800, entity_name = "SM_USERNAME", max_resource_count = 3)
+        >>> datafame_with_CN = flattener.transform(input_dataset)
         """
         super(ResourcesFlattener, self).__init__()
         self._setDefault(

@@ -44,10 +44,10 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     @keyword_only
     def __init__(self):
         """
-          :param inputCol: Sets the input column to be processed within the transformer
-          :param outputCol: Sets the name of the output column
-          :type inputCol: string
-          :type outputCol: string
+        :param inputCol: Sets the input column to be processed within the transformer
+        :param outputCol: Sets the name of the output column
+        :type inputCol: string
+        :type outputCol: string
         """
         super(SMResourceCleaner, self).__init__()
         self._setDefault(inputCol="SM_RESOURCE", outputCol="Cleaned_SM_RESOURCE")

@@ -111,15 +111,15 @@ class IPFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-          :param window_length: Sets this UserFeatureGenerator's window length.
-          :param window_step: Sets this UserFeatureGenerator's window step.
-          :type window_length: long
-          :type window_step: long
+        :param window_length: Sets this UserFeatureGenerator's window length.
+        :param window_step: Sets this UserFeatureGenerator's window step.
+        :type window_length: long
+        :type window_step: long
 
-          :Example:
-          >>> from ipfeaturegenerator import IPFeatureGenerator
-          >>> feature_generator = IPFeatureGenerator(window_length = 1800, window_step = 1800)
-          >>> features = feature_generator.transform(dataset = input_dataset)
+        :Example:
+        >>> from ipfeaturegenerator import IPFeatureGenerator
+        >>> feature_generator = IPFeatureGenerator(window_length = 1800, window_step = 1800)
+        >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(window_length=900, window_step=900)

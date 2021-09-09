@@ -139,17 +139,17 @@ class UserFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-          :param entity_name: Pivot Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
-          :param window_length: Sets this UserFeatureGenerator's window length.
-          :param window_step: Sets this UserFeatureGenerator's window step.
-          :type entity_name: string
-          :type window_length: long
-          :type window_step: long
+        :param entity_name: Pivot Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
+        :param window_length: Sets this UserFeatureGenerator's window length.
+        :param window_step: Sets this UserFeatureGenerator's window step.
+        :type entity_name: string
+        :type window_length: long
+        :type window_step: long
 
-          :Example:
-          >>> from userfeaturegenerator import UserFeatureGenerator
-          >>> feature_generator = UserFeatureGenerator(entity_name = "SM_USERNAME", window_length = 1800, window_step = 1800)
-          >>> features = feature_generator.transform(dataset = input_dataset)
+        :Example:
+        >>> from userfeaturegenerator import UserFeatureGenerator
+        >>> feature_generator = UserFeatureGenerator(entity_name = "SM_USERNAME", window_length = 1800, window_step = 1800)
+        >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(entity_name="CN", window_length=900, window_step=900)
