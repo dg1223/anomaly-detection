@@ -4,79 +4,287 @@ A module to generate features related to users. It encompasses the features of u
 Input: A Spark dataframe
 Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
 
-Column Name                            Data type                                                          Description
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+	| this.getOr  | string   | Pivot Column containing the      |
+    | Default("en |          | CommonNames for each user. It has|
+    | tityName")  |          | to be an alpha-numeric string and|
+	|             |          | it may contain  NULL values.     |
+    +-------------+----------+----------------------------------+
+	| CRA_SEQ     | long     | Serves as the primary key for the|
+    |             |          | Siteminder data and can be used  |
+	|             |          | for counting unique rows via     |
+	|             |          | aggregation steps.               |
+    +-------------+----------+----------------------------------+
+	| SM_ACTION   | string   | Records the  HTTP action. Get,   |
+	|             |          | Put and Post (can contain NULLs).|
+    +-------------+----------+----------------------------------+
+	| SM_RESOURCE | string   | The resource, for example a web  |
+	|             |          | page that the user is requesting.|
+	|             |          | This column can contain URLs in  |
+	|             |          | formats along with NULL values   |
+	|             |          | and abbreviations of various     |
+	|             |          | applications separated by "/".   |
+	|             |          | It can also encompass GET/POST   |
+	|             |          | request parameters related to    |
+	|             |          | different activities of user.    |
+	|             |          | Some rows also have blank values |
+	|             |          | for SM_RESOURCE.                 |
+    +-------------+----------+----------------------------------+
+	| SM_CATEGORY | integer  | The identifier for the type of   |
+	| ID          |          |  logging.                        |
+	+-------------+----------+----------------------------------+
+	| SM_EVENTID  | integer  | Marks the particular event that  |
+    |             |          | caused the logging to occur.     |
+    +-------------+----------+----------------------------------+
+	| SM_TIMESTAMP| timestamp| Marks the time at which the entry|
+	|             |          | was made to the database.        |
+    +-------------+----------+----------------------------------+
+	| SM_USERNAME | string   | The username for the user logged |
+    |             |          | in with this session. Usernames  |
+	|             |          | encompass CNs along with abstract|
+	|             |          | information about CMS and AMS    |
+	|             |          | requests. It may contain SAML    |
+	|             |          | requests, NULLs and blank values.|
+	|             |          | The general format of this column|
+	|             |          | includes various abbreviated     |
+	|             |          | expressions of various apps      |
+	|             |          | separated by "/".                |
+    +-------------+----------+----------------------------------+
+	| CN          | string   | Column containing the CommonNames|
+    |             |          | for each user. It is an alpha-   |
+    |             |          | numeric string and it may contain|
+    |             |          | NULL values. CNs can be generated|
+	|             |          | from SM_USERNAME column through  |
+	|             |          | the CnExtractor transformer.     |
+    +-------------+----------+----------------------------------+
+	| SM_CLIENTIP | string   | The IP address for the client    |
+	|             |          | machine that is trying to utilize|
+	|             |          | a protected resource.            |
+    +-------------+----------+----------------------------------+
+	| SM_SESSIONID| string   | The session identifier for this  |
+    |             |          | users activity.                 |
+    +-------------+----------+----------------------------------+
+	| SM_AGENTNAME| string   | The name associated with the     |
+	|             |          | agent that is being used in      |
+	|             |          | conjunction with policy server   |
+    +-------------+----------+----------------------------------+
+	| SM_TRANSACTI| string   | Records the transaction number   |
+    | ON          |          | for each activity of the session.|
+    +-------------+----------+----------------------------------+
 
-CRA_SEQ                                 long                               Serves as the primary key for the Siteminder data and can be used for counting unique rows via aggregation steps.
-this.getOrDefault("entityName")         string                             Pivot Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
-SM_ACTION                               string                             Records the  HTTP action. Get, Post, and Put. It can contain NULLs.
-SM_RESOURCE                             string                             The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
-SM_CATEGORYID                           integer                            The identifier for the type of logging.
-SM_EVENTID                              integer                            Marks the particular event that caused the logging to occur.
-SM_TIMESTAMP                            timestamp                          Marks the time at which the entry was made to the Siteminder's database.
-SM_USERNAME                             string                             The username for the user currently logged in with this session. Usernames encompass CNs along with abstract information about CMS and AMS requests. It may contain SAML requests, NULLs and blank values. The general format of this column includes various abbreviated expressions of various applications separated by "/".
-CN                                      string                             Column expecting the CommonNames for each user to be inputted before calling the transformer (by default set to "CN"). It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
-SM_CLIENTIP                             string                             The IP address for the client machine that is trying to utilize a protected resource.
-SM_SESSIONID                            string                             The session identifier for this user’s activity.
-SM_TRANSACTIONID                        string                             Records the transaction number for every activity of the ongoing session.
-SM_AGENTNAME                            string                             The name associated with the agent that is being used in conjunction with the policy server.
+	Output features
 
-
-
-Output: A dataframe with the following features extracted:
-
-Column Name                       Description                                                                                                       Datatype
-COUNT_ADMIN_LOGOUT              	Count of Admin Logout events during the time window, defined by sm_eventid = 8.                                   integer
-COUNT_AUTH_ACCEPT	                Count of Auth Accept events during the time window, defined by sm_eventid = 1.                                    integer
-COUNT_ADMIN_ATTEMPT             	Count of Admin Accept events during the time window, defined by sm_eventid = 3.                                   integer
-COUNT_ADMIN_REJECT              	Count of Admin Reject events during the time window, defined by sm_eventid = 2.                                   integer
-COUNT_AZ_ACCEPT                   Count of Az Accept events during the time window, defined by sm_eventid = 5.                                      integer
-COUNT_AZ_REJECT                 	Count of Az Reject events during the time window, defined by sm_eventid = 6.                                      integer
-COUNT_AUTH_LOGOUT               	Count of Auth Logout events during the time window, defined by sm_eventid = 10.                                   integer
-COUNT_VISIT                     	Count of Visit events during the time window, defined by sm_eventid = 13.                                         integer
-COUNT_AUTH_CHALLENGE            	Count of Auth Challenge events during the time window, defined by sm_eventid = 4.                                 integer
-COUNT_ADMIN_REJECT              	Count of Admin Reject events during the time window, defined by sm_eventid = 9.                                   integer
-COUNT_ADMIN_LOGIN               	Count of Admin Login events during the time window, defined by sm_eventid = 7.                                    integer
-COUNT_VALIDATE_ACCEPT           	Count of Validate Accept events during the time window, defined by sm_eventid = 11.                               integer
-COUNT_VALIDATE_REJECT           	Count of Validate Reject events during the time window, defined by sm_eventid = 12.                               integer
-COUNT_FAILED                    	Count of all Reject events during the time window, defined by sm_eventid = 2, 6, 9 and 12.                        integer
-COUNT_GET	                        Count of all GET HTTP actions in SM_ACTION during the time window.                                                integer
-COUNT_POST	                      Count of all POST HTTP actions in SM_ACTION during the time window.                                               integer
-COUNT_HTTP_METHODS	              Count of all GET and POST HTTP actions in SM_ACTION  during the time window.                                      integer
-COUNT_OU_AMS	                    Count of all “ams” or “AMS” occurrences in SM_USERNAME OR SM_RESOURCE during the time window.                     integer
-COUNT_OU_CMS                    	Count of all “cra-cp” occurrences in SM_USERNAME during the time window.                                          integer
-COUNT_OU_IDENTITY               	Count of all “ou=Identity” occurrences in SM_USERNAME during the time window.                                     integer
-COUNT_OU_CRED                   	Count of all “ou=Credential” occurrences in SM_USERNAME during the time window.                                   integer
-COUNT_OU_SECUREKEY              	Count of all “ou=SecureKey” occurrences in SM_USERNAME during the time window.                                    integer
-COUNT_PORTAL_MYA                	Count of all “mima” occurrences in SM_RESOURCE during the time window.                                            integer
-COUNT_PORTAL_MYBA               	Count of all “myba” occurrences in SM_RESOURCE during the time window.                                            integer
-COUNT_UNIQUE_ACTIONS            	Count of distinct HTTP Actions in SM_ACTION during the time window.                                               integer
-COUNT_UNIQUE_IPS                	Count of distinct IPs in SM_CLIENTIP during the time window.                                                      integer
-COUNT_UNIQUE_EVENTS	              Count of distinct EventIDs in SM_EVENTID  during the time window.                                                 integer
-COUNT_UNIQUE_USERNAME	            Count of distinct CNs in CN during the time window.                                                               integer
-COUNT_UNIQUE_RESOURCES          	Count of distinct Resource Strings in SM_RESOURCE during the time window.                                         integer
-COUNT_UNIQUE_SESSIONS           	Count of distinct SessionIDs in SM_SESSIONID during the time window.                                              integer
-COUNT_RECORDS	                    Counts number of CRA_SEQs (dataset primary key)                                                                   integer
-UNIQUE_SM_ACTIONS	                A distinct list of HTTP Actions in SM_ACTION during time window.                                                  array<string>
-UNIQUE_SM_CLIENTIPS	              A distinct list of IPs in SM_CLIENTIPS during time window.                                                        array<string>
-UNIQUE_SM_PORTALS               	A distinct list of Resource Strings in SM_RESOURCE during time window.                                            array<string>
-UNIQUE_SM_TRANSACTIONS          	A distinct list of Transaction Ids in SM_TRANSACTIONID during time window.                                        array<string>
-SM_SESSION_IDS                  	A distinct list of SessionIDs in SM_SESSIONID during the time window.                                             array<string>
-COUNT_UNIQUE_OU                 	A count of distinct Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.        integer
-UNIQUE_USER_OU                  	A distinct list of Entries containing “ou=” and a string ending in “,” in SM_USERNAME during time window.         array<string>
-COUNT_PORTAL_RAC                	A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.         integer
-UNIQUE_PORTAL_RAC               	A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window. array<string>
-UNIQUE_USER_APPS                	A distinct list of root nodes from each record in SM_RESOURCE during time window.                                 array<string>
-COUNTUNIQUE_USER_APPS           	A count of distinct root nodes from each record in SM_RESOURCE during time window.                                integer
-USER_TIMESTAMP	                  Minimum timestamp in SM_TIMESTAMP during time window.                                                             timestamp
-AVG_TIME_BT_RECORDS             	Average time between records during the time window.                                                              double
-MAX_TIME_BT_RECORDS	              Maximum time between records during the time window.                                                              double
-MIN_TIME_BT_RECORDS	              Minimum time between records during the time window.                                                              double
-UserLoginAttempts	                Total number of login attempts from the user within the specified time window                                     integer
-UserAvgFailedLoginsWithSameIPs	  Average number of failed logins with same IPs from the user                                                       integer
-UserNumOfAccountsLoginWithSameIPs Total number of accounts visited by the IPs used by this user                                                     integer
-UserNumOfPasswordChange	          Total number of requests for changing passwords by the user                                                       integer 
-UserIsUsingUnusualBrowser	        Whether or not the browser used by the user in current time window is same as that in the previous time window    integer
-                                  , or any change within the current time window
+	+-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+	| COUNT_      | integer  | Count of Admin Login events      |
+    | ADMIN_LOGIN |          | during the time window, defined  |
+	|             |          | by sm_eventid = 7.               |
+	+-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Auth accept events      |
+    | AUTH_ACCEPT |          | during the time window, defined  |
+	|             |          | by sm_eventid = 1.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Admin Logout events     |
+    | ADMIN_LOGOUT|          | during the time window, defined  |
+	|             |          | by sm_eventid = 8.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Admin reject events     |
+    | ADMIN_REJECT|          | during the time window, defined  |
+	|             |          | by sm_eventid = 9.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Admin attempt events    |
+    | ADMIN_ATTEMP|          | during the time window, defined  |
+	| T           |          | by sm_eventid = 3.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all Reject events       |
+    | FAILED      |          | during the time window, defined  |
+	|             |          | by sm_eventid = 2,6 and 9.       |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Visit events during the |
+    | VISIT       |          | time window, defined by          |
+	|             |          | sm_eventid = 13.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Auth challenge events   |
+    | AUTH_CHALLEN|          | during the time window, defined  |
+	| GE          |          | by sm_eventid = 4.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all GET HTTP actions    |
+    | GET         |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all POST HTTP actions   |
+    | POST        |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all GET and POST actions|
+    | HTTP_METHODS|          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Auth Logout events      |
+    | AUTH_LOGOUT |          | during the time window, defined  |
+	|             |          | by sm_eventid = 10.              |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Counts number of CRA_SEQs        |
+    | RECORDS     |          | (dataset primary key)            |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct HTTP Actions   |
+    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
+	| NS          |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | A count of distinct root nodes   |
+    | UNIQUE_USER_|          | from each record in SM_RESOURCE  |
+	| APPS        |          | during time window.              |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Auth reject events      |
+    | AUTH_REJECT |          | during the time window, defined  |
+	|             |          | by sm_eventid = 2.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Az accept events        |
+    | AZ_ACCEPT   |          | during the time window, defined  |
+	|             |          | by sm_eventid = 5.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Az reject events        |
+    | AZ_REJECT   |          | during the time window, defined  |
+	|             |          | by sm_eventid = 6.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all ams or AMS      |
+    | OU_AMS      |          | occurrences in SM_USERNAME OR    |
+	|             |          | SM_RESOURCE during time window.  |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all cra-cp occurrences|
+    | OU_CMS      |          | in SM_USERNAME during the window.|
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Validate Accept events  |
+    | VALIDATE_ACC|          | during the time window, defined) |
+	| EPT         |          |  by sm_eventid = 11.             |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Validate reject events  |
+    | VALIDATE_REJ|          | during the time window, defined) |
+	| ECT         |          |  by sm_eventid = 12.             |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all GET HTTP actions    |
+    | GET         |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all POST HTTP actions   |
+    | POST        |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all GET and POST actions|
+    | HTTP_METHODS|          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all ou=Identity       |
+    | OU_IDENTITY |          | occurrences in SM_USERNAME during|
+	|             |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all ou=Credential     |
+    | OU_CRED     |          | occurrences in SM_USERNAME during|
+	|             |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all ou=SecureKey      |
+    | OU_SECUREKEY|          | occurrences in SM_USERNAME during|
+	|             |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all mima occurrences  |
+    | PORTAL_MYA  |          | in SM_RESOURCE during the time   |
+	|             |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all myba occurrences  |
+    | PORTAL_MYBA |          | in SM_RESOURCE during the time   |
+	|             |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct HTTP Actions   |
+    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
+	| NS          |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct EventIDs in    |
+    | UNIQUE_EVENT|          | SM_EVENTID  during the time      |
+	| S           |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct CNs in CN      |
+    | UNIQUE_USERN|          | during the time window.          |
+	| AME         |          |                                  |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | A distinct list of SessionIDs in |
+    | UNIQUE_SESSI|          | SM_SESSIONID during time window. |
+	| ON          |          |                                  |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct Resource       |
+    | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
+	| RCES        |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | A count of Entries containing    |
+    | UNIQUE_PORTA|          | rep followed by a string ending|
+	| L_RAC       |          | in / in SM_RESOURCE during the |
+	|             |          | time window.                     |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct IPs in         |
+    | UNIQUE_IPS  |          | SM_CLIENTIP during the time      |
+	|             |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Counts number of CRA_SEQs        |
+    | RECORDS     |          | (dataset primary key)            |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of HTTP Actions  |
+    | SM_ACTIONS  | <string> | in SM_ACTION during time window. |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of CNs           |
+    | USERNAME    | <string> | in CN during time window.        |
+    +-------------+----------+----------------------------------+
+	| SM_SESSIONS |  array   | A distinct list of SessionIDs    |
+    |             | <string> | in SM_SESSIONID during window.   |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of Resource      |
+    | SM_PORTALS  | <string> | strings in SM_RESOURCE during    |
+	|             |          | time window.                     |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of Transaction   |
+    | SM_TRANSACTI| <string> | Ids in SM_TRANSACTIONID during   |
+	| ONS         |          | time window.                     |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of Entries       |
+    | USER_OU     | <string> | containing ou= and a string    |
+	|             |          | ending in , in SM_USERNAME     |
+	|             |          | during time window.              |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of Entries       |
+    | PORTAL_RAC  | <string> | containing rep followed by a   |
+	|             |          | string ending in / in          |
+	|             |          | SM_RESOURCE during time window.  |
+    +-------------+----------+----------------------------------+
+	| UNIQUE_     |  array   | A distinct list of main apps     |
+    | USER_APPS   | <string> | from each record in SM_RESOURCE  |
+	|             |          | during time window.              |
+    +-------------+----------+----------------------------------+
+	| USER_TIMESTA| timestamp| Earliest timestamp during time   |
+    | MP          |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| AVG_TIME_   | double   | Average time between records     |
+    | BT_RECORDS  |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| MAX_TIME_   | double   | Maximum time between records     |
+    | BT_RECORDS  |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| MIN_TIME_   | double   | Minimum time between records     |
+    | BT_RECORDS  |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| UserLogin   | integer  | Total number of login attempts   |
+    | Attempts    |          | from the user within the window. |
+    +-------------+----------+----------------------------------+
+	| UserAvgFaile| integer  | Average number of failed logins  |
+    | dLoginsWithS|          | with same IPs from the user.     |
+	| ameIPs      |          |                                  |
+    +-------------+----------+----------------------------------+
+	| UserNumOfAcc| integer  | Total number of accounts visited |
+    | ountsLoginWi|          | by the IPs used by this user     |
+	| thSameIPs   |          |                                  |
+    +-------------+----------+----------------------------------+
+	| UserNumOfPas| integer  | Total number of requests for     |
+    | swordChange |          | changing passwords by the user.  |
+    +-------------+----------+----------------------------------+
+	| UserIsUsing | integer  | Whether or not the browser used  |
+    | UnusualBrows|          | by user in current time  window  |
+	| er          |          | is same as that in the previous  |
+	|             |          | time window                      |
+    +-------------+----------+----------------------------------+ 
 
 """
 import pyspark.sql.functions as F

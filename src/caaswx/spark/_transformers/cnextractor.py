@@ -19,28 +19,31 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     - Removing the "cn=" all chars before it
     - Removing the characters after the first comma (including the comma)
     Input: Dataframe containing an SM_USERNAME that has a CN
-    
+
     Notes:
     - Assumes the "cn=" and its contents are not at the end of the SM_USERNAME
     - Reminder that dict must change if SM_USERNAME is no longer used
     Input: A Spark dataframe
     Expected columns in the input dataframe
-    +------------------------+------------+----------------------------------------------------------------------------------------------+
-    | Column_Name            | Datatype   | Description                                                                                  |
-    +========================+============+==========+===================================================================================+
-    | SM_USERNAME            | string     | The username for the user currently logged in with this session. Usernames encompass CNs     |
-    |                        |            | along with abstract information about CMS and AMS requests. It may contain SAML  requests    |
-    |                        |            | ,NULLs and blank values.                                                                     | 
-    +------------------------+------------+----------------------------------------------------------------------------------------------+
-    
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_USERNAME | string   | The username for user currently  |
+        |             |          | logged in with this session.     |
+        |             |          | Usernames contain CNs along with |
+        |             |          | abstract information about CMS   |
+        |             |          | and AMS requests. It may contain |
+        |             |          | SAML reqs,NULLs and void cells.  |
+    +-------------+----------+----------------------------------+
     Output: Same dataframe with a CN column appended
-    +------------------------+------------+----------------------------------------------------------------------------------------------+
-    | Column_Name            | Datatype   | Description                                                                                  |
-    +========================+============+==========+===================================================================================+
-    | this.getOrDefault      | string     | Column containing the CommonNames for each user. It is an alpha-numeric string and it may    |
-    | ("OutputCol")          |            | contain NULL values.                                                                         |
-    |                        |            |                                                                                              | 
-    +------------------------+------------+----------------------------------------------------------------------------------------------+
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | this.getOr  | string   | Column containing the CommonNames|
+        | Default("   |          | for each user. It is an alpha-   |
+        | OutputCol") |          | numeric string and it may contain|
+        |             |          | NULL values.                     |
+    +-------------+----------+----------------------------------+
     """
 
     @keyword_only

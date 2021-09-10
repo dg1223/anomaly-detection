@@ -30,15 +30,33 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
 
     A module to clean the SM_RESOURCE column.
     Input: A Spark dataframe
-    Expected columns in the input dataframe
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_RESOURCE | string   | The resource, for example a web  |
+        |             |          | page that the user is requesting.|
+        |             |          | This column can contain URLs in  |
+        |             |          | formats along with NULL values   |
+        |             |          | and abbreviations of various     |
+        |             |          | applications separated by "/".   |
+        |             |          | It can also encompass GET/POST   |
+        |             |          | request parameters related to    |
+        |             |          | different activities of user.    |
+        |             |          | Some rows also have blank values |
+        |             |          | for SM_RESOURCE.                 |
+    +-------------+----------+----------------------------------+
 
-    Column Name                 Data type                                                          Description
-    SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+        Output:
 
-    Output: Returns the same SM_RESOURCE column after cleaning operations
+        +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_RESOURCE | string   | Column containing the cleaned    |
+        |             |          | forms of different URLs with     |
+        |             |          | respect to the aforementioned    |
+        |             |          | cleaning strategies.             |
+    +-------------+----------+----------------------------------+
 
-    Column_name                                           Description                                                                                   Datatype
-    SM_RESOURCE                   The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values. It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.               String
     """
 
     @keyword_only

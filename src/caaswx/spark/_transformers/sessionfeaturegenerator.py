@@ -3,45 +3,140 @@ A module to generate features related to session features. This transformer enco
 input: A Spark dataframe
 
 Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_RESOURCE | string   | The resource, for example a web  |
+	|             |          | page that the user is requesting.|
+	|             |          | This column can contain URLs in  |
+	|             |          | formats along with NULL values   |
+	|             |          | and abbreviations of various     |
+	|             |          | applications separated by "/".   |
+	|             |          | It can also encompass GET/POST   |
+	|             |          | request parameters related to    |
+	|             |          | different activities of user.    |
+	|             |          | Some rows also have blank values |
+	|             |          | for SM_RESOURCE.                 |
+    +-------------+----------+----------------------------------+
+	| SM_EVENTID  | integer  | Marks the particular event that  |
+    |             |          | caused the logging to occur.     |
+    +-------------+----------+----------------------------------+
+	| SM_ACTION   | string   | Records the  HTTP action. Get,   |
+	|             |          | Put and Post (can contain NULLs).|
+    +-------------+----------+----------------------------------+
+	| SM_CLIENTIP | string   | The IP address for the client    |
+	|             |          | machine that is trying to utilize|
+	|             |          | a protected resource.            |
+    +-------------+----------+----------------------------------+
+	| SM_TIMESTAMP| timestamp| Marks the time at which the entry|
+	|             |          | was made to the database.        |
+    +-------------+----------+----------------------------------+
+	| SM_SESSIONID| string   | The session identifier for this  |
+    |             |          | user’s activity.                 |
+    +-------------+----------+----------------------------------+
+	| CN          | string   | Column containing the CommonNames|
+    |             |          | for each user. It is an alpha-   |
+    |             |          | numeric string and it may contain|
+    |             |          | NULL values. CNs can be generated|
+	|             |          | from SM_USERNAME column through  |
+	|             |          | the CnExtractor transformer.     |
+    +-------------+----------+----------------------------------+
+	| CRA_SEQ     | long     | Serves as the primary key for the|
+    |             |          | Siteminder data and can be used  |
+	|             |          | for counting unique rows via     |
+	|             |          | aggregation steps.               |
+    +-------------+----------+----------------------------------+
 
-Column Name                 Data type                                                          Description
-SM_RESOURCE                  string                  The resource, for example a web page, that the user is requesting. This column can contain URLs in various formats along with NULL values and abbreviations of various applications separated by "/". It can also encompass GET/POST request parameters related to different activities of user. Some rows also have blank values for SM_RESOURCE.
+Output features:
 
-SM_EVENTID                   integer                 Marks the particular event that caused the logging to occur.
-SM_ACTION                    string                  Records the  HTTP action. Get, Post, and Put. It can contain NULLs.
-CRA_SEQ                      long                    Serves as the primary key for the Siteminder data and can be used for counting unique rows via aggregation steps.
-SM_CLIENTIP                  string                  The IP address for the client machine that is trying to utilize a protected resource.
-SM_TIMESTAMP                 timestamp               Marks the time at which the entry was made to the Siteminder's database.
-SM_SESSIONID                 string                  The session identifier for this user’s activity.
-CN                           string                  Column expecting the CommonNames for each user to be inputted. It is an alpha-numeric string and it contains NULL values. It is not present by default in the Siteminder's data. CnExtractor class has to be called with SM_USERNAME column as the input for generating the CN.
-
-
-Output: A dataframe with the following features extracted:
-
-Column_name                                           Description                                                                                   Datatype
-SESSION_APPS	            A distinct list of root nodes from each record in SM_RESOURCE during time window.                                      array<string>
-COUNT_UNIQUE_APPS	        A count of distinct root nodes from each record in SM_RESOURCE during time window.                                     integer
-SESSION_USER    	        A distinct list of CNs in CN during time window.                                                                       array<s tring>
-COUNT_ADMIN_LOGIN      	    Count of Admin Login events during the time window, defined by sm_eventid = 7.                                         integer
-COUNT_ADMIN_LOGOUT  	    Count of Admin Logout events during the time window, defined by sm_eventid = 8.                                        integer
-COUNT_ADMIN_REJECT  	    Count of Admin Reject events during the time window, defined by sm_eventid = 2.                                        integer
-COUNT_FAILED        	    Count of all Reject events during the time window, defined by sm_eventid = 2, 6 and 9.                                 integer
-COUNT_VISIT         	    Count of Visit events during the time window, defined by sm_eventid = 13.                                              integer
-COUNT_GET	                Count of all GET HTTP actions in SM_ACTION during the time window.                                                     integer
-COUNT_POST	                Count of all POST HTTP actions in SM_ACTION during the time window.                                                    integer
-COUNT_HTTP_METHODS	        Count of all GET and POST HTTP actions in SM_ACTION  during the time window.                                           integer
-COUNT_RECORDS	            Counts number of CRA_SEQs (dataset primary key)                                                                        integer
-COUNT_UNIQUE_ACTIONS   	    Count of distinct HTTP Actions in SM_ACTION during the time window.                                                    integer
-COUNT_UNIQUE_EVENTS	        Count of distinct EventIDs in SM_EVENTID  during the time window.                                                      integer
-COUNT_UNIQUE_USERNAME	    Count of distinct CNs in CN during the time window.                                                                    integer
-COUNT_UNIQUE_RESOURCES	    Count of distinct Resource Strings in SM_RESOURCE during the time window.                                              integer
-COUNT_UNIQUE_REP	        A count of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.              integer
-SESSION_SM_ACTION	        A distinct list of HTTP Actions in SM_ACTION during time window.                                                       array<string>
-SESSION_RESOURCE	        A distinct list of Resource Strings in SM_RESOURCE during time window.                                                 array<string>
-SESSION_REP_APP	            A distinct list of Entries containing “rep” followed by a string ending in “/” in SM_RESOURCE during time window.      array<string>
-SESSSION_FIRST_TIME_SEEN	Minimum time at which a record was logged during the time window.                                                      timestamp
-SESSSION_LAST_TIME_SEEN	    Maximum time at which a record was logged during the time window.                                                      timestamp
-SDV_BT_RECORDS	            Standard deviation of timestamp deltas during the time window.                                                         float
+	+-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+	| SESSION_APPS|  array   | A distinct list of main apps     |
+    |             | <string> | from each record in SM_RESOURCE  |
+	|             |          | during time window.              |
+    +-------------+----------+----------------------------------+
+	| COUNT_UNIQUE| integer  | Count of distinct Resource       |
+    | APPS        |          | strings in SM_RESOURCE during    |
+	|             |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+	| SESSION_    |  array   | A distinct list of CNs           |
+    | USER        | <string> | in CN during time window.        |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Admin Login events      |
+    | ADMIN_LOGIN |          | during the time window, defined  |
+	|             |          | by sm_eventid = 7.               |
+	+-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Admin Logout events     |
+    | ADMIN_LOGOUT|          | during the time window, defined  |
+	|             |          | by sm_eventid = 8.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Admin reject events     |
+    | ADMIN_REJECT|          | during the time window, defined  |
+	|             |          | by sm_eventid = 9.               |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all Reject events       |
+    | FAILED      |          | during the time window, defined  |
+	|             |          | by sm_eventid = 2,6 and 9.       |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of Visit events during the |
+    | VISIT       |          | time window, defined by          |
+	|             |          | sm_eventid = 13.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all GET HTTP actions    |
+    | GET         |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all POST HTTP actions   |
+    | POST        |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of all GET and POST actions|
+    | HTTP_METHODS|          | during the time window.          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Counts number of CRA_SEQs        |
+    | RECORDS     |          | (dataset primary key)            |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct HTTP Actions   |
+    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
+	| NS          |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct CNs in CN      |
+    | UNIQUE_USERN|          | during the time window.          |
+	| AME         |          |                                  |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct Resource       |
+    | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
+	| RCES        |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | Count of distinct EventIDs in    |
+    | UNIQUE_EVENT|          | SM_EVENTID  during the time      |
+	| S           |          | window.                          |
+    +-------------+----------+----------------------------------+
+	| COUNT_      | integer  | A count of Entries containing    |
+    | UNIQUE_REP  |          | “rep” followed by a string ending|
+	|             |          | in “/” in SM_RESOURCE during the |
+	|             |          | time window.                     |
+    +-------------+----------+----------------------------------+
+	| SESSION_    |  array   | A distinct list of HTTP Actions  |
+    | SM_ACTION   | <string> | in SM_ACTION during time window. |
+    +-------------+----------+----------------------------------+
+	| SESSION_    |  array   | A distinct list of Resource      |
+    | RESOURCE    | <string> | strings in SM_RESOURCE during    |
+	|             |          | time window.                     |
+    +-------------+----------+----------------------------------+
+	| SESSION_    |  array   | A distinct list of Entries       |
+    | REP_APP     | <string> | containing “rep” followed by a   |
+	|             |          | string ending in “/” in          |
+	|             |          | SM_RESOURCE during time window.  |
+    +-------------+----------+----------------------------------+
+	| SESSION_FIRS| timestamp| Minimum time at which a record   |
+    | T_TIME_SEEN |          | was logged during the time window|
+    +-------------+----------+----------------------------------+
+	| SESSION_LAST| timestamp| Maximum time at which a record   |
+    | _TIME_SEEN  |          | was logged during the time window|
+    +-------------+----------+----------------------------------+
+	| SDV_BT_RECOR| timestamp| Standard deviation of timestamp  |
+    | DS          |          | deltas during the time window.   |
+    +-------------+----------+----------------------------------+
 """
 
 import pyspark.sql.functions as F
