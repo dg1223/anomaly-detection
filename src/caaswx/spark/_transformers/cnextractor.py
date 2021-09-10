@@ -29,20 +29,20 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_USERNAME | string   | The username for user currently  |
-        |             |          | logged in with this session.     |
-        |             |          | Usernames contain CNs along with |
-        |             |          | abstract information about CMS   |
-        |             |          | and AMS requests. It may contain |
-        |             |          | SAML reqs,NULLs and void cells.  |
+    |             |          | logged in with this session.     |
+    |             |          | Usernames contain CNs along with |
+    |             |          | abstract information about CMS   |
+    |             |          | and AMS requests. It may contain |
+    |             |          | SAML reqs,NULLs and void cells.  |
     +-------------+----------+----------------------------------+
     Output: Same dataframe with a CN column appended
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | this.getOr  | string   | Column containing the CommonNames|
-        | Default("   |          | for each user. It is an alpha-   |
-        | OutputCol") |          | numeric string and it may contain|
-        |             |          | NULL values.                     |
+    | Default("   |          | for each user. It is an alpha-   |
+    | OutputCol") |          | numeric string and it may contain|
+    |             |          | NULL values.                     |
     +-------------+----------+----------------------------------+
     """
 

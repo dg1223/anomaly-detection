@@ -34,27 +34,27 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_RESOURCE | string   | The resource, for example a web  |
-        |             |          | page that the user is requesting.|
-        |             |          | This column can contain URLs in  |
-        |             |          | formats along with NULL values   |
-        |             |          | and abbreviations of various     |
-        |             |          | applications separated by "/".   |
-        |             |          | It can also encompass GET/POST   |
-        |             |          | request parameters related to    |
-        |             |          | different activities of user.    |
-        |             |          | Some rows also have blank values |
-        |             |          | for SM_RESOURCE.                 |
+    |             |          | page that the user is requesting.|
+    |             |          | This column can contain URLs in  |
+    |             |          | formats along with NULL values   |
+    |             |          | and abbreviations of various     |
+    |             |          | applications separated by "/".   |
+    |             |          | It can also encompass GET/POST   |
+    |             |          | request parameters related to    |
+    |             |          | different activities of user.    |
+    |             |          | Some rows also have blank values |
+    |             |          | for SM_RESOURCE.                 |
     +-------------+----------+----------------------------------+
 
         Output:
 
-        +-------------+----------+----------------------------------+
+    +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_RESOURCE | string   | Column containing the cleaned    |
-        |             |          | forms of different URLs with     |
-        |             |          | respect to the aforementioned    |
-        |             |          | cleaning strategies.             |
+    |             |          | forms of different URLs with     |
+    |             |          | respect to the aforementioned    |
+    |             |          | cleaning strategies.             |
     +-------------+----------+----------------------------------+
 
     """

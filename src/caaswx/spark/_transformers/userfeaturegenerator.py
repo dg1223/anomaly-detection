@@ -63,8 +63,8 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
 	|             |          | machine that is trying to utilize|
 	|             |          | a protected resource.            |
     +-------------+----------+----------------------------------+
-	| SM_SESSIONID| string   | The session identifier for this  |
-    |             |          | users activity.                 |
+    | SM_SESSIONID| string   | The session identifier for this  |
+    |             |          | users activity.                |
     +-------------+----------+----------------------------------+
 	| SM_AGENTNAME| string   | The name associated with the     |
 	|             |          | agent that is being used in      |
@@ -147,11 +147,11 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
     | AZ_REJECT   |          | during the time window, defined  |
 	|             |          | by sm_eventid = 6.               |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all ams or AMS      |
+	| COUNT_      | integer  | Count of all ams or AMS  |
     | OU_AMS      |          | occurrences in SM_USERNAME OR    |
 	|             |          | SM_RESOURCE during time window.  |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all cra-cp occurrences|
+	| COUNT_      | integer  | Count of all cra-cp occurrences  |
     | OU_CMS      |          | in SM_USERNAME during the window.|
     +-------------+----------+----------------------------------+
 	| COUNT_      | integer  | Count of Validate Accept events  |
@@ -171,23 +171,23 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
 	| COUNT_      | integer  | Count of all GET and POST actions|
     | HTTP_METHODS|          | during the time window.          |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all ou=Identity       |
+	| COUNT_      | integer  | Count of all ou=Identity     |
     | OU_IDENTITY |          | occurrences in SM_USERNAME during|
 	|             |          | the time window.                 |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all ou=Credential     |
+	| COUNT_      | integer  | Count of all ou=Credential   |
     | OU_CRED     |          | occurrences in SM_USERNAME during|
 	|             |          | the time window.                 |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all ou=SecureKey      |
+	| COUNT_      | integer  | Count of all ou=SecureKey    |
     | OU_SECUREKEY|          | occurrences in SM_USERNAME during|
 	|             |          | the time window.                 |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all mima occurrences  |
+	| COUNT_      | integer  | Count of all mima occurrences|
     | PORTAL_MYA  |          | in SM_RESOURCE during the time   |
 	|             |          | window.                          |
     +-------------+----------+----------------------------------+
-	| COUNT_      | integer  | Count of all myba occurrences  |
+	| COUNT_      | integer  | Count of all myba occurrences|
     | PORTAL_MYBA |          | in SM_RESOURCE during the time   |
 	|             |          | window.                          |
     +-------------+----------+----------------------------------+
@@ -212,8 +212,8 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
 	| RCES        |          | the time window.                 |
     +-------------+----------+----------------------------------+
 	| COUNT_      | integer  | A count of Entries containing    |
-    | UNIQUE_PORTA|          | rep followed by a string ending|
-	| L_RAC       |          | in / in SM_RESOURCE during the |
+    | UNIQUE_PORTA|          | rep followed by a string ending  |
+	| L_RAC       |          | in "/"in SM_RESOURCE during the  |
 	|             |          | time window.                     |
     +-------------+----------+----------------------------------+
 	| COUNT_      | integer  | Count of distinct IPs in         |
@@ -241,13 +241,13 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
 	| ONS         |          | time window.                     |
     +-------------+----------+----------------------------------+
 	| UNIQUE_     |  array   | A distinct list of Entries       |
-    | USER_OU     | <string> | containing ou= and a string    |
-	|             |          | ending in , in SM_USERNAME     |
+    | USER_OU     | <string> | containing ou= and a string  |
+	|             |          | ending in , in SM_USERNAME   |
 	|             |          | during time window.              |
     +-------------+----------+----------------------------------+
 	| UNIQUE_     |  array   | A distinct list of Entries       |
-    | PORTAL_RAC  | <string> | containing rep followed by a   |
-	|             |          | string ending in / in          |
+    | PORTAL_RAC  | <string> | containing rep followed by a |
+	|             |          | string ending in / in        |
 	|             |          | SM_RESOURCE during time window.  |
     +-------------+----------+----------------------------------+
 	| UNIQUE_     |  array   | A distinct list of main apps     |
@@ -284,7 +284,7 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
     | UnusualBrows|          | by user in current time  window  |
 	| er          |          | is same as that in the previous  |
 	|             |          | time window                      |
-    +-------------+----------+----------------------------------+ 
+    +-------------+----------+----------------------------------+
 
 """
 import pyspark.sql.functions as F

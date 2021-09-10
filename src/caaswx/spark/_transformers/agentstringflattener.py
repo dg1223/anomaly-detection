@@ -32,20 +32,20 @@ class AgentStringFlattener(SparkNativeTransformer):
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_AGENTNAME| string   | The name associated with the     |
-        |             |          | agent that is being used in      |
-        |             |          | conjunction with policy server   |
+    |             |          | agent that is being used in      |
+    |             |          | conjunction with policy server   |
     +-------------+----------+----------------------------------+
     | SM_TIMESTAMP| timestamp| Marks the time at which the entry|
-        |             |          | was made to the database.        |
+    |             |          | was made to the database.        |
     +-------------+----------+----------------------------------+
     | SM_CLIENTIP | string   | The IP address for the client    |
-        |             |          | machine that is trying to utilize|
-        |             |          | a protected resource.            |
+    |             |          | machine that is trying to utilize|
+    |             |          | a protected resource.            |
     +-------------+----------+----------------------------------+
     | this.getOr  | string   | Pivot Column containing the      |
     | Default("en |          | CommonNames for each user. It is |
     | tityName")  |          | an alpha-numeric string and it   |
-        |             |          | may contain  NULL values.        |
+    |             |          | may contain  NULL values.        |
     +-------------+----------+----------------------------------+
 
     Output: Input dataframe with an additional column containing the flattended and cleaned agentnames
@@ -53,7 +53,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_AGENTNAME|  array   | Contains a list of flattened     |
-        |             | <string> | and/or cleaned agentnames        |
+    |             | <string> | and/or cleaned agentnames        |
     +-------------+----------+----------------------------------+
     """
 
