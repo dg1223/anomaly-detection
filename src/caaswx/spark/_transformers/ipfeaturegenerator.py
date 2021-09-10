@@ -172,68 +172,68 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
 	| AME         |          |                                  |
 	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | A distinct list of SessionIDs in |
-    | UNIQUE_SESSI|          | SM_SESSIONID during time window. |
+	| UNIQUE_SESSI|          | SM_SESSIONID during time window. |
 	| ON          |          |                                  |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | Count of distinct Resource       |
-    | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
+	| UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
 	| RCES        |          | the time window.                 |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | A count of Entries containing    |
-    | UNIQUE_PORTA|          | “rep” followed by a string ending|
+	| UNIQUE_PORTA|          | “rep” followed by a string ending|
 	| L_RAC       |          | in “/” in SM_RESOURCE during the |
 	|             |          | time window.                     |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | Counts number of CRA_SEQs        |
-    | RECORDS     |          | (dataset primary key)            |
-    +-------------+----------+----------------------------------+
+	| RECORDS     |          | (dataset primary key)            |
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | Count of Visit events during the |
-    | VISIT       |          | time window, defined by          |
+	| VISIT       |          | time window, defined by          |
 	|             |          | sm_eventid = 13.                 |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | Count of Validate Accept events  |
-    | VALIDATE_ACC|          | during the time window, defined) |
+	| VALIDATE_ACC|          | during the time window, defined) |
 	| EPT         |          |  by sm_eventid = 11.             |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | integer  | Count of Validate reject events  |
-    | VALIDATE_REJ|          | during the time window, defined) |
+	| VALIDATE_REJ|          | during the time window, defined) |
 	| ECT         |          |  by sm_eventid = 12.             |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of HTTP Actions  |
-    | SM_ACTIONS  | <string> | in SM_ACTION during time window. |
-    +-------------+----------+----------------------------------+
+	| SM_ACTIONS  | <string> | in SM_ACTION during time window. |
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of CNs           |
-    | USERNAME    | <string> | in CN during time window.        |
-    +-------------+----------+----------------------------------+
+	| USERNAME    | <string> | in CN during time window.        |
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of SessionIDs    |
-    | SM_SESSION  | <string> | in SM_SESSIONID during window.   |
-    +-------------+----------+----------------------------------+
+	| SM_SESSION  | <string> | in SM_SESSIONID during window.   |
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of Resource      |
-    | SM_PORTALS  | <string> | strings in SM_RESOURCE during    |
+	| SM_PORTALS  | <string> | strings in SM_RESOURCE during    |
 	|             |          | time window.                     |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of Transaction   |
-    | SM_TRANSACTI| <string> | Ids in SM_TRANSACTIONID during   |
+	| SM_TRANSACTI| <string> | Ids in SM_TRANSACTIONID during   |
 	| ONS         |          | time window.                     |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of Entries       |
-    | USER_OU     | <string> | containing “ou=” and a string    |
+	| USER_OU     | <string> | containing “ou=” and a string    |
 	|             |          | ending in “,” in SM_USERNAME     |
 	|             |          | during time window.              |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_UNIQUE_  |  array   | A distinct list of Entries       |
-    | _REP_APP    | <string> | containing “rep” followed by a   |
+	| _REP_APP    | <string> | containing “rep” followed by a   |
 	|             |          | string ending in “/” in          |
 	|             |          | SM_RESOURCE during time window.  |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| IP_TIMESTAM | timestamp| Earliest timestamp during time   |
-    | P           |          | window.                          |
-    +-------------+----------+----------------------------------+
+	| P           |          | window.                          |
+	+-------------+----------+----------------------------------+
 	| IP_COUNT_   | iinteger | A count of distinct Entries      |
-    | UNIQUE_OU   |          | containing “ou=” and a string    |
+	| UNIQUE_OU   |          | containing “ou=” and a string    |
 	|             |          | in “,” in SM_USERNAME during time|
 	|             |          | window                           |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 """
 import pyspark.sql.functions as F
 
