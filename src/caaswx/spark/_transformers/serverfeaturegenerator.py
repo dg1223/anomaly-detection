@@ -7,71 +7,71 @@ Expected columns in the input dataframe (It's okay if the dataframe contains oth
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
-	| SM_EVENTID  | integer  | Marks the particular event that  |
+    | SM_EVENTID  | integer  | Marks the particular event that  |
     |             |          | caused the logging to occur.     |
     +-------------+----------+----------------------------------+
-	| SM_CLIENTIP | string   | The IP address for the client    |
-	|             |          | machine that is trying to utilize|
-	|             |          | a protected resource.            |
+    | SM_CLIENTIP | string   | The IP address for the client    |
+    |             |          | machine that is trying to utilize|
+    |             |          | a protected resource.            |
     +-------------+----------+----------------------------------+
-	| SM_TIMESTAMP| timestamp| Marks the time at which the entry|
-	|             |          | was made to the database.        |
+    | SM_TIMESTAMP| timestamp| Marks the time at which the entry|
+    |             |          | was made to the database.        |
     +-------------+----------+----------------------------------+
-	| SM_AGENTNAME| string   | The name associated with the     |
-	|             |          | agent that is being used in      |
-	|             |          | conjunction with policy server   |
+    | SM_AGENTNAME| string   | The name associated with the     |
+    |             |          | agent that is being used in      |
+    |             |          | conjunction with policy server   |
     +-------------+----------+----------------------------------+
-	| SM_RESOURCE | string   | The resource, for example a web  |
-	|             |          | page that the user is requesting.|
-	|             |          | This column can contain URLs in  |
-	|             |          | formats along with NULL values   |
-	|             |          | and abbreviations of various     |
-	|             |          | applications separated by "/".   |
-	|             |          | It can also encompass GET/POST   |
-	|             |          | request parameters related to    |
-	|             |          | different activities of user.    |
-	|             |          | Some rows also have blank values |
-	|             |          | for SM_RESOURCE.                 |
+    | SM_RESOURCE | string   | The resource, for example a web  |
+    |             |          | page that the user is requesting.|
+    |             |          | This column can contain URLs in  |
+    |             |          | formats along with NULL values   |
+    |             |          | and abbreviations of various     |
+    |             |          | applications separated by "/".   |
+    |             |          | It can also encompass GET/POST   |
+    |             |          | request parameters related to    |
+    |             |          | different activities of user.    |
+    |             |          | Some rows also have blank values |
+    |             |          | for SM_RESOURCE.                 |
     +-------------+----------+----------------------------------+
-	| this.getOr  | string   | the column to be targeted for    |
+    | this.getOr  | string   | the column to be targeted for    |
     | Default("pa |          | aggregation for generating the   |
     | rtioning_e  |          | immediate preious timestamp. It  |
-	| ntity       |          | (by default set to "SM_USERNAME")|
+    | ntity       |          | (by default set to "SM_USERNAME")|
     +-------------+----------+----------------------------------+
 
 	Output features:
 
 	+-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
+	| Column_Name | Datatype | Description                      |
+	+=============+==========+==================================+
 	| StartTime   | timestamp| The beginning of a time window   |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| EndTime	  | timestamp| The end of a time window         |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| VolOfAllLogi| integer  | Number of all login attempts     |
-    | nAttempts   |          | in the specified time window.    |
-    +-------------+----------+----------------------------------+
+	| nAttempts   |          | in the specified time window.    |
+	+-------------+----------+----------------------------------+
 	| VolOfAllFail| integer  |  Number of all failed login      |
-    | edLogins    |          | attempts in the  time window.    |
-    +-------------+----------+----------------------------------+
+	| edLogins    |          | attempts in the  time window.    |
+	+-------------+----------+----------------------------------+
 	| MaxOfFailed | integer  | Maximum Number of all failed     |
-    | LoginsWithSa|          | login attempts with same IPs.    |
+	| LoginsWithSa|          | login attempts with same IPs.    |
 	| meIPs       |          |                                  |
 	+-------------+----------+----------------------------------+
 	| NumOfIPsLogi| integer  | Number of IPs used for logging   |
-    | nMultiAccoun|          | into multiple accounts.          |
+	| nMultiAccoun|          | into multiple accounts.          |
 	| ts          |          |                                  |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| NumOfReqsTo | integer  | Number of requests to change     |
-    | ChangePasswo|          | passwords in the time window.    |
+	| ChangePasswo|          | passwords in the time window.    |
 	| rds         |          |                                  |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 	| NumOfUsersWi| integer  | Number of users with at least    |
-    | thEqualInter|          | "interval_threshold" intervals   |
+	| thEqualInter|          | "interval_threshold" intervals   |
 	| valBtnReqs  |          | between consecutive requests that|
 	|             |          | are equal up to precision        |
 	|             |          | "interval_epsilon".              |
-    +-------------+----------+----------------------------------+
+	+-------------+----------+----------------------------------+
 """
 
 import pyspark.sql.functions as F
