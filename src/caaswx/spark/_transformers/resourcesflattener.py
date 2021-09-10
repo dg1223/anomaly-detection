@@ -1,40 +1,39 @@
 """
 A module for Flatenning the resources into a list with respect to the input pivot column.
 Input: A Spark dataframe
-Expected columns in the input dataframe
-
+Expected columns in the input dataframe:
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_RESOURCE | string   | The resource, for example a web  |
-	|             |          | page that the user is requesting.|
-	|             |          | This column can contain URLs in  |
-	|             |          | formats along with NULL values   |
-	|             |          | and abbreviations of various     |
-	|             |          | applications separated by "/".   |
-	|             |          | It can also encompass GET/POST   |
-	|             |          | request parameters related to    |
-	|             |          | different activities of user.    |
-	|             |          | Some rows also have blank values |
-	|             |          | for SM_RESOURCE.                 |
+    |             |          | page that the user is requesting.|
+    |             |          | This column can contain URLs in  |
+    |             |          | formats along with NULL values   |
+    |             |          | and abbreviations of various     |
+    |             |          | applications separated by "/".   |
+    |             |          | It can also encompass GET/POST   |
+    |             |          | request parameters related to    |
+    |             |          | different activities of user.    |
+    |             |          | Some rows also have blank values |
+    |             |          | for SM_RESOURCE.                 |
     +-------------+----------+----------------------------------+
     | SM_TIMESTAMP| timestamp| Marks the time at which the entry|
-	|             |          | was made to the database.        |
+    |             |          | was made to the database.        |
     +-------------+----------+----------------------------------+
-	| this.getOr  | string   | Pivot Column for creating the    |
+    | this.getOr  | string   | Pivot Column for creating the    |
     | Default("en |          | time window of usage of different|
     | tityName")  |          | resources with respect to the    |
-	|             |          | passed column.                   |
+    |             |          | passed column.                   |
     +-------------+----------+----------------------------------+
 
     Output features:
-	+-------------+----------+----------------------------------+
+    +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | SM_RESOURCE |  array   | A list of resources used by the  |
-	|             | <string> | he pivot entity within the time  |
-	|             |          | window.                          |
-	+-------------+----------+----------------------------------+
+    |             | <string> | he pivot entity within the time  |
+    |             |          | window.                          |
+    +-------------+----------+----------------------------------+
 
 """
 from pyspark import keyword_only
