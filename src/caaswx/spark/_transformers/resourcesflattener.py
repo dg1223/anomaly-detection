@@ -5,13 +5,16 @@
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 
-# Importing window module for performing time slicing while grouping parquet_data
+# Importing window module for performing time slicing while grouping
+# parquet_data
 from pyspark.sql.functions import window
 from pyspark.sql.types import TimestampType, StringType
 from pyspark.sql.window import Window
 
 # Importing the Transformer class to be extended by Flattener classes
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 import pyspark.sql.functions as func
 
@@ -23,7 +26,7 @@ class ResourcesFlattener(SparkNativeTransformer):
 
     window_length = Param(
         Params._dummy(),
-        "windowLength",
+        "window_length",
         "Length of the sliding window used for entity resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
@@ -31,7 +34,7 @@ class ResourcesFlattener(SparkNativeTransformer):
 
     window_step = Param(
         Params._dummy(),
-        "windowStep",
+        "window_step",
         "Length of the sliding window step-size used for entity resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
@@ -39,7 +42,7 @@ class ResourcesFlattener(SparkNativeTransformer):
 
     entity_name = Param(
         Params._dummy(),
-        "entityName",
+        "entity_name",
         "Name of the column to perform aggregation on, together with the "
         + "sliding window.",
         typeConverter=TypeConverters.toString,
@@ -136,7 +139,8 @@ class ResourcesFlattener(SparkNativeTransformer):
                 ),
             ).withColumn("dense_rank", func.dense_rank().over(window_spec))
             dataset = dataset.filter(
-                dataset["dense_rank"] <= int(self.getOrDefault("max_resource_count"))
+                dataset["dense_rank"]
+                <= int(self.getOrDefault("max_resource_count"))
             )
         return dataset.groupby(
             str(self.getOrDefault("entity_name")),
