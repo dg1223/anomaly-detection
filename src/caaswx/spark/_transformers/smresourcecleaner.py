@@ -27,14 +27,33 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     Input: The dataframe containing SM_RESOURCE that needs needs to be cleaned.
     Output: Dataframe appended with cleaned SM_RESOURCE.
     Notes: In some entries there may exist some long
+
+    A module to clean the SM_RESOURCE column.
+    Input: A Spark dataframe
+    Columns from raw_logs: SM_RESOURCE
+    Please refer to README.md for description.
+
+    Output:
+
+    Columns in the input dataframe plus following:
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_RESOURCE | string   | Column containing the cleaned    |
+    |             |          | forms of different URLs with     |
+    |             |          | respect to the aforementioned    |
+    |             |          | cleaning strategies.             |
+    +-------------+----------+----------------------------------+
+
     """
 
     @keyword_only
     def __init__(self):
         """
-        init (by default)
-        inputCol: SM_RESOURCE
-        outputCol: Cleaned_SM_RESOURCE
+        :param inputCol: Input column to be processed within the transformer
+        :param outputCol: Name of the output column
+        :type inputCol: string
+        :type outputCol: string
         """
         super(SMResourceCleaner, self).__init__()
         self._setDefault(inputCol="SM_RESOURCE", outputCol="Cleaned_SM_RESOURCE")
