@@ -99,7 +99,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         runParser=False,
     ):
         """
-    setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
+    set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
               inputCols=None, outputCols=None)
     Sets params for this AgentStringFlattener.
     """
