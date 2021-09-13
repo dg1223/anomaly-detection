@@ -1,3 +1,4 @@
+
 """
 A module to generate features regarding to session feature
 Input: A dataframe with CN row.
@@ -70,6 +71,7 @@ and a string ending in “,” in SM_USERNAME during time window. """
 
 import pyspark.sql.functions as f
 # Import Essential packages
+
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import col, when, lag, isnull
@@ -89,7 +91,205 @@ from src.caaswx.spark._transformers.sparknativetransformer import \
 
 class IPFeatureGenerator(SparkNativeTransformer):
     """
-    IP Feature transformer for the swx project.
+    A module to generate features related to IP features.
+    This transformer encompasses the IP addresses' behaviour and analytics
+    Input: A Spark dataframe
+    Columns from raw_logs: SM_RESOURCE, SM_EVENTID, SM_ACTION,
+    SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID, SM_USERNAME
+    Please refer to README.md for description.
+    List of other required columns:
+        +-------------+----------+----------------------------------+
+        | Column_Name | Datatype | Description                      |
+        +=============+==========+==================================+
+        | CN          | string   | Column containing the CommonNames|
+        |             |          | for each user. It is an alpha-   |
+        |             |          | numeric string and it may contain|
+        |             |          | NULL values. CNs can be generated|
+        |             |          | from SM_USERNAME column through  |
+        |             |          | the CnExtractor transformer.     |
+        +-------------+----------+----------------------------------+
+
+            Output features:
+
+            +-------------+----------+----------------------------------+
+            | Column_Name | Datatype | Description                      |
+            +=============+==========+==================================+
+            | IP_APP      |  array   | A distinct list of main apps     |
+            |             | <string> | from each record in SM_RESOURCE  |
+            |             |          | during time window.              |
+            +-------------+----------+----------------------------------+
+            | IP_AVG_TIME_| double   | Average time between records     |
+            | BT_RECORDS  |          | during the time window.          |
+            +-------------+----------+----------------------------------+
+            | IP_MAX_TIME_| double   | Maximum time between records     |
+            | BT_RECORDS  |          | during the time window.          |
+            +-------------+----------+----------------------------------+
+            | IP_MIN_TIME_| double   | Minimum time between records     |
+            | BT_RECORDS  |          | during the time window.          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Admin Login events      |
+            | ADMIN_LOGIN |          | during the time window, defined  |
+            |             |          | by sm_eventid = 7.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Admin Logout events     |
+            | ADMIN_LOGOUT|          | during the time window, defined  |
+            |             |          | by sm_eventid = 8.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Admin reject events     |
+            | ADMIN_REJECT|          | during the time window, defined  |
+            |             |          | by sm_eventid = 9.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Auth accept events      |
+            | AUTH_ACCEPT |          | during the time window, defined  |
+            |             |          | by sm_eventid = 1.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Admin attempt events    |
+            | ADMIN_ATTEMP|          | during the time window, defined  |
+            | T           |          | by sm_eventid = 3.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Auth challenge events   |
+            | AUTH_CHALLEN|          | during the time window, defined  |
+            | GE          |          | by sm_eventid = 4.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Auth Logout events      |
+            | AUTH_LOGOUT |          | during the time window, defined  |
+            |             |          | by sm_eventid = 10.              |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Auth reject events      |
+            | AUTH_REJECT |          | during the time window, defined  |
+            |             |          | by sm_eventid = 2.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Az accept events        |
+            | AZ_ACCEPT   |          | during the time window, defined  |
+            |             |          | by sm_eventid = 5.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Az reject events        |
+            | AZ_REJECT   |          | during the time window, defined  |
+            |             |          | by sm_eventid = 6.               |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all Reject events       |
+            | FAILED      |          | during the time window, defined  |
+            |             |          | by sm_eventid = 2,6 and 9.       |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all GET HTTP actions    |
+            | GET         |          | during the time window.          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all POST HTTP actions   |
+            | POST        |          | during the time window.          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all GET and POST actions|
+            | HTTP_METHODS|          | during the time window.          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “ams” or “AMS”      |
+            | OU_AMS      |          | occurrences in SM_USERNAME OR    |
+            |             |          | SM_RESOURCE during time window.  |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “cra-cp” occurrences|
+            | OU_CMS      |          | in SM_USERNAME during the window.|
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “ou=Identity”       |
+            | OU_IDENTITY |          | occurrences in SM_USERNAME during|
+            |             |          | the time window.                 |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “ou=Identity”       |
+            | OU_IDENTITY |          | occurrences in SM_USERNAME during|
+            |             |          | the time window.                 |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “ou=Credential”     |
+            | OU_CRED     |          | occurrences in SM_USERNAME during|
+            |             |          | the time window.                 |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “ou=SecureKey”      |
+            | OU_SECUREKEY|          | occurrences in SM_USERNAME during|
+            |             |          | the time window.                 |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “mima” occurrences  |
+            | PORTAL_MYA  |          | in SM_RESOURCE during the time   |
+            |             |          | window.                          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of all “myba” occurrences  |
+            | PORTAL_MYbA |          | in SM_RESOURCE during the time   |
+            |             |          | window.                          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of distinct HTTP Actions   |
+            | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
+            | NS          |          | window.                          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of distinct HTTP Actions   |
+            | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
+            | NS          |          | window.                          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of distinct EventIDs in    |
+            | UNIQUE_EVENT|          | SM_EVENTID  during the time      |
+            | S           |          | window.                          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of distinct CNs in CN      |
+            | UNIQUE_USERN|          | during the time window.          |
+            | AME         |          |                                  |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | A distinct list of SessionIDs in |
+            | UNIQUE_SESSI|          | SM_SESSIONID during time window. |
+            | ON          |          |                                  |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of distinct Resource       |
+            | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
+            | RCES        |          | the time window.                 |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | A count of Entries containing    |
+            | UNIQUE_PORTA|          | “rep” followed by a string ending|
+            | L_RAC       |          | in “/” in SM_RESOURCE during the |
+            |             |          | time window.                     |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Counts number of CRA_SEQs        |
+            | RECORDS     |          | (dataset primary key)            |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Visit events during the |
+            | VISIT       |          | time window, defined by          |
+            |             |          | sm_eventid = 13.                 |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Validate Accept events  |
+            | VALIDATE_ACC|          | during the time window, defined) |
+            | EPT         |          |  by sm_eventid = 11.             |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | integer  | Count of Validate reject events  |
+            | VALIDATE_REJ|          | during the time window, defined) |
+            | ECT         |          |  by sm_eventid = 12.             |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of HTTP Actions  |
+            | SM_ACTIONS  | <string> | in SM_ACTION during time window. |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of CNs           |
+            | USERNAME    | <string> | in CN during time window.        |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of SessionIDs    |
+            | SM_SESSION  | <string> | in SM_SESSIONID during window.   |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of Resource      |
+            | SM_PORTALS  | <string> | strings in SM_RESOURCE during    |
+            |             |          | time window.                     |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of Transaction   |
+            | SM_TRANSACTI| <string> | Ids in SM_TRANSACTIONID during   |
+            | ONS         |          | time window.                     |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of Entries       |
+            | USER_OU     | <string> | containing “ou=” and a string    |
+            |             |          | ending in “,” in SM_USERNAME     |
+            |             |          | during time window.              |
+            +-------------+----------+----------------------------------+
+            | IP_UNIQUE_  |  array   | A distinct list of Entries       |
+            | _REP_APP    | <string> | containing “rep” followed by a   |
+            |             |          | string ending in “/” in          |
+            |             |          | SM_RESOURCE during time window.  |
+            +-------------+----------+----------------------------------+
+            | IP_TIMESTAM | timestamp| Earliest timestamp during time   |
+            | P           |          | window.                          |
+            +-------------+----------+----------------------------------+
+            | IP_COUNT_   | iinteger | A count of distinct Entries      |
+            | UNIQUE_OU   |          | containing “ou=” and a string    |
+            |             |          | in “,” in SM_USERNAME during time|
+            |             |          | window                           |
+            +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
@@ -111,7 +311,15 @@ class IPFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-        def __init__(self, *, window_length = 900, window_step = 900)
+        :param window_length: Length of the sliding window (in seconds)
+        :param window_step: Length of the sliding window's step-size (in seconds)
+        :type window_length: long
+        :type window_step: long
+
+        :Example:
+        >>> from ipfeaturegenerator import IPFeatureGenerator
+        >>> feature_generator = IPFeatureGenerator(window_length = 1800, window_step = 1800)
+        >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(window_length=900, window_step=900)
