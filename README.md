@@ -28,6 +28,38 @@ feature_generator = caaswx.spark.transformers.UserFeatureGenerator(window_step =
 feature_generator.transform(df).take(50)
 ```
 
+# Description of dataset's columns
+
+|    **Column Name**                 |           **Description**                                                                                                        |
+|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| CRA_SEQ |  Serves as the primary key for the Siteminder data and can be used for counting unique rows via aggregation steps.
+| CRA_TZ_OFFSET | Time zone offset (Majority of rows have 5 and 6 as the value of this column.
+| SM_ACTION | Records the  HTTP action. Get, Post, and Put. It can contain NULLs.
+| SM_AGENTNAME | Name associated with the agent that is being used in conjunction with the policy server.
+| SM_AUTHDIRNAME | This is not used by the reports generator and by the programs of this project.
+| SM_AUTHDIRNAMESPACE | This is not used by the reports generator and by the programs of this project.
+| SM_AUTHDIRSERVER | This is not used by the reports generator and by the programs of this project.
+| SM_CATEGORYID | The identifier for the type of logging.
+| SM_CLIENTIP | The IP address for the client machine that is trying to utilize a protected resource.
+| SM_DOMAINNAME | The unique name for the domain in which the realm and resource the user is accessing exist.
+| SM_DOMAINOID | The unique identifier for the domain in which the realm and resource the user is accessing exist.
+| SM_EVENTID | Marks the particular event that caused the logging to occur.
+| SM_HOSTNAME | Machine on which the server is running.
+| SM_IMPERSONATORDIRNAME | Login name of the administrator directory that is acting as the impersonator in an impersonated session.
+| SM_IMPERSONATORNAME | Login name of the administrator directory that is acting as the impersonator in an impersonated session.
+| SM_REALMNAME | Current realm's name in which the resource that the user wants resides.
+| SM_REALMOID | Current realm's identifier in which the resource that the user wants resides.
+| SM_REASON | Motivations for logging. 32000 and above are user defined.
+| SM_RESOURCE | Resource, for example a web page, that the user is requesting.
+| SM_HOSTNAME | Machine on which the server is running.
+| SM_SESSIONID | Session identifier for this user’s activity.
+| SM_STATUS | Some descriptive text about the action.
+| SM_TIMESTAMP | Marks the time at which the entry was made to the database.
+| SM_TIMESTAMPTRUNC | Stores the truncated timestamp recording the date from the SM_TIMESTAMP.
+| SM_TIMESTAMPTRUNC | Machine on which the server is running.
+| SM_TRANSACTIONID | This is not used by the reports generator.
+| SM_USERNAME | Username logged into the session
+
 # Feature Documentation
 
 serverfeaturegenerator.py 

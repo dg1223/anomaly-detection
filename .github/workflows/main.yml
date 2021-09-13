@@ -35,11 +35,12 @@ jobs:
       run: |
         python -m pytest
 
-    - name: Lint, format, and type-check
+    - name: black
       run: |
-        black --diff --check --verbose .
-        # exit-zero treats all errors as warnings.
-        flake8 . --count --exit-zero --statistics --select=E,F,W,C90
+        black --line-length=79 --diff --check --verbose .
+    - name: flake8
+      run: |
+        flake8 . --count --statistics --select=E,F,W,C90
 
 
 
