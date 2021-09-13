@@ -1,4 +1,5 @@
-"""Module for writing parquet files given datasets along with their schema"""
+"""Module for writing parquet files given datasets along with their
+schema"""
 from pyspark.context import SparkContext
 from pyspark.sql.session import SparkSession
 from pyspark.sql.types import (
@@ -14,7 +15,8 @@ sc = SparkContext("local")
 spark = SparkSession(sc)
 
 PATH_DATA = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/"
-PATH_FLATTENER = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/flattener/"
+PATH_FLATTENER = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data" \
+                 "/flattener/ "
 
 
 class WriteDataToParquet:
@@ -67,7 +69,8 @@ class WriteDataToParquet:
             ]
         )
 
-        test_df = spark.createDataFrame(self.test_dataset, schema=test_user_schema)
+        test_df = spark.createDataFrame(self.test_dataset,
+                                        schema=test_user_schema)
         test_df = test_df.withColumn(
             "SM_TIMESTAMP", col("SM_TIMESTAMP_TEMP").cast("timestamp")
         )
@@ -106,12 +109,3 @@ class WriteDataToParquet:
         )
         expected_result_df.write.parquet(expected_df_file_path)
         return test_df, expected_result_df
-
-
-# obj = WriteDataToParquet(
-#     td=,
-#     ed=,
-#     td_fn='test_data.parquet',
-#     ed_fn='expected_data.parquet')
-# x, y = obj.write_parquet_general(
-#     test_schema=test_user_schema, expected_result_schema=ans_schema)
