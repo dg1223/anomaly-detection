@@ -24,22 +24,14 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     - Assumes the "cn=" and its contents are not at the end of the SM_USERNAME
     - Reminder that dict must change if SM_USERNAME is no longer used
     Input: A Spark dataframe
-    Expected columns in the input dataframe
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_USERNAME | string   | The username for user currently  |
-    |             |          | logged in with this session.     |
-    |             |          | Usernames contain CNs along with |
-    |             |          | abstract information about CMS   |
-    |             |          | and AMS requests. It may contain |
-    |             |          | SAML reqs,NULLs and void cells.  |
-    +-------------+----------+----------------------------------+
+    Columns from raw_logs: SM_RESOURCE, SM_TIMESTAMP
+    Please refer to README.md for description.
+
     Output: Same dataframe with a CN column appended
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
-    | this.getOr  | string   | Column containing the CommonNames|
+    | self.getOr  | string   | Column containing the CommonNames|
     | Default("   |          | for each user. It is an alpha-   |
     | OutputCol") |          | numeric string and it may contain|
     |             |          | NULL values.                     |

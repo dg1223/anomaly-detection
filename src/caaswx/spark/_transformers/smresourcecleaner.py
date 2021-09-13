@@ -30,24 +30,12 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
 
     A module to clean the SM_RESOURCE column.
     Input: A Spark dataframe
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_RESOURCE | string   | The resource, for example a web  |
-    |             |          | page that the user is requesting.|
-    |             |          | This column can contain URLs in  |
-    |             |          | formats along with NULL values   |
-    |             |          | and abbreviations of various     |
-    |             |          | applications separated by "/".   |
-    |             |          | It can also encompass GET/POST   |
-    |             |          | request parameters related to    |
-    |             |          | different activities of user.    |
-    |             |          | Some rows also have blank values |
-    |             |          | for SM_RESOURCE.                 |
-    +-------------+----------+----------------------------------+
+    Columns from raw_logs: SM_RESOURCE
+    Please refer to README.md for description.
 
-        Output:
+    Output:
 
+    Columns in the input dataframe plus following:
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -62,8 +50,8 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     @keyword_only
     def __init__(self):
         """
-        :param inputCol: Sets the input column to be processed within the transformer
-        :param outputCol: Sets the name of the output column
+        :param inputCol: Input column to be processed within the transformer
+        :param outputCol: Name of the output column
         :type inputCol: string
         :type outputCol: string
         """

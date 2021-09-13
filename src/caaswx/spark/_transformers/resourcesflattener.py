@@ -1,41 +1,3 @@
-"""
-A module for Flatenning the resources into a list with respect to the input pivot column.
-Input: A Spark dataframe
-Expected columns in the input dataframe:
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_RESOURCE | string   | The resource, for example a web  |
-    |             |          | page that the user is requesting.|
-    |             |          | This column can contain URLs in  |
-    |             |          | formats along with NULL values   |
-    |             |          | and abbreviations of various     |
-    |             |          | applications separated by "/".   |
-    |             |          | It can also encompass GET/POST   |
-    |             |          | request parameters related to    |
-    |             |          | different activities of user.    |
-    |             |          | Some rows also have blank values |
-    |             |          | for SM_RESOURCE.                 |
-    +-------------+----------+----------------------------------+
-    | SM_TIMESTAMP| timestamp| Marks the time at which the entry|
-    |             |          | was made to the database.        |
-    +-------------+----------+----------------------------------+
-    | this.getOr  | string   | Pivot Column for creating the    |
-    | Default("en |          | time window of usage of different|
-    | tityName")  |          | resources with respect to the    |
-    |             |          | passed column.                   |
-    +-------------+----------+----------------------------------+
-
-    Output features:
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_RESOURCE |  array   | A list of resources used by the  |
-    |             | <string> | he pivot entity within the time  |
-    |             |          | window.                          |
-    +-------------+----------+----------------------------------+
-
-"""
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 
@@ -52,7 +14,30 @@ import pyspark.sql.functions as func
 
 class ResourcesFlattener(SparkNativeTransformer):
     """
-    User Feature transformer for the Streamworx project.
+    A module for Flatenning the resources into a list with respect to the input pivot column.
+    Input: A Spark dataframe
+    Columns from raw_logs: SM_RESOURCE, SM_TIMESTAMP
+    Please refer to README.md for description.
+    List of other required columns:
+
+        +-------------+----------+----------------------------------+
+        | Column_Name | Datatype | Description                      |
+        +=============+==========+==================================+
+        | self.getOr  | string   | Pivot Column for creating the    |
+        | Default("en |          | time window of usage of different|
+        | tityName")  |          | resources with respect to the    |
+        |             |          | passed column.                   |
+        +-------------+----------+----------------------------------+
+
+        Output features:
+        +-------------+----------+----------------------------------+
+        | Column_Name | Datatype | Description                      |
+        +=============+==========+==================================+
+        | SM_RESOURCE |  array   | A list of resources used by the  |
+        |             | <string> | he pivot entity within the time  |
+        |             |          | window.                          |
+        +-------------+----------+----------------------------------+
+
     """
 
     window_length = Param(
@@ -96,10 +81,10 @@ class ResourcesFlattener(SparkNativeTransformer):
         max_resource_count=-1,
     ):
         """
-        :param window_length: Length of the sliding window used for entity resolution (in seconds).
-        :param window_step: Length of the sliding window step-size used for entity resolution (in seconds).
-        :param entity_name: Name of the column to perform aggregation on, together with the sliding window
-        :param max_resource_count: Maximum count of resources allowed in the resource list within the sliding window.
+        :param window_length: Length of the sliding window (in seconds)
+        :param window_step: Length of the sliding window step-size (in seconds)
+        :param entity_name: Name of the column to perform aggregation along with the window
+        :param max_resource_count: Maximum count of resources allowed in the resource list
         :type window_length: long
         :type window_step: long
         :type entity_name: string
@@ -107,7 +92,8 @@ class ResourcesFlattener(SparkNativeTransformer):
 
         :Example:
         >>> from resourcesflattener import ResourcesFlattener
-        >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800, entity_name = "SM_USERNAME", max_resource_count = 3)
+        >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800,
+            entity_name = "SM_USERNAME", max_resource_count = 3)
         >>> datafame_with_CN = flattener.transform(input_dataset)
         """
         super(ResourcesFlattener, self).__init__()

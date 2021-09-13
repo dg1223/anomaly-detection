@@ -27,22 +27,13 @@ class AgentStringFlattener(SparkNativeTransformer):
     """
     A module to flatten and clean the SM_AGENTNAME column of the Siteminder dataset.
     Input: A Spark dataframe
-    Expected columns in the input dataframe:
+    Columns from raw_logs: SM_AGENTNAME, SM_TIMESTAMP, SM_CLIENTIP.
+    Please refer to README.md for description.
+    List of other required columns:
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
-    | SM_AGENTNAME| string   | The name associated with the     |
-    |             |          | agent that is being used in      |
-    |             |          | conjunction with policy server   |
-    +-------------+----------+----------------------------------+
-    | SM_TIMESTAMP| timestamp| Marks the time at which the entry|
-    |             |          | was made to the database.        |
-    +-------------+----------+----------------------------------+
-    | SM_CLIENTIP | string   | The IP address for the client    |
-    |             |          | machine that is trying to utilize|
-    |             |          | a protected resource.            |
-    +-------------+----------+----------------------------------+
-    | this.getOr  | string   | Pivot Column containing the      |
+    | self.getOr  | string   | Pivot Column containing the      |
     | Default("en |          | CommonNames for each user. It is |
     | tityName")  |          | an alpha-numeric string and it   |
     |             |          | may contain  NULL values.        |

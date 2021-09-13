@@ -1,79 +1,3 @@
-"""
-A module to generate features related to server. The ServerFeatureGenerator will aggregate simply on time window and encompass details about login attempts in different time window along with users' behaviours.
-
-Input: A Spark dataframe.
-
-Expected columns in the input dataframe (It's okay if the dataframe contains other columns apart from these ones):
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_EVENTID  | integer  | Marks the particular event that  |
-    |             |          | caused the logging to occur.     |
-    +-------------+----------+----------------------------------+
-    | SM_CLIENTIP | string   | The IP address for the client    |
-    |             |          | machine that is trying to utilize|
-    |             |          | a protected resource.            |
-    +-------------+----------+----------------------------------+
-    | SM_TIMESTAMP| timestamp| Marks the time at which the entry|
-    |             |          | was made to the database.        |
-    +-------------+----------+----------------------------------+
-    | SM_AGENTNAME| string   | The name associated with the     |
-    |             |          | agent that is being used in      |
-    |             |          | conjunction with policy server   |
-    +-------------+----------+----------------------------------+
-    | SM_RESOURCE | string   | The resource, for example a web  |
-    |             |          | page that the user is requesting.|
-    |             |          | This column can contain URLs in  |
-    |             |          | formats along with NULL values   |
-    |             |          | and abbreviations of various     |
-    |             |          | applications separated by "/".   |
-    |             |          | It can also encompass GET/POST   |
-    |             |          | request parameters related to    |
-    |             |          | different activities of user.    |
-    |             |          | Some rows also have blank values |
-    |             |          | for SM_RESOURCE.                 |
-    +-------------+----------+----------------------------------+
-    | this.getOr  | string   | the column to be targeted for    |
-    | Default("pa |          | aggregation for generating the   |
-    | rtioning_e  |          | immediate preious timestamp. It  |
-    | ntity       |          | (by default set to "SM_USERNAME")|
-    +-------------+----------+----------------------------------+
-
-	Output features:
-
-	+-------------+----------+----------------------------------+
-	| Column_Name | Datatype | Description                      |
-	+=============+==========+==================================+
-	| StartTime   | timestamp| The beginning of a time window   |
-	+-------------+----------+----------------------------------+
-	| EndTime	  | timestamp| The end of a time window         |
-	+-------------+----------+----------------------------------+
-	| VolOfAllLogi| integer  | Number of all login attempts     |
-	| nAttempts   |          | in the specified time window.    |
-	+-------------+----------+----------------------------------+
-	| VolOfAllFail| integer  |  Number of all failed login      |
-	| edLogins    |          | attempts in the  time window.    |
-	+-------------+----------+----------------------------------+
-	| MaxOfFailed | integer  | Maximum Number of all failed     |
-	| LoginsWithSa|          | login attempts with same IPs.    |
-	| meIPs       |          |                                  |
-	+-------------+----------+----------------------------------+
-	| NumOfIPsLogi| integer  | Number of IPs used for logging   |
-	| nMultiAccoun|          | into multiple accounts.          |
-	| ts          |          |                                  |
-	+-------------+----------+----------------------------------+
-	| NumOfReqsTo | integer  | Number of requests to change     |
-	| ChangePasswo|          | passwords in the time window.    |
-	| rds         |          |                                  |
-	+-------------+----------+----------------------------------+
-	| NumOfUsersWi| integer  | Number of users with at least    |
-	| thEqualInter|          | "interval_threshold" intervals   |
-	| valBtnReqs  |          | between consecutive requests that|
-	|             |          | are equal up to precision        |
-	|             |          | "interval_epsilon".              |
-	+-------------+----------+----------------------------------+
-"""
-
 import pyspark.sql.functions as F
 from pyspark import keyword_only
 from pyspark.ml import Transformer
@@ -98,7 +22,58 @@ from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTra
 
 class ServerFeatureGenerator(SparkNativeTransformer):
     """
-    Server feature transformer for the swx project.
+    A module to generate features related to server.
+    The ServerFeatureGenerator will aggregate simply on time window
+    and encompass details about login attempts in different time window
+    along with users' behaviours.
+
+        Input: A Spark dataframe.
+        Columns from raw_logs: SM_EVENTID, SM_CLIENTIP, SM_TIMESTAMP,
+        SM_AGENTNAME, SM_RESOURCE.
+        Please refer to README.md for description.
+        List of other required columns:
+        +-------------+----------+----------------------------------+
+        | Column_Name | Datatype | Description                      |
+        +=============+==========+==================================+
+        | self.getOr  | string   | the column to be targeted for    |
+        | Default("pa |          | aggregation for generating the   |
+        | rtioning_e  |          | immediate preious timestamp. It  |
+        | ntity       |          | (by default set to "SM_USERNAME")|
+        +-------------+----------+----------------------------------+
+
+        Output features:
+
+        +-------------+----------+----------------------------------+
+        | Column_Name | Datatype | Description                      |
+        +=============+==========+==================================+
+        | StartTime   | timestamp| The beginning of a time window   |
+        +-------------+----------+----------------------------------+
+        | EndTime     | timestamp| The end of a time window         |
+        +-------------+----------+----------------------------------+
+        | VolOfAllLogi| integer  | Number of all login attempts     |
+        | nAttempts   |          | in the specified time window.    |
+        +-------------+----------+----------------------------------+
+        | VolOfAllFail| integer  |  Number of all failed login      |
+        | edLogins    |          | attempts in the  time window.    |
+        +-------------+----------+----------------------------------+
+        | MaxOfFailed | integer  | Maximum Number of all failed     |
+        | LoginsWithSa|          | login attempts with same IPs.    |
+        | meIPs       |          |                                  |
+        +-------------+----------+----------------------------------+
+        | NumOfIPsLogi| integer  | Number of IPs used for logging   |
+        | nMultiAccoun|          | into multiple accounts.          |
+        | ts          |          |                                  |
+        +-------------+----------+----------------------------------+
+        | NumOfReqsTo | integer  | Number of requests to change     |
+        | ChangePasswo|          | passwords in the time window.    |
+        | rds         |          |                                  |
+        +-------------+----------+----------------------------------+
+        | NumOfUsersWi| integer  | Number of users with at least    |
+        | thEqualInter|          | "interval_threshold" intervals   |
+        | valBtnReqs  |          | between consecutive requests that|
+        |             |          | are equal up to precision        |
+        |             |          | "interval_epsilon".              |
+        +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
@@ -148,8 +123,8 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         partioning_entity="SM_USERNAME",
     ):
         """
-        :param window_length: Sets this ServerFeatureGenerator's window length.
-        :param window_step: Sets this ServerFeatureGenerator's window step.
+        :param window_length: Length of the sliding window (in seconds)
+        :param window_step: Length of the sliding window's step-size (in seconds)
         :param interval_threshold: An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs
         :param interval_epsilon: A float used to define feature NumOfUsersWithEqualIntervalBtnReqs
         :param partioning_entity: A string used to define the pivot column for partitioning the time window
@@ -161,7 +136,8 @@ class ServerFeatureGenerator(SparkNativeTransformer):
 
         :Example:
         >>> from serverfeaturegenerator import ServerFeatureGenerator
-        >>> feature_generator = ServerFeatureGenerator(window_length = 1800, window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3, partioning_entity = "CN")
+        >>> feature_generator = ServerFeatureGenerator(window_length = 1800,
+            window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3, partioning_entity = "CN")
         >>> features = feature_generator.transform(dataset = input_dataset)
         """
         super(ServerFeatureGenerator, self).__init__()
