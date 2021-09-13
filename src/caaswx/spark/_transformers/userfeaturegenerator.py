@@ -120,7 +120,7 @@ class UserFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def set_params(self):
         """
-        setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
                   inputCols=None, outputCols=None)
         Sets params for this UserFeatureGenerator.
         """

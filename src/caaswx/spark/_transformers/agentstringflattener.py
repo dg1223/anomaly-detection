@@ -1,7 +1,6 @@
 import httpagentparser
 import pyspark.sql.functions as f
 from pyspark import keyword_only
-from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import (
     window,
@@ -9,18 +8,12 @@ from pyspark.sql.functions import (
     udf,
 )
 from pyspark.sql.types import (
-    LongType,
-    DoubleType,
     StringType,
     TimestampType,
-    StructType,
-    StructField,
-    DateType,
-    FloatType,
-    IntegerType,
-    ArrayType,
 )
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
+
+from src.caaswx.spark._transformers.sparknativetransformer import \
+    SparkNativeTransformer
 
 
 class AgentStringFlattener(SparkNativeTransformer):
@@ -28,7 +21,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     User Feature transformer for the Streamworx project.
     """
 
-    windowLength = Param(
+    window_length = Param(
         Params._dummy(),
         "windowLength",
         "Length of the sliding window used for entity resolution. "
@@ -36,7 +29,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         typeConverter=TypeConverters.toInt,
     )
 
-    windowStep = Param(
+    window_step = Param(
         Params._dummy(),
         "windowStep",
         "Length of the sliding window step-size used for entity resolution. "
@@ -44,7 +37,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         typeConverter=TypeConverters.toInt,
     )
 
-    entityName = Param(
+    entity_name = Param(
         Params._dummy(),
         "entityName",
         "Name of the column to perform aggregation on, together with the "
@@ -52,14 +45,15 @@ class AgentStringFlattener(SparkNativeTransformer):
         typeConverter=TypeConverters.toString,
     )
 
-    agentSizeLimit = Param(
+    agent_size_limit = Param(
         Params._dummy(),
         "agentSizeLimit",
-        "Number of agent strings processed " + "Given as the number of strings.",
+        "Number of agent strings processed " + "Given as the number of "
+                                               "strings.",
         typeConverter=TypeConverters.toInt,
     )
 
-    runParser = Param(
+    run_parser = Param(
         Params._dummy(),
         "runParser",
         "Choose to parse parquet_data." + "Given as the boolean.",
@@ -68,95 +62,96 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     @keyword_only
     def __init__(
-        self,
-        entityName="SM_USERNAME",
-        agentSizeLimit=5,
-        runParser=False,
-        windowLength=900,
-        windowStep=900,
+            self,
+            entity_name="SM_USERNAME",
+            agent_size_limit=5,
+            run_parser=False,
+            window_length=900,
+            window_step=900,
     ):
         """
         def __init__(self, *, window_length = 900, window_step = 900)
         """
         super(AgentStringFlattener, self).__init__()
         self._setDefault(
-            windowLength=900,
-            windowStep=900,
-            entityName="SM_USERNAME",
-            agentSizeLimit=5,
-            runParser=False,
+            window_length=900,
+            window_step=900,
+            entity_name="SM_USERNAME",
+            agent_size_limit=5,
+            run_parser=False,
         )
         kwargs = self._input_kwargs
-        self.setParams(**kwargs)
+        self.set_params(**kwargs)
 
     @keyword_only
-    def setParams(
-        self,
-        entityName="SM_USERNAME",
-        agentSizeLimit=5,
-        windowLength=900,
-        windowStep=900,
-        runParser=False,
+    def set_params(
+            self,
+            entity_name="SM_USERNAME",
+            agent_size_limit=5,
+            window_length=900,
+            window_step=900,
+            run_parser=False,
     ):
         """
-    setParams(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
-              inputCols=None, outputCols=None)
-    Sets params for this AgentStringFlattener.
-    """
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
+        thresholds=None, \ inputCols=None, outputCols=None) Sets params for
+        this AgentStringFlattener.
+        """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
-    def setEntityName(self, value):
+    def set_entity_name(self, value):
         """
         Sets the Entity Name
         """
-        self._set(entityName=value)
+        self._set(entity_name=value)
 
-    def getEntityName(self):
-        return self.entityName
+    def get_entity_name(self):
+        return self.entity_name
 
-    def setRunParser(self, value):
+    def set_run_parser(self, value):
         """
         Sets the Entity Name
         """
-        self._set(runParser=value)
+        self._set(run_parser=value)
 
-    def getRunParser(self):
-        return self.runParser
+    def get_run_parser(self):
+        return self.run_parser
 
-    def setAgentSizeLimit(self, value):
+    def set_agent_size_limit(self, value):
         """
         Sets the Agent Size
         """
-        self._set(agentSizeLimit=value)
+        self._set(agent_size_limit=value)
 
-    def getAgentSizeLimit(self):
-        return self.agentSizeLimit
+    def get_agent_size_limit(self):
+        return self.agent_size_limit
 
-    def setWindowLength(self, value):
+    def set_window_length(self, value):
         """
         Sets this AgentStringFlattener's window length.
         """
-        self._set(windowLength=value)
+        self._set(window_length=value)
 
-    def setWindowStep(self, value):
+    def set_window_step(self, value):
         """
         Sets this AgentStringFlattener's window step size.
         """
-        self._set(windowStep=value)
+        self._set(window_step=value)
 
     @staticmethod
     def __flatten(self, df):
         """
         Flattens the URLs based on the order of their occurring timestamps
-        Input: Siteminder dataframe
-        Output: Dataframe containing entity name, window intervals and flattened URLs combined into lists
+        Input: Siteminder dataframe Output: Dataframe containing entity
+        name, window intervals and flattened URLs combined into lists
         """
 
         # Sorting the dataframe w.r.t timestamps in ascending order
         df = df.sort("SM_TIMESTAMP")
 
-        # Applying flattening operation over SM_AGENTNAME by combining them into set for each SM_USERNAME.
+        # Applying flattening operation over SM_AGENTNAME by combining them
+        # into set for each SM_USERNAME.
         result = df.groupby(
             str(self.getOrDefault("entityName")),
             window(
@@ -170,12 +165,13 @@ class AgentStringFlattener(SparkNativeTransformer):
         # Slicing to only get N User Agent Strings.
         result = result.withColumn(
             "SM_AGENTNAME",
-            f.slice(result["SM_AGENTNAME"], 1, self.getOrDefault("agentSizeLimit")),
+            f.slice(result["SM_AGENTNAME"], 1,
+                    self.getOrDefault("agentSizeLimit")),
         )
 
         return result
 
-    def httpParser(self, value):
+    def http_parser(self, value):
 
         base = []
         for string in value:
@@ -204,9 +200,9 @@ class AgentStringFlattener(SparkNativeTransformer):
 
         result = self.__flatten(self, dataset)
         if self.getOrDefault("runParser"):
-            httpParserUdf = udf(self.httpParser, StringType())
+            http_parser_udf = udf(self.http_parser, StringType())
             df = result.withColumn(
-                "Parsed_Agent_String", httpParserUdf(col("SM_AGENTNAME"))
+                "Parsed_Agent_String", http_parser_udf(col("SM_AGENTNAME"))
             ).drop("SM_AGENTNAME")
             return df
         else:
