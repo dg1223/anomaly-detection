@@ -4,7 +4,7 @@ import pathlib
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
 from src.caaswx.spark._transformers.userfeaturegenerator import UserFeatureGenerator
-from src.caaswx.spark.scripts.nullswap import nullSwap
+from src.caaswx.spark.scripts.nullswap import null_swap
 from src.caaswx.spark.scripts.loadtestdata import load_test_data, load_path
 
 spark = SparkSession.builder.getOrCreate()
@@ -41,5 +41,5 @@ def test_1():
     assert result.count() == ans_1_data.count()
 
     # schema test
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
