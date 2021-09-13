@@ -11,7 +11,7 @@ def writeParquet(filePath: str, schema, data):
     return dataFrame
 
 
-def loadParquet(*argv: str):
+def load_parquet(*argv: str):
     cwd = os.getcwd()
     path = os.path.join(cwd, *argv)
     return spark.read.parquet(path)
