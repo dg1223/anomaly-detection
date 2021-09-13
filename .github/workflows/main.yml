@@ -35,9 +35,11 @@ jobs:
       run: |
         python -m pytest
 
-    - name: Lint, format, and type-check
+    - name: black
       run: |
         black --line-length=79 --diff --check --verbose .
+    - name: flake8
+      run: |
         flake8 . --count --statistics --select=E,F,W,C90
 
 
