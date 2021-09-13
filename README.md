@@ -29,7 +29,8 @@ feature_generator.transform(df).take(50)
 ```
 
 # Description of dataset's columns
-| **Column Name**                 | **Description**                                                                                                        |
+
+|    **Column Name**                 |           **Description**                                                                                                        |
 |------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | CRA_SEQ |  Serves as the primary key for the Siteminder data and can be used for counting unique rows via aggregation steps.
 | CRA_TZ_OFFSET | Time zone offset (Majority of rows have 5 and 6 as the value of this column.
