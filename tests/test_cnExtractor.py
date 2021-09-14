@@ -1,13 +1,13 @@
 from src.caaswx.spark._transformers.cnextractor import CnExtractor
-from src.caaswx.spark.scripts.loadWriteParquet import loadParquet
+from src.caaswx.spark.scripts.loadWriteParquet import load_parquet
 
 
 def test_CnExtractor():
     obj = CnExtractor()
-    testDf = loadParquet(
+    testDf = load_parquet(
         "data", "parquet_data", "cn_extractor_tests", "SM_USERNAME_2_examples.parquet"
     )
-    answerDf = loadParquet(
+    answerDf = load_parquet(
         "data",
         "parquet_data",
         "cn_extractor_tests",
