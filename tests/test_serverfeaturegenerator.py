@@ -1,11 +1,12 @@
 import json
-import pathlib
 
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-from src.caaswx.spark._transformers.serverfeaturegenerator import ServerFeatureGenerator
 from src.caaswx.spark.scripts.nullswap import null_swap
+from src.caaswx.spark._transformers.serverfeaturegenerator import \
+    ServerFeatureGenerator
 from src.caaswx.spark.scripts.loadtestdata import load_test_data, load_path
+
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -28,15 +29,16 @@ def test_no_of_users():
 
     result = fg.transform(test_df)
 
-    df2_schema_filePath = load_path(
-        "data", "JSON", "server_feature_generator_tests", "ans_data_schema.json"
+    df2_schema_file_path = load_path(
+        "data", "JSON", "server_feature_generator_tests", "ans_data_schema"
+                                                          ".json "
     )
 
     # write the schema in JSON file
-    with open(df2_schema_filePath, "w") as outfile:
+    with open(df2_schema_file_path, "w") as outfile:
         json.dump(result.schema.json(), outfile)
 
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
@@ -75,11 +77,12 @@ def test_failed_logins():
 
     result = fg.transform(test_df)
 
-    df2_schema_filePath = load_path(
-        "data", "JSON", "server_feature_generator_tests", "ans_data_schema.json"
+    df2_schema_file_path = load_path(
+        "data", "JSON", "server_feature_generator_tests",
+        "ans_data_schema.json"
     )
 
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
@@ -118,11 +121,12 @@ def test_mulitple_ip_fails():
 
     result = fg.transform(test_df)
 
-    df2_schema_filePath = load_path(
-        "data", "JSON", "server_feature_generator_tests", "ans_data_schema.json"
+    df2_schema_file_path = load_path(
+        "data", "JSON", "server_feature_generator_tests",
+        "ans_data_schema.json"
     )
 
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
@@ -161,11 +165,12 @@ def test_two_windows():
 
     result = fg.transform(test_df)
 
-    df2_schema_filePath = load_path(
-        "data", "JSON", "server_feature_generator_tests", "ans_data_schema.json"
+    df2_schema_file_path = load_path(
+        "data", "JSON", "server_feature_generator_tests",
+        "ans_data_schema.json"
     )
 
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
@@ -204,11 +209,12 @@ def test_two_windows_multiple_logins():
 
     result = fg.transform(test_df)
 
-    df2_schema_filePath = load_path(
-        "data", "JSON", "server_feature_generator_tests", "ans_data_schema.json"
+    df2_schema_file_path = load_path(
+        "data", "JSON", "server_feature_generator_tests",
+        "ans_data_schema.json"
     )
 
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
@@ -247,11 +253,12 @@ def test_two_windows_multiple_ips():
 
     result = fg.transform(test_df)
 
-    df2_schema_filePath = load_path(
-        "data", "JSON", "server_feature_generator_tests", "ans_data_schema.json"
+    df2_schema_file_path = load_path(
+        "data", "JSON", "server_feature_generator_tests",
+        "ans_data_schema.json"
     )
 
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(

@@ -5,7 +5,7 @@ from pyspark.sql.session import SparkSession
 spark = SparkSession.builder.getOrCreate()
 
 
-def writeParquet(filePath: str, schema, data):
+def write_parquet(filePath: str, schema, data):
     dataFrame = spark.createDataFrame(data, schema=schema)
     dataFrame.write.parquet(filePath)
     return dataFrame
