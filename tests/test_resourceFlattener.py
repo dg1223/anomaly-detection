@@ -1,4 +1,6 @@
-from src.caaswx.spark._transformers.resourcesflattener import ResourcesFlattener
+from src.caaswx.spark._transformers.resourcesflattener import (
+    ResourcesFlattener,
+)
 from src.caaswx.spark.scripts.loadtestdata import load_test_data
 
 
@@ -12,7 +14,10 @@ def test_single_window_dataframe():
     )
     result = rf.transform(df)
     expected_result = load_test_data(
-        "data", "parquet_data", "flattener_tests", "expected_user_one_window_10.parquet"
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "expected_user_one_window_10.parquet",
     )
     assert (
         result.subtract(expected_result).count() == 0
@@ -26,7 +31,10 @@ def test_single_window_dataframe():
 def test_multiple_windows_dataframe():
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
-        "data", "parquet_data", "flattener_tests", "user_multiple_window_5.parquet"
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "user_multiple_window_5.parquet",
     )
     result = rf.transform(df)
     expected_result = load_test_data(
@@ -47,7 +55,10 @@ def test_multiple_windows_dataframe():
 def test_single_window_duplicate_resources():
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
-        "data", "parquet_data", "flattener_tests", "user_duplicate_resources.parquet"
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "user_duplicate_resources.parquet",
     )
     result = rf.transform(df)
     expected_result = load_test_data(
@@ -69,7 +80,10 @@ def test_single_window_duplicate_resources():
 def test_single_window_duplicate_rows():
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
-        "data", "parquet_data", "flattener_tests", "user_duplicate_rows.parquet"
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "user_duplicate_rows.parquet",
     )
     result = rf.transform(df)
     expected_result = load_test_data(
@@ -90,7 +104,10 @@ def test_single_window_duplicate_rows():
 def test_user_based_grouping():
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
-        "data", "parquet_data", "flattener_tests", "user_based_grouping.parquet"
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "user_based_grouping.parquet",
     )
     result = rf.transform(df)
     expected_result = load_test_data(
@@ -116,7 +133,10 @@ def test_shuffled_dataset():
     )
     result = rf.transform(df)
     expected_result = load_test_data(
-        "data", "parquet_data", "flattener_tests", "expected_user_shuffled_data.parquet"
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "expected_user_shuffled_data.parquet",
     )
     assert (
         result.subtract(expected_result).count() == 0
