@@ -451,8 +451,8 @@ class UserFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def set_params(self):
         """
-        setparams(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
-           thresholds=None, inputCols=None, outputCols=None)
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
+                  inputCols=None, outputCols=None)
         Sets params for this UserFeatureGenerator.
         """
         kwargs = self._input_kwargs
