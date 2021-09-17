@@ -1,21 +1,19 @@
 import pyspark.sql.functions as F
 from pyspark import keyword_only
-from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
 from pyspark.sql.types import (
-    StructType,
-    ArrayType,
     TimestampType,
     LongType,
     StringType,
-    StructField,
     DoubleType,
 )
 from pyspark.sql.window import Window
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
+
+from src.caaswx.spark._transformers.sparknativetransformer import \
+    SparkNativeTransformer
 
 
 class IPFeatureGenerator(SparkNativeTransformer):
@@ -258,9 +256,9 @@ class IPFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def set_params(self):
         """
-        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
-                  inputCols=None, outputCols=None)
-        Sets params for this SessionFeatureGenerator.
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
+        thresholds=None, inputCols=None, outputCols=None) Sets params for
+        this SessionFeatureGenerator.
         """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
@@ -326,30 +324,42 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            f.array_remove(
+                f.array_distinct(
+                    f.collect_list(
+                        regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
                 ),
                 "",
             ).alias("IP_APP"),
-            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 15).alias(
+            f.round(f.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 15).alias(
                 "IP_AVG_TIME_BT_RECORDS"
             ),
-            F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MAX_TIME_BT_RECORDS"),
-            F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("IP_MIN_TIME_BT_RECORDS"),
-            F.count(when(col("SM_EVENTID") == 7, True)).alias("IP_COUNT_ADMIN_LOGIN"),
-            F.count(when(col("SM_EVENTID") == 8, True)).alias("IP_COUNT_ADMIN_LOGOUT"),
-            F.count(when(col("SM_EVENTID") == 9, True)).alias("IP_COUNT_ADMIN_REJECT"),
-            F.count(when(col("SM_EVENTID") == 1, True)).alias("IP_COUNT_AUTH_ACCEPT"),
-            F.count(when(col("SM_EVENTID") == 3, True)).alias("IP_COUNT_ADMIN_ATTEMPT"),
-            F.count(when(col("SM_EVENTID") == 4, True)).alias(
+            f.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias(
+                "IP_MAX_TIME_BT_RECORDS"),
+            f.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias(
+                "IP_MIN_TIME_BT_RECORDS"),
+            f.count(when(col("SM_EVENTID") == 7, True)).alias(
+                "IP_COUNT_ADMIN_LOGIN"),
+            f.count(when(col("SM_EVENTID") == 8, True)).alias(
+                "IP_COUNT_ADMIN_LOGOUT"),
+            f.count(when(col("SM_EVENTID") == 9, True)).alias(
+                "IP_COUNT_ADMIN_REJECT"),
+            f.count(when(col("SM_EVENTID") == 1, True)).alias(
+                "IP_COUNT_AUTH_ACCEPT"),
+            f.count(when(col("SM_EVENTID") == 3, True)).alias(
+                "IP_COUNT_ADMIN_ATTEMPT"),
+            f.count(when(col("SM_EVENTID") == 4, True)).alias(
                 "IP_COUNT_AUTH_CHALLENGE"
             ),
-            F.count(when(col("SM_EVENTID") == 10, True)).alias("IP_COUNT_AUTH_LOGOUT"),
-            F.count(when(col("SM_EVENTID") == 2, True)).alias("IP_COUNT_AUTH_REJECT"),
-            F.count(when(col("SM_EVENTID") == 5, True)).alias("IP_COUNT_AZ_ACCEPT"),
-            F.count(when(col("SM_EVENTID") == 6, True)).alias("IP_COUNT_AZ_REJECT"),
-            F.count(
+            f.count(when(col("SM_EVENTID") == 10, True)).alias(
+                "IP_COUNT_AUTH_LOGOUT"),
+            f.count(when(col("SM_EVENTID") == 2, True)).alias(
+                "IP_COUNT_AUTH_REJECT"),
+            f.count(when(col("SM_EVENTID") == 5, True)).alias(
+                "IP_COUNT_AZ_ACCEPT"),
+            f.count(when(col("SM_EVENTID") == 6, True)).alias(
+                "IP_COUNT_AZ_REJECT"),
+            f.count(
                 when(
                     (col("SM_EVENTID") == 2)
                     | (col("SM_EVENTID") == 6)
@@ -357,52 +367,58 @@ class IPFeatureGenerator(SparkNativeTransformer):
                     True,
                 )
             ).alias("IP_COUNT_FAILED"),
-            F.count(when(col("SM_ACTION").contains("GET"), True)).alias("IP_COUNT_GET"),
-            F.count(when(col("SM_ACTION").contains("POST"), True)).alias(
+            f.count(when(col("SM_ACTION").contains("GET"), True)).alias(
+                "IP_COUNT_GET"),
+            f.count(when(col("SM_ACTION").contains("POST"), True)).alias(
                 "IP_COUNT_POST"
             ),
-            F.count(
+            f.count(
                 when(
                     (col("SM_ACTION").contains("GET"))
                     | (col("SM_ACTION").contains("POST")),
                     True,
                 )
             ).alias("IP_COUNT_HTTP_METHODS"),
-            F.count(
+            f.count(
                 when(
                     (col("SM_USERNAME").contains("ams"))
                     | (col("SM_RESOURCE").contains("AMS")),
                     True,
                 )
             ).alias("IP_COUNT_OU_AMS"),
-            F.count(when(col("SM_USERNAME").contains("cra-cp"), True)).alias(
+            f.count(when(col("SM_USERNAME").contains("cra-cp"), True)).alias(
                 "IP_COUNT_OU_CMS"
             ),
-            F.count(when(col("SM_USERNAME").contains("ou=Identity"), True)).alias(
+            f.count(when(
+                col("SM_USERNAME").contains("ou=Identity"), True)).alias(
                 "IP_COUNT_OU_IDENTITY"
             ),
-            F.count(when(col("SM_USERNAME").contains("ou=Credential"), True)).alias(
+            f.count(when(
+                col("SM_USERNAME").contains("ou=Credential"), True)).alias(
                 "IP_COUNT_OU_CRED"
             ),
-            F.count(when(col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
+            f.count(when(
+                col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
                 "IP_COUNT_OU_SECUREKEY"
             ),
-            F.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
+            f.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
                 "IP_COUNT_PORTAL_MYA"
             ),
-            F.count(when(col("SM_RESOURCE").contains("myba"), True)).alias(
+            f.count(when(col("SM_RESOURCE").contains("myba"), True)).alias(
                 "IP_COUNT_PORTAL_MYBA"
             ),
-            F.countDistinct(col("SM_ACTION")).alias("IP_COUNT_UNIQUE_ACTIONS"),
-            F.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
-            F.countDistinct(col("CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
-            F.countDistinct(col("SM_RESOURCE")).alias("IP_COUNT_UNIQUE_RESOURCES"),
-            F.countDistinct(col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
+            f.countDistinct(col("SM_ACTION")).alias("IP_COUNT_UNIQUE_ACTIONS"),
+            f.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
+            f.countDistinct(col("CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
+            f.countDistinct(
+                col("SM_RESOURCE")).alias("IP_COUNT_UNIQUE_RESOURCES"),
+            f.countDistinct(
+                col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
             (
-                F.size(
-                    F.array_remove(
-                        F.array_distinct(
-                            F.collect_list(
+                f.size(
+                    f.array_remove(
+                        f.array_distinct(
+                            f.collect_list(
                                 regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
                             )
                         ),
@@ -410,44 +426,50 @@ class IPFeatureGenerator(SparkNativeTransformer):
                     ),
                 )
             ).alias("IP_COUNT_PORTAL_RAC"),
-            F.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
-            F.count(when(col("SM_EVENTID") == 13, True)).alias("IP_COUNT_VISIT"),
-            F.count(when(col("SM_EVENTID") == 11, True)).alias(
+            f.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
+            f.count(when(col("SM_EVENTID") == 13, True)).alias(
+                "IP_COUNT_VISIT"),
+            f.count(when(col("SM_EVENTID") == 11, True)).alias(
                 "IP_COUNT_VALIDATE_ACCEPT"
             ),
-            F.count(when(col("SM_EVENTID") == 12, True)).alias(
+            f.count(when(col("SM_EVENTID") == 12, True)).alias(
                 "IP_COUNT_VALIDATE_REJECT"
             ),
-            F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
+            f.array_distinct(f.collect_list(col("SM_ACTION"))).alias(
                 "IP_UNIQUE_SM_ACTIONS"
             ),
-            F.array_distinct(F.collect_list(col("CN"))).alias("IP_UNIQUE_USERNAME"),
-            F.array_distinct(F.collect_list(col("SM_SESSIONID"))).alias(
+            f.array_distinct(f.collect_list(col("CN"))).alias(
+                "IP_UNIQUE_USERNAME"),
+            f.array_distinct(f.collect_list(col("SM_SESSIONID"))).alias(
                 "IP_UNIQUE_SM_SESSION"
             ),
-            F.array_distinct(F.collect_list(col("SM_RESOURCE"))).alias(
+            f.array_distinct(f.collect_list(col("SM_RESOURCE"))).alias(
                 "IP_UNIQUE_SM_PORTALS"
             ),
-            F.array_distinct(F.collect_list(col("SM_TRANSACTIONID"))).alias(
+            f.array_distinct(f.collect_list(col("SM_TRANSACTIONID"))).alias(
                 "IP_UNIQUE_SM_TRANSACTIONS"
             ),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            f.array_remove(
+                f.array_distinct(
+                    f.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),",
+                                                  0))
                 ),
                 "",
             ).alias("IP_UNIQUE_USER_OU"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            f.array_remove(
+                f.array_distinct(
+                    f.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/",
+                                                  0))
                 ),
                 "",
             ).alias("IP_UNIQUE_REP_APP"),
-            F.min(col("SM_TIMESTAMP")).alias("IP_TIMESTAMP"),
-            F.size(
-                F.array_remove(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            f.min(col("SM_TIMESTAMP")).alias("IP_TIMESTAMP"),
+            f.size(
+                f.array_remove(
+                    f.array_distinct(
+                        f.collect_list(regexp_extract("SM_USERNAME", r"ou=("
+                                                                     r".*?),"
+                                                                     r"", 0))
                     ),
                     "",
                 )

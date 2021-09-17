@@ -2,7 +2,6 @@ import json
 
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-
 from src.caaswx.spark._transformers.userfeaturegenerator import (
     UserFeatureGenerator,
 )
