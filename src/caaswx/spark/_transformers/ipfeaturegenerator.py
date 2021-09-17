@@ -487,6 +487,7 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 "IP_COUNT_UNIQUE_RESOURCES"),
             f.countDistinct(col("SM_SESSIONID")).alias(
                 "IP_COUNT_UNIQUE_SESSIONS"),
+
             (
                 f.size(
                     f.array_remove(

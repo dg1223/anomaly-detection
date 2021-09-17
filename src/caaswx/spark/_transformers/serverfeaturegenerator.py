@@ -164,6 +164,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         thresholds=None, inputCols=None, outputCols=None) Sets params for
         this ServerFeatureGenerator.
         """
+
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
