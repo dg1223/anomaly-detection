@@ -1,21 +1,11 @@
-from src.caaswx.spark._transformers.agentstringflattener import AgentStringFlattener
-from src.caaswx.spark.scripts.loadtestdata import load_test_data
-from src.caaswx.spark.scripts.nullswap import null_swap
-from pyspark.sql.types import StructType
-from pyspark.sql.session import SparkSession
 import json
-import json
-import pyspark.sql.functions as f
+
 import pyspark.sql.types
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    ArrayType,
-    TimestampType,
-)
 from pyspark.sql.session import SparkSession
-import os
+
+from src.caaswx.spark._transformers.agentstringflattener import \
+    AgentStringFlattener
+from src.caaswx.spark.scripts.nullswap import nullSwap
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -25,7 +15,7 @@ def test_1():
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
     result = AgentStringFlattener(
-        agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=True
+        agent_size_limit=2, entity_name="SM_CLIENTIP", run_parser=True
     ).transform(df)
 
     ans_1_data = spark.read.parquet(
@@ -33,7 +23,8 @@ def test_1():
     )
 
     df2_schema_filePath = (
-        "./data/JSON/agent_flattener_tests/ans_data_1_schema_agentflattener.json"
+        "./data/JSON/agent_flattener_tests/ans_data_1_schema_agentflattener"
+        ".json "
     )
 
     # ans_1_data = spark.read.json(df2_filePath)
@@ -60,7 +51,7 @@ def test_2():
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
     result = AgentStringFlattener(
-        agentSizeLimit=2, entityName="SM_CLIENTIP", runParser=False
+        agent_size_limit=2, entity_name="SM_CLIENTIP", run_parser=False
     ).transform(df)
 
     ans_2_data = spark.read.parquet(
@@ -68,7 +59,8 @@ def test_2():
     )
 
     df4_schema_filePath = (
-        "./data/JSON/agent_flattener_tests/ans_data_2_schema_agentflattener.json"
+        "./data/JSON/agent_flattener_tests/ans_data_2_schema_agentflattener"
+        ".json "
     )
     with open(df4_schema_filePath) as json_file:
         ans_2_data_schema = json.load(json_file)
