@@ -1,20 +1,23 @@
-import pyspark.sql.functions as F
+import pyspark.sql.functions as f
+
+# Import Essential packages
+
 from pyspark import keyword_only
-from pyspark.ml import Transformer
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
 from pyspark.sql.types import (
-    ArrayType,
     TimestampType,
     StringType,
     LongType,
-    StructType,
-    StructField,
 )
 from pyspark.sql.window import Window
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
+
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
+
 
 
 class UserFeatureGenerator(SparkNativeTransformer):
@@ -345,9 +348,9 @@ class UserFeatureGenerator(SparkNativeTransformer):
 
         pivot = str(self.getOrDefault("entity_name"))
         dataset_copy = dataset
-        ts_window = Window.partitionBy(str(self.getOrDefault("entity_name"))).orderBy(
-            "SM_TIMESTAMP"
-        )
+        ts_window = Window.partitionBy(
+            str(self.getOrDefault("entity_name"))
+        ).orderBy("SM_TIMESTAMP")
         dataset = dataset.withColumn(
             "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
         )
@@ -368,7 +371,7 @@ class UserFeatureGenerator(SparkNativeTransformer):
 
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
         ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
-            F.countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+            f.countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
         )
         dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
         dataset = dataset.groupby(
@@ -379,20 +382,44 @@ class UserFeatureGenerator(SparkNativeTransformer):
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(
-            F.count(when(col("SM_EVENTID") == 8, True)).alias("COUNT_ADMIN_LOGOUT"),
-            F.count(when(col("SM_EVENTID") == 1, True)).alias("COUNT_AUTH_ACCEPT"),
-            F.count(when(col("SM_EVENTID") == 3, True)).alias("COUNT_ADMIN_ATTEMPT"),
-            F.count(when(col("SM_EVENTID") == 2, True)).alias("COUNT_AUTH_REJECT"),
-            F.count(when(col("SM_EVENTID") == 5, True)).alias("COUNT_AZ_ACCEPT"),
-            F.count(when(col("SM_EVENTID") == 6, True)).alias("COUNT_AZ_REJECT"),
-            F.count(when(col("SM_EVENTID") == 10, True)).alias("COUNT_AUTH_LOGOUT"),
-            F.count(when(col("SM_EVENTID") == 13, True)).alias("COUNT_VISIT"),
-            F.count(when(col("SM_EVENTID") == 4, True)).alias("COUNT_AUTH_CHALLENGE"),
-            F.count(when(col("SM_EVENTID") == 9, True)).alias("COUNT_ADMIN_REJECT"),
-            F.count(when(col("SM_EVENTID") == 7, True)).alias("COUNT_ADMIN_LOGIN"),
-            F.count(when(col("SM_EVENTID") == 11, True)).alias("COUNT_VALIDATE_ACCEPT"),
-            F.count(when(col("SM_EVENTID") == 12, True)).alias("COUNT_VALIDATE_REJECT"),
-            F.count(
+            f.count(when(col("SM_EVENTID") == 8, True)).alias(
+                "COUNT_ADMIN_LOGOUT"
+            ),
+            f.count(when(col("SM_EVENTID") == 1, True)).alias(
+                "COUNT_AUTH_ACCEPT"
+            ),
+            f.count(when(col("SM_EVENTID") == 3, True)).alias(
+                "COUNT_ADMIN_ATTEMPT"
+            ),
+            f.count(when(col("SM_EVENTID") == 2, True)).alias(
+                "COUNT_AUTH_REJECT"
+            ),
+            f.count(when(col("SM_EVENTID") == 5, True)).alias(
+                "COUNT_AZ_ACCEPT"
+            ),
+            f.count(when(col("SM_EVENTID") == 6, True)).alias(
+                "COUNT_AZ_REJECT"
+            ),
+            f.count(when(col("SM_EVENTID") == 10, True)).alias(
+                "COUNT_AUTH_LOGOUT"
+            ),
+            f.count(when(col("SM_EVENTID") == 13, True)).alias("COUNT_VISIT"),
+            f.count(when(col("SM_EVENTID") == 4, True)).alias(
+                "COUNT_AUTH_CHALLENGE"
+            ),
+            f.count(when(col("SM_EVENTID") == 9, True)).alias(
+                "COUNT_ADMIN_REJECT"
+            ),
+            f.count(when(col("SM_EVENTID") == 7, True)).alias(
+                "COUNT_ADMIN_LOGIN"
+            ),
+            f.count(when(col("SM_EVENTID") == 11, True)).alias(
+                "COUNT_VALIDATE_ACCEPT"
+            ),
+            f.count(when(col("SM_EVENTID") == 12, True)).alias(
+                "COUNT_VALIDATE_REJECT"
+            ),
+            f.count(
                 when(
                     (col("SM_EVENTID") == 2)
                     | (col("SM_EVENTID") == 6)
@@ -400,137 +427,168 @@ class UserFeatureGenerator(SparkNativeTransformer):
                     True,
                 )
             ).alias("COUNT_FAILED"),
-            F.count(when(col("SM_ACTION").contains("GET"), True)).alias("COUNT_GET"),
-            F.count(when(col("SM_ACTION").contains("POST"), True)).alias("COUNT_POST"),
-            F.count(
+            f.count(when(col("SM_ACTION").contains("GET"), True)).alias(
+                "COUNT_GET"
+            ),
+            f.count(when(col("SM_ACTION").contains("POST"), True)).alias(
+                "COUNT_POST"
+            ),
+            f.count(
                 when(
                     (col("SM_ACTION").contains("GET"))
                     | (col("SM_ACTION").contains("POST")),
                     True,
                 )
             ).alias("COUNT_HTTP_METHODS"),
-            F.count(
+            f.count(
                 when(
                     (col("SM_USERNAME").contains("ams"))
                     | (col("SM_RESOURCE").contains("AMS")),
                     True,
                 )
             ).alias("COUNT_OU_AMS"),
-            F.count(when(col("SM_USERNAME").contains("cra-cp"), True)).alias(
+            f.count(when(col("SM_USERNAME").contains("cra-cp"), True)).alias(
                 "COUNT_OU_CMS"
             ),
-            F.count(when(col("SM_USERNAME").contains("ou=Identity"), True)).alias(
-                "COUNT_OU_IDENTITY"
-            ),
-            F.count(when(col("SM_USERNAME").contains("ou=Credential"), True)).alias(
-                "COUNT_OU_CRED"
-            ),
-            F.count(when(col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
-                "COUNT_OU_SECUREKEY"
-            ),
-            F.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
+            f.count(
+                when(col("SM_USERNAME").contains("ou=Identity"), True)
+            ).alias("COUNT_OU_IDENTITY"),
+            f.count(
+                when(col("SM_USERNAME").contains("ou=Credential"), True)
+            ).alias("COUNT_OU_CRED"),
+            f.count(
+                when(col("SM_USERNAME").contains("ou=SecureKey"), True)
+            ).alias("COUNT_OU_SECUREKEY"),
+            f.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
                 "COUNT_PORTAL_MYA"
             ),
-            F.count(when(col("SM_RESOURCE").contains("myba"), True)).alias(
+            f.count(when(col("SM_RESOURCE").contains("myba"), True)).alias(
                 "COUNT_PORTAL_MYBA"
             ),
-            F.countDistinct(col("SM_ACTION")).alias("COUNT_UNIQUE_ACTIONS"),
-            F.countDistinct(col("SM_CLIENTIP")).alias("COUNT_UNIQUE_IPS"),
-            F.countDistinct(col("SM_EVENTID")).alias("COUNT_UNIQUE_EVENTS"),
-            F.countDistinct(col("SM_RESOURCE")).alias("COUNT_UNIQUE_RESOURCES"),
-            F.countDistinct(col("SM_SESSIONID")).alias("COUNT_UNIQUE_SESSIONS"),
-            F.countDistinct(col("CN")).alias("COUNT_UNIQUE_USERNAME"),
-            F.count(col("CRA_SEQ")).alias("COUNT_RECORDS"),
-            F.array_distinct(F.collect_list(col("SM_ACTION"))).alias(
+            f.countDistinct(col("SM_ACTION")).alias("COUNT_UNIQUE_ACTIONS"),
+            f.countDistinct(col("SM_CLIENTIP")).alias("COUNT_UNIQUE_IPS"),
+            f.countDistinct(col("SM_EVENTID")).alias("COUNT_UNIQUE_EVENTS"),
+            f.countDistinct(col("SM_RESOURCE")).alias(
+                "COUNT_UNIQUE_RESOURCES"
+            ),
+            f.countDistinct(col("SM_SESSIONID")).alias(
+                "COUNT_UNIQUE_SESSIONS"
+            ),
+            f.countDistinct(col("CN")).alias("COUNT_UNIQUE_USERNAME"),
+            f.count(col("CRA_SEQ")).alias("COUNT_RECORDS"),
+            f.array_distinct(f.collect_list(col("SM_ACTION"))).alias(
                 "UNIQUE_SM_ACTIONS"
             ),
-            F.array_distinct(F.collect_list(col("SM_CLIENTIP"))).alias(
+            f.array_distinct(f.collect_list(col("SM_CLIENTIP"))).alias(
                 "UNIQUE_SM_CLIENTIPS"
             ),
-            F.array_distinct(F.collect_list(col("SM_RESOURCE"))).alias(
+            f.array_distinct(f.collect_list(col("SM_RESOURCE"))).alias(
                 "UNIQUE_SM_PORTALS"
             ),
-            F.array_distinct(F.collect_list(col("SM_TRANSACTIONID"))).alias(
+            f.array_distinct(f.collect_list(col("SM_TRANSACTIONID"))).alias(
                 "UNIQUE_SM_TRANSACTIONS"
             ),
-            F.array_distinct(F.collect_list(col("SM_SESSIONID"))).alias(
+            f.array_distinct(f.collect_list(col("SM_SESSIONID"))).alias(
                 "SM_SESSION_IDS"
             ),
-            F.size(
-                F.array_remove(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            f.size(
+                f.array_remove(
+                    f.array_distinct(
+                        f.collect_list(
+                            regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)
+                        )
                     ),
                     "",
                 )
             ).alias("COUNT_UNIQUE_OU"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+            f.array_remove(
+                f.array_distinct(
+                    f.collect_list(
+                        regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)
+                    )
                 ),
                 "",
             ).alias("UNIQUE_USER_OU"),
-            F.size(
-                F.array_remove(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            f.size(
+                f.array_remove(
+                    f.array_distinct(
+                        f.collect_list(
+                            regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
+                        )
                     ),
                     "",
                 )
             ).alias("COUNT_UNIQUE_REP"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+            f.array_remove(
+                f.array_distinct(
+                    f.collect_list(
+                        regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
+                    )
                 ),
                 "",
             ).alias("UNIQUE_PORTAL_RAC"),
-            F.array_remove(
-                F.array_distinct(
-                    F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            f.array_remove(
+                f.array_distinct(
+                    f.collect_list(
+                        regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)
+                    )
                 ),
                 "",
             ).alias("UNIQUE_USER_APPS"),
-            F.size(
-                F.array_remove(
-                    F.array_distinct(
-                        F.collect_list(regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+            f.size(
+                f.array_remove(
+                    f.array_distinct(
+                        f.collect_list(
+                            regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)
+                        )
                     ),
                     "",
                 )
             ).alias("COUNTUNIQUE_USER_APPS"),
-            F.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
-            F.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MAX_TIME_BT_RECORDS"),
-            F.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias("MIN_TIME_BT_RECORDS"),
-            F.round(F.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 5).alias(
+            f.min(col("SM_TIMESTAMP")).alias("USER_TIMESTAMP"),
+            f.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias(
+                "MAX_TIME_BT_RECORDS"
+            ),
+            f.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias(
+                "MIN_TIME_BT_RECORDS"
+            ),
+            f.round(f.mean("SM_CONSECUTIVE_TIME_DIFFERENCE"), 5).alias(
                 "AVG_TIME_BT_RECORDS"
             ),
-            F.count(
-                when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6), True)
+            f.count(
+                when(
+                    (dataset["SM_EVENTID"] >= 1)
+                    & (dataset["SM_EVENTID"] <= 6),
+                    True,
+                )
             ).alias("UserLoginAttempts"),
-            F.count(
+            f.count(
                 when(dataset["SM_RESOURCE"].contains("changePassword"), True)
             ).alias("UserNumOfPasswordChange"),
-            F.sum("distinct_usernames_for_ip").alias(
+            f.sum("distinct_usernames_for_ip").alias(
                 "UserNumOfAccountsLoginWithSameIPs"
             ),
-            F.sort_array(F.collect_set("SM_AGENTNAME")).alias("browsersList"),
+            f.sort_array(f.collect_set("SM_AGENTNAME")).alias("browsersList"),
         )
 
         agent_window = Window.partitionBy(pivot).orderBy("window")
         dataset = dataset.withColumn(
-            "SM_PREVIOUS_AGENTNAME", F.lag(dataset["browsersList"]).over(agent_window)
+            "SM_PREVIOUS_AGENTNAME",
+            f.lag(dataset["browsersList"]).over(agent_window),
         )
         dataset = dataset.withColumn(
             "UserIsUsingUnusualBrowser",
-            F.when(
-                (F.isnull("SM_PREVIOUS_AGENTNAME"))
-                | (dataset["browsersList"] == dataset["SM_PREVIOUS_AGENTNAME"]),
+            f.when(
+                (f.isnull("SM_PREVIOUS_AGENTNAME"))
+                | (
+                    dataset["browsersList"] == dataset["SM_PREVIOUS_AGENTNAME"]
+                ),
                 0,
             ).otherwise(1),
         )
         dataset = dataset.drop("browsersList")
         dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
-        UserAvgFailedLoginsWithSameIPs_df = (
+        user_avg_failed_logins_with_same_ips_df = (
             dataset_copy.groupby(
                 pivot,
                 "SM_CLIENTIP",
@@ -541,7 +599,7 @@ class UserFeatureGenerator(SparkNativeTransformer):
                 ),
             )
             .agg(
-                F.count(
+                f.count(
                     when(
                         (dataset_copy["SM_EVENTID"] == 2)
                         | (dataset_copy["SM_EVENTID"] == 6)
@@ -552,9 +610,15 @@ class UserFeatureGenerator(SparkNativeTransformer):
                 ).alias("countOfFailedLogins")
             )
             .groupBy(pivot, "window")
-            .agg(F.avg("countOfFailedLogins").alias("UserAvgFailedLoginsWithSameIPs"))
+            .agg(
+                f.avg("countOfFailedLogins").alias(
+                    "UserAvgFailedLoginsWithSameIPs"
+                )
+            )
         )
 
-        dataset = dataset.join(UserAvgFailedLoginsWithSameIPs_df, [pivot, "window"])
+        dataset = dataset.join(
+            user_avg_failed_logins_with_same_ips_df, [pivot, "window"]
+        )
 
         return dataset
