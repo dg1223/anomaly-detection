@@ -1,12 +1,10 @@
 import json
-
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-
+from src.caaswx.spark.scripts.nullswap import null_swap
 from src.caaswx.spark._transformers.serverfeaturegenerator import \
     ServerFeatureGenerator
 from src.caaswx.spark.scripts.loadtestdata import load_test_data, load_path
-from src.caaswx.spark.scripts.nullswap import nullSwap
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -56,7 +54,7 @@ def test_no_of_users():
 
     # schema test
 
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
 
 
@@ -100,7 +98,7 @@ def test_failed_logins():
 
     # schema test
 
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
 
 
@@ -144,7 +142,7 @@ def test_mulitple_ip_fails():
 
     # schema test
 
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
 
 
@@ -188,7 +186,7 @@ def test_two_windows():
 
     # schema test
 
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
 
 
@@ -232,7 +230,7 @@ def test_two_windows_multiple_logins():
 
     # schema test
 
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
 
 
@@ -276,5 +274,5 @@ def test_two_windows_multiple_ips():
 
     # schema test
 
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema

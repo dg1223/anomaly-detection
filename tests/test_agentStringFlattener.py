@@ -39,7 +39,7 @@ def test_1():
     assert result.subtract(ans_1_data).count() == 0
 
     # schema test
-    nullSwap(ans_1_data.schema, ans_1_data_schema)
+    null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
 
     # row test
@@ -73,7 +73,7 @@ def test_2():
     assert result.subtract(ans_2_data).count() == 0
 
     # schema test
-    nullSwap(ans_2_data.schema, ans_2_data_schema)
+    null_swap(ans_2_data.schema, ans_2_data_schema)
     print(result.schema)
     print(ans_2_data_schema)
     print(ans_2_data.schema)
