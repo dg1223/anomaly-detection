@@ -1,15 +1,13 @@
-from src.caaswx.spark._transformers.sparknativetransformer import SparkNativeTransformer
-from pyspark.sql.types import StringType
-import pyspark.sql.functions as F
-from pyspark.sql.functions import when, col, regexp_replace
+from pyspark import keyword_only
 from pyspark.ml.param.shared import (
-    TypeConverters,
-    Param,
-    Params,
     HasInputCol,
     HasOutputCol,
 )
-from pyspark import keyword_only
+from pyspark.sql.functions import regexp_replace
+from pyspark.sql.types import StringType
+
+from src.caaswx.spark._transformers.sparknativetransformer import \
+    SparkNativeTransformer
 
 
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
@@ -78,11 +76,13 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
         """
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
-            regexp_replace(dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""),
+            regexp_replace(
+                dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""),
         )
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
-            regexp_replace(dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""),
+            regexp_replace(
+                dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""),
         )
 
         return dataset

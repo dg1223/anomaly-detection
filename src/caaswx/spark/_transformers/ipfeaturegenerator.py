@@ -1,4 +1,6 @@
-import pyspark.sql.functions as F
+import pyspark.sql.functions as f
+# Import Essential packages
+
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.sql.functions import col, when, lag, isnull
@@ -389,16 +391,16 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.count(when(col("SM_USERNAME").contains("cra-cp"), True)).alias(
                 "IP_COUNT_OU_CMS"
             ),
-            f.count(when(
-                col("SM_USERNAME").contains("ou=Identity"), True)).alias(
+            f.count(
+                when(col("SM_USERNAME").contains("ou=Identity"), True)).alias(
                 "IP_COUNT_OU_IDENTITY"
             ),
-            f.count(when(
-                col("SM_USERNAME").contains("ou=Credential"), True)).alias(
+            f.count(when(col("SM_USERNAME").contains("ou=Credential"),
+                         True)).alias(
                 "IP_COUNT_OU_CRED"
             ),
-            f.count(when(
-                col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
+            f.count(
+                when(col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
                 "IP_COUNT_OU_SECUREKEY"
             ),
             f.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
@@ -410,10 +412,11 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.countDistinct(col("SM_ACTION")).alias("IP_COUNT_UNIQUE_ACTIONS"),
             f.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
             f.countDistinct(col("CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
-            f.countDistinct(
-                col("SM_RESOURCE")).alias("IP_COUNT_UNIQUE_RESOURCES"),
-            f.countDistinct(
-                col("SM_SESSIONID")).alias("IP_COUNT_UNIQUE_SESSIONS"),
+            f.countDistinct(col("SM_RESOURCE")).alias(
+                "IP_COUNT_UNIQUE_RESOURCES"),
+            f.countDistinct(col("SM_SESSIONID")).alias(
+                "IP_COUNT_UNIQUE_SESSIONS"),
+
             (
                 f.size(
                     f.array_remove(
@@ -451,15 +454,15 @@ class IPFeatureGenerator(SparkNativeTransformer):
             ),
             f.array_remove(
                 f.array_distinct(
-                    f.collect_list(regexp_extract("SM_USERNAME", r"ou=(.*?),",
-                                                  0))
+                    f.collect_list(
+                        regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
                 ),
                 "",
             ).alias("IP_UNIQUE_USER_OU"),
             f.array_remove(
                 f.array_distinct(
-                    f.collect_list(regexp_extract("SM_RESOURCE", r"(rep.*?)/",
-                                                  0))
+                    f.collect_list(
+                        regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
                 ),
                 "",
             ).alias("IP_UNIQUE_REP_APP"),
@@ -467,9 +470,8 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.size(
                 f.array_remove(
                     f.array_distinct(
-                        f.collect_list(regexp_extract("SM_USERNAME", r"ou=("
-                                                                     r".*?),"
-                                                                     r"", 0))
+                        f.collect_list(
+                            regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
                     ),
                     "",
                 )
