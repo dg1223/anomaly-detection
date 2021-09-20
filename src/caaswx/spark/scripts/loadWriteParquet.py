@@ -5,10 +5,10 @@ from pyspark.sql.session import SparkSession
 spark = SparkSession.builder.getOrCreate()
 
 
-def write_parquet(filePath: str, schema, data):
-    dataFrame = spark.createDataFrame(data, schema=schema)
-    dataFrame.write.parquet(filePath)
-    return dataFrame
+def write_parquet(file_path: str, schema, data):
+    data_frame = spark.createDataFrame(data, schema=schema)
+    data_frame.write.parquet(file_path)
+    return data_frame
 
 
 def load_parquet(*argv: str):
