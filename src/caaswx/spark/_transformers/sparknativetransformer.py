@@ -18,15 +18,15 @@ class SparkNativeTransformer(Transformer):
         def null_swap(st1, st2):
             """Function to swap datatype null parameter within a nested
             dataframe schema """
-            if not {sf.name for sf in st1}.issubset(
-                    {sf.name for sf in st2}):
-                raise ValueError("Keys for first schema aren't a subset of "
-                                 "the second.")
+            if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
+                raise ValueError(
+                    "Keys for first schema aren't a subset of " "the second."
+                )
             for sf in st1:
                 sf.nullable = st2[sf.name].nullable
                 if isinstance(sf.dataType, StructType):
                     if not {sf.name for sf in st1}.issubset(
-                            {sf.name for sf in st2}
+                        {sf.name for sf in st2}
                     ):
                         raise ValueError(
                             "Keys for first schema aren't a subset of the "
@@ -35,7 +35,8 @@ class SparkNativeTransformer(Transformer):
                     null_swap(sf.dataType, st2[sf.name].dataType)
                 if isinstance(sf.dataType, ArrayType):
                     sf.dataType.containsNull = st2[
-                        sf.name].dataType.containsNull
+                        sf.name
+                    ].dataType.containsNull
 
         sch_list = []
         for x in sch_dict.keys():
@@ -43,8 +44,9 @@ class SparkNativeTransformer(Transformer):
         schema = StructType(sch_list)
         null_swap(schema, incoming_schema)
         if any([x not in incoming_schema for x in schema]):
-            raise ValueError("Keys for first schema aren't a subset of the "
-                             "second.")
+            raise ValueError(
+                "Keys for first schema aren't a subset of the " "second."
+            )
 
     def transform(self, dataset, params=None):
         """
@@ -75,5 +77,6 @@ class SparkNativeTransformer(Transformer):
             else:
                 return self._transform(dataset)
         else:
-            raise ValueError("Params must be a param map but got %s."
-                             % type(params))
+            raise ValueError(
+                "Params must be a param map but got %s." % type(params)
+            )
