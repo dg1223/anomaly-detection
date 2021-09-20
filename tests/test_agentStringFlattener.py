@@ -1,6 +1,4 @@
-from src.caaswx.spark.scripts.loadtestdata import load_test_data
 from src.caaswx.spark.scripts.nullswap import null_swap
-from pyspark.sql.types import StructType
 from pyspark.sql.session import SparkSession
 import json
 import pyspark.sql.types
@@ -22,13 +20,13 @@ def test_1():
         "./data/parquet_data/agentStringFlattener_tests/ans_1_df.parquet"
     )
 
-    df2_schema_filePath = (
+    df2_schema_file_path = (
         "./data/JSON/agent_flattener_tests/ans_data_1_schema_agentflattener"
-        ".json "
+        ".json"
     )
 
     # ans_1_data = spark.read.json(df2_filePath)
-    with open(df2_schema_filePath) as json_file:
+    with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
     ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
@@ -58,11 +56,11 @@ def test_2():
         "./data/parquet_data/agentStringFlattener_tests/ans_2_df.parquet"
     )
 
-    df4_schema_filePath = (
+    df4_schema_file_path = (
         "./data/JSON/agent_flattener_tests/ans_data_2_schema_agentflattener"
-        ".json "
+        ".json"
     )
-    with open(df4_schema_filePath) as json_file:
+    with open(df4_schema_file_path) as json_file:
         ans_2_data_schema = json.load(json_file)
 
     ans_2_data_schema = pyspark.sql.types.StructType.fromJson(
