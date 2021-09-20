@@ -17,7 +17,7 @@ class SparkNativeTransformer(Transformer):
     def test_schema(self, incoming_schema, sch_dict):
         def null_swap(st1, st2):
             """Function to swap datatype null parameter within a nested
-            dataframe schema """
+            dataframe schema"""
             if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
                 raise ValueError(
                     "Keys for first schema aren't a subset of " "the second."
