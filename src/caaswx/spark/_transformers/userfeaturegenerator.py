@@ -19,10 +19,10 @@ from src.caaswx.spark._transformers.sparknativetransformer import (
 )
 
 
-
 class UserFeatureGenerator(SparkNativeTransformer):
     """
-    A module to generate features related to users. It encompasses the features of user behavioural analytics
+    A module to generate features related to users. It encompasses the features
+     of user behavioural analytics
 
     Input: A Spark dataframe
     Expected columns in the input dataframe:
@@ -287,12 +287,14 @@ class UserFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def __init__(self):
         """
-        :param entity_name: Pivot Column which should contain the CommonNames for each user.
-        :param window_length: Length of the sliding window (in seconds)
-        :param window_step: Length of the sliding window's step-size (in seconds)
+        :param entity_name: Pivot Column which should contain the
+        CommonNames for each user.
+        :param window_length: Length of the
+        sliding window (in seconds)
+        :param window_step: Length of the
+        sliding window's step-size (in seconds)
         :type entity_name: string
-        :type window_length: long
-        :type window_step: long
+        :type window_length: long :type window_step: long
 
         :Example:
         >>> from userfeaturegenerator import UserFeatureGenerator
@@ -308,8 +310,8 @@ class UserFeatureGenerator(SparkNativeTransformer):
     @keyword_only
     def set_params(self):
         """
-        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
-                  inputCols=None, outputCols=None)
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
+                    thresholds=None, inputCols=None, outputCols=None)
         Sets params for this UserFeatureGenerator.
         """
         kwargs = self._input_kwargs
@@ -345,7 +347,6 @@ class UserFeatureGenerator(SparkNativeTransformer):
     }
 
     def _transform(self, dataset):
-
         pivot = str(self.getOrDefault("entity_name"))
         dataset_copy = dataset
         ts_window = Window.partitionBy(
