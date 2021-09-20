@@ -29,24 +29,24 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     appended with cleaned SM_RESOURCE. Notes: In some entries there may
     exist some long
 
-    Consolidates SM_RESOURCE elements to simplify redundant data, based 
+    Consolidates SM_RESOURCE elements to simplify redundant data, based
     off of the following criteria:
     1) SAML Requests
-      Suggested Categorization: Strings containing the prefix '/cmsws' and 
+      Suggested Categorization: Strings containing the prefix '/cmsws' and
       substrings 'redirect' and 'SAML'. The URLs starting with '/SAMLRequest'.
       Action: Replace with the string '<SAML request>'
     2) Query strings
-      Suggested Categorization: Strings containing the character '?' after the 
+      Suggested Categorization: Strings containing the character '?' after the
       last occurrence of '/'.
       Action: Replace everything after the relevant '?' by '*'.
     3) URLs ending with '%'
       Strip off the trailing '%'
-    4) URLs which start with 'SMASSERTIONREF' are quite long and contain the 
+    4) URLs which start with 'SMASSERTIONREF' are quite long and contain the
     substring '/cmsws/public/saml2sso'.
-      To cleanup these long URLs, replace the entire string with 
+      To cleanup these long URLs, replace the entire string with
       '/cmsws/public/saml2sso'.
     5) Other strings
-      Suggested Categorization: Take whatever's left over from the previous 
+      Suggested Categorization: Take whatever's left over from the previous
       two categories that isn't null.
       Action: Do nothing.
     Input: The dataframe containing SM_RESOURCE that needs needs to be cleaned.
@@ -69,7 +69,6 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     |             |          | respect to the aforementioned    |
     |             |          | cleaning strategies.             |
     +-------------+----------+----------------------------------+
-
     """
 
     @keyword_only
