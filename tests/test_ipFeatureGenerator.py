@@ -2,8 +2,9 @@ import json
 
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-from src.caaswx.spark._transformers.ipfeaturegenerator import \
-    IPFeatureGenerator
+from src.caaswx.spark._transformers.ipfeaturegenerator import (
+    IPFeatureGenerator,
+)
 from src.caaswx.spark.scripts.loadtestdata import load_test_data, load_path
 from src.caaswx.spark.scripts.nullswap import null_swap
 
@@ -17,8 +18,10 @@ def test_1():
     )
 
     ans_1_data = load_test_data(
-        "data", "parquet_data", "ip_feature_generator_tests", "ans_data"
-                                                              ".parquet"
+        "data",
+        "parquet_data",
+        "ip_feature_generator_tests",
+        "ans_data" ".parquet",
     )
 
     df2_schema_file_path = load_path(
