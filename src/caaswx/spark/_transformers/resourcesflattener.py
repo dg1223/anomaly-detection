@@ -17,10 +17,9 @@ import pyspark.sql.functions as func
 
 class ResourcesFlattener(SparkNativeTransformer):
     """
-    A module for Flatenning the resources into a list with respect to the input pivot column.
-    Input: A Spark dataframe
-    Columns from raw_logs: SM_RESOURCE, SM_TIMESTAMP
-    Please refer to README.md for description.
+    A module for Flatenning the resources into a list with respect to the
+    input pivot column. Input: A Spark dataframe Columns from raw_logs:
+    SM_RESOURCE, SM_TIMESTAMP Please refer to README.md for description.
     List of other required columns:
 
         +-------------+----------+----------------------------------+
@@ -85,19 +84,18 @@ class ResourcesFlattener(SparkNativeTransformer):
     ):
         """
         :param window_length: Length of the sliding window (in seconds)
-        :param window_step: Length of the sliding window step-size (in seconds)
-        :param entity_name: Name of the column to perform aggregation along with the window
-        :param max_resource_count: Maximum count of resources allowed in the resource list
-        :type window_length: long
-        :type window_step: long
-        :type entity_name: string
-        :type max_resource_count: long
+        :param window_step: Length of the sliding window step-size (in
+        seconds) :param entity_name: Name of the column to perform
+        aggregation along with the window :param max_resource_count: Maximum
+        count of resources allowed in the resource list :type window_length:
+        long :type window_step: long :type entity_name: string :type
+        max_resource_count: long
 
         :Example:
-        >>> from resourcesflattener import ResourcesFlattener
-        >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800,
-            entity_name = "SM_USERNAME", max_resource_count = 3)
-        >>> datafame_with_CN = flattener.transform(input_dataset)
+        from resourcesflattener import ResourcesFlattener
+        flattener = ResourcesFlattener(window_length = 1800, window_step = 1800
+        ,entity_name = "SM_USERNAME", max_resource_count = 3)
+        datafame_with_CN = flattener.transform(input_dataset)
         """
         super(ResourcesFlattener, self).__init__()
         self._setDefault(
