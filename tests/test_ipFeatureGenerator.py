@@ -18,7 +18,7 @@ def test_1():
 
     ans_1_data = load_test_data(
         "data", "parquet_data", "ip_feature_generator_tests", "ans_data"
-                                                              ".parquet "
+                                                              ".parquet"
     )
 
     df2_schema_file_path = load_path(
