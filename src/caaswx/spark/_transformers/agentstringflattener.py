@@ -12,8 +12,9 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from src.caaswx.spark._transformers.sparknativetransformer import \
-    SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 
 class AgentStringFlattener(SparkNativeTransformer):
@@ -69,7 +70,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         Params._dummy(),
         "agent_size_limit",
         "Number of agent strings processed " + "Given as the number of "
-                                               "strings.",
+        "strings.",
         typeConverter=TypeConverters.toInt,
     )
 
@@ -82,12 +83,12 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     @keyword_only
     def __init__(
-            self,
-            entity_name="SM_USERNAME",
-            agent_size_limit=5,
-            run_parser=False,
-            window_length=900,
-            window_step=900,
+        self,
+        entity_name="SM_USERNAME",
+        agent_size_limit=5,
+        run_parser=False,
+        window_length=900,
+        window_step=900,
     ):
         """
         :param entity_name: Column to be grouped by when cleaning the
@@ -118,12 +119,12 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     @keyword_only
     def set_params(
-            self,
-            entity_name="SM_USERNAME",
-            agent_size_limit=5,
-            window_length=900,
-            window_step=900,
-            run_parser=False,
+        self,
+        entity_name="SM_USERNAME",
+        agent_size_limit=5,
+        window_length=900,
+        window_step=900,
+        run_parser=False,
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
@@ -198,8 +199,11 @@ class AgentStringFlattener(SparkNativeTransformer):
         # Slicing to only get N User Agent Strings.
         result = result.withColumn(
             "SM_AGENTNAME",
-            f.slice(result["SM_AGENTNAME"], 1,
-                    self.getOrDefault("agent_size_limit")),
+            f.slice(
+                result["SM_AGENTNAME"],
+                1,
+                self.getOrDefault("agent_size_limit"),
+            ),
         )
 
         return result
