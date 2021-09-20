@@ -2,8 +2,9 @@ from src.caaswx.spark.scripts.nullswap import null_swap
 from pyspark.sql.session import SparkSession
 import json
 import pyspark.sql.types
-from src.caaswx.spark._transformers.agentstringflattener import \
-    AgentStringFlattener
+from src.caaswx.spark._transformers.agentstringflattener import (
+    AgentStringFlattener,
+)
 
 spark = SparkSession.builder.getOrCreate()
 
