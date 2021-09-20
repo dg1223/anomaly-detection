@@ -1,4 +1,4 @@
-import pyspark.sql.functions as F
+import pyspark.sql.functions as f
 
 from pyspark import keyword_only
 from pyspark.ml.param.shared import TypeConverters, Param, Params
@@ -151,14 +151,16 @@ class SessionFeatureGenerator(SparkNativeTransformer):
     def __init__(self):
         """
         :param window_length: Length of the sliding window (in seconds)
-        :param window_step: Length of the sliding window's step-size (in seconds)
+        :param window_step: Length of the sliding window's step-size
+            (in seconds)
         :type window_length: long
         :type window_step: long
 
         :Example:
-        >>> from sessionfeaturegenerator import SessionFeatureGenerator
-        >>> feature_generator = SessionFeatureGenerator(window_length = 1800, window_step = 1800)
-        >>> features = feature_generator.transform(dataset = input_dataset)
+        from sessionfeaturegenerator import SessionFeatureGenerator
+        feature_generator = SessionFeatureGenerator(window_length = 1800,
+            window_step = 1800)
+        features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
         self._setDefault(window_length=900, window_step=900)
