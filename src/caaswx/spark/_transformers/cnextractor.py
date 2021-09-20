@@ -6,8 +6,9 @@ from pyspark.ml.param.shared import (
 from pyspark.sql.functions import regexp_replace
 from pyspark.sql.types import StringType
 
-from src.caaswx.spark._transformers.sparknativetransformer import \
-    SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
@@ -81,12 +82,14 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""),
+                dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""
+            ),
         )
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""),
+                dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""
+            ),
         )
 
         return dataset
