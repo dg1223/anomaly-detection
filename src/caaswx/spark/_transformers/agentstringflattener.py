@@ -18,27 +18,27 @@ from src.caaswx.spark._transformers.sparknativetransformer import \
 
 class AgentStringFlattener(SparkNativeTransformer):
     """
-    A module to flatten and clean the SM_AGENTNAME column of the Siteminder dataset.
-    Input: A Spark dataframe
-    Columns from raw_logs: SM_AGENTNAME, SM_TIMESTAMP, SM_CLIENTIP.
-    Please refer to README.md for description.
+    A module to flatten and clean the SM_AGENTNAME column of the Siteminder
+    dataset. Input: A Spark dataframe Columns from raw_logs: SM_AGENTNAME,
+    SM_TIMESTAMP, SM_CLIENTIP. Please refer to README.md for description.
     List of other required columns:
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | self.getOr  | string   | Pivot Column containing the      |
-    | Default("en |          | CommonNames for each user. It is |
-    | tityName")  |          | an alpha-numeric string and it   |
-    |             |          | may contain  NULL values.        |
-    +-------------+----------+----------------------------------+
+    +-------------+----------+----------------------------------+ |
+    Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+ |
+    self.getOr  | string   | Pivot Column containing the      | | Default(
+    "en |          | CommonNames for each user. It is | | tityName")  |
+        | an alpha-numeric string and it   | |             |          | may
+        contain  NULL values.        |
+        +-------------+----------+----------------------------------+
 
-    Output: Input dataframe with an additional column containing the flattended and cleaned agentnames
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_AGENTNAME|  array   | Contains a list of flattened     |
-    |             | <string> | and/or cleaned agentnames        |
-    +-------------+----------+----------------------------------+
+    Output: Input dataframe with an additional column containing the
+    flattened and cleaned agentnames
+    +-------------+----------+----------------------------------+ |
+    Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+ |
+    SM_AGENTNAME|  array   | Contains a list of flattened     | |
+     | <string> | and/or cleaned agentnames        |
+     +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
@@ -90,20 +90,20 @@ class AgentStringFlattener(SparkNativeTransformer):
             window_step=900,
     ):
         """
-        :param entity_name: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column
-        :param agentSizeLimit: Defines a limit on number of agent strings in the output column
-        :param runParser: When False, it will only flatten the agent strings. When True, it will flatten the SM_AGENTNAME string along with cleaning the browser section of SM_AGENTNAME throufh the httpagentparser library.
-        :param window_length: Sets this AgentStringFlattener.'s window length.
-        :param window_step: Sets this AgentStringFlattener's window step.
-        :type entity_name: string
-        :type agentSizeLimit: long
-        :type runParser: boolean
-        :type window_length: long
-        :type window_step: long
-        :Example:
-        >>> from agentstringflattener import AgentStringFlattener
-        >>> flattener = AgentStringFlattener(window_length = 1800, window_step = 1800)
-        >>> features = flattener.transform(input_dataset)
+        :param entity_name: Column to be grouped by when cleaning the
+        SM_AGENTNAME column along with the window column :param
+        agentSizeLimit: Defines a limit on number of agent strings in the
+        output column :param runParser: When False, it will only flatten the
+        agent strings. When True, it will flatten the SM_AGENTNAME string
+        along with cleaning the browser section of SM_AGENTNAME throufh the
+        httpagentparser library. :param window_length: Sets this
+        AgentStringFlattener.'s window length. :param window_step: Sets this
+        AgentStringFlattener's window step. :type entity_name: string :type
+        agentSizeLimit: long :type runParser: boolean :type window_length:
+        long :type window_step: long :Example: >>> from agentstringflattener
+        import AgentStringFlattener >>> flattener = AgentStringFlattener(
+        window_length = 1800, window_step = 1800) >>> features =
+        flattener.transform(input_dataset)
         """
         super(AgentStringFlattener, self).__init__()
         self._setDefault(
@@ -126,11 +126,10 @@ class AgentStringFlattener(SparkNativeTransformer):
             run_parser=False,
     ):
         """
-        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None, thresholds=None, \
-              inputCols=None, outputCols=None)
+        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
+        thresholds=None, inputCols=None, outputCols=None)
         Sets params for this AgentStringFlattener.
         """
-        
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
