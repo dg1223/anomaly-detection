@@ -299,19 +299,19 @@ class ServerFeatureGenerator(SparkNativeTransformer):
             )
         )
 
-        num_of_ips_login_multi_accounts_df = \
-            num_of_ips_login_multi_accounts_df.groupBy(
-                "window"
-                ).agg(
-                    f.count(
-                        when(
-                            num_of_ips_login_multi_accounts_df
-                            ["UNIQUE_USERS_COUNT"]
-                            > 1,
-                            True,
-                        )
-                    ).alias("NumOfIPsLoginMultiAccounts")
-                )
+        num_of_ips_login_multi_accounts_df = (
+            num_of_ips_login_multi_accounts_df.groupBy("window").agg(
+                f.count(
+                    when(
+                        num_of_ips_login_multi_accounts_df[
+                            "UNIQUE_USERS_COUNT"
+                        ]
+                        > 1,
+                        True,
+                    )
+                ).alias("NumOfIPsLoginMultiAccounts")
+            )
+        )
 
         temp_df = dataset.groupBy(
             str(self.getOrDefault("partioning_entity")),
