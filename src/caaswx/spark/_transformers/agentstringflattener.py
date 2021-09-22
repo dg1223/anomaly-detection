@@ -12,8 +12,9 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from src.caaswx.spark._transformers.sparknativetransformer import \
-    SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 
 class AgentStringFlattener(SparkNativeTransformer):
@@ -43,7 +44,7 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     window_length = Param(
         Params._dummy(),
-        "windowLength",
+        "window_length",
         "Length of the sliding window used for entity resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
@@ -51,7 +52,7 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     window_step = Param(
         Params._dummy(),
-        "windowStep",
+        "window_step",
         "Length of the sliding window step-size used for entity resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
@@ -67,39 +68,39 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     agent_size_limit = Param(
         Params._dummy(),
-        "agentSizeLimit",
+        "agent_size_limit",
         "Number of agent strings processed " + "Given as the number of "
-                                               "strings.",
+        "strings.",
         typeConverter=TypeConverters.toInt,
     )
 
     run_parser = Param(
         Params._dummy(),
-        "runParser",
+        "run_parser",
         "Choose to parse parquet_data." + "Given as the boolean.",
         typeConverter=TypeConverters.toBoolean,
     )
 
     @keyword_only
     def __init__(
-            self,
-            entity_name="SM_USERNAME",
-            agent_size_limit=5,
-            run_parser=False,
-            window_length=900,
-            window_step=900,
+        self,
+        entity_name="SM_USERNAME",
+        agent_size_limit=5,
+        run_parser=False,
+        window_length=900,
+        window_step=900,
     ):
         """
         :param entity_name: Column to be grouped by when cleaning the
         SM_AGENTNAME column along with the window column :param
-        agentSizeLimit: Defines a limit on number of agent strings in the
-        output column :param runParser: When False, it will only flatten the
+        agent_size_limit: Defines a limit on number of agent strings in the
+        output column :param run_parser: When False, it will only flatten the
         agent strings. When True, it will flatten the SM_AGENTNAME string
         along with cleaning the browser section of SM_AGENTNAME throufh the
         httpagentparser library. :param window_length: Sets this
         AgentStringFlattener.'s window length. :param window_step: Sets this
         AgentStringFlattener's window step. :type entity_name: string :type
-        agentSizeLimit: long :type runParser: boolean :type window_length:
+        agent_size_limit: long :type run_parser: boolean :type window_length:
         long :type window_step: long :Example: >>> from agentstringflattener
         import AgentStringFlattener >>> flattener = AgentStringFlattener(
         window_length = 1800, window_step = 1800) >>> features =
@@ -118,12 +119,12 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     @keyword_only
     def set_params(
-            self,
-            entity_name="SM_USERNAME",
-            agent_size_limit=5,
-            window_length=900,
-            window_step=900,
-            run_parser=False,
+        self,
+        entity_name="SM_USERNAME",
+        agent_size_limit=5,
+        window_length=900,
+        window_step=900,
+        run_parser=False,
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
@@ -186,11 +187,11 @@ class AgentStringFlattener(SparkNativeTransformer):
         # Applying flattening operation over SM_AGENTNAME by combining them
         # into set for each SM_USERNAME.
         result = df.groupby(
-            str(self.getOrDefault("entityName")),
+            str(self.getOrDefault("entity_name")),
             window(
                 "SM_TIMESTAMP",
-                str(self.getOrDefault("windowLength")) + " seconds",
-                str(self.getOrDefault("windowStep")) + " seconds",
+                str(self.getOrDefault("window_length")) + " seconds",
+                str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(f.collect_set("SM_AGENTNAME").alias("SM_AGENTNAME"))
 
@@ -198,8 +199,11 @@ class AgentStringFlattener(SparkNativeTransformer):
         # Slicing to only get N User Agent Strings.
         result = result.withColumn(
             "SM_AGENTNAME",
-            f.slice(result["SM_AGENTNAME"], 1,
-                    self.getOrDefault("agentSizeLimit")),
+            f.slice(
+                result["SM_AGENTNAME"],
+                1,
+                self.getOrDefault("agent_size_limit"),
+            ),
         )
 
         return result
@@ -232,7 +236,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         """
 
         result = self.__flatten(self, dataset)
-        if self.getOrDefault("runParser"):
+        if self.getOrDefault("run_parser"):
             http_parser_udf = udf(self.http_parser, StringType())
             df = result.withColumn(
                 "Parsed_Agent_String", http_parser_udf(col("SM_AGENTNAME"))

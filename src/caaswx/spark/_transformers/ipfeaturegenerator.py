@@ -1,4 +1,5 @@
 import pyspark.sql.functions as f
+
 # Import Essential packages
 
 from pyspark import keyword_only
@@ -14,8 +15,9 @@ from pyspark.sql.types import (
 )
 from pyspark.sql.window import Window
 
-from src.caaswx.spark._transformers.sparknativetransformer import \
-    SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 
 class IPFeatureGenerator(SparkNativeTransformer):
@@ -331,7 +333,8 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.array_remove(
                 f.array_distinct(
                     f.collect_list(
-                        regexp_extract("SM_RESOURCE", r"/(.*?)/", 0))
+                        regexp_extract("SM_RESOURCE", r"/(.*?)/", 0)
+                    )
                 ),
                 "",
             ).alias("IP_APP"),
@@ -339,30 +342,41 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 "IP_AVG_TIME_BT_RECORDS"
             ),
             f.max("SM_CONSECUTIVE_TIME_DIFFERENCE").alias(
-                "IP_MAX_TIME_BT_RECORDS"),
+                "IP_MAX_TIME_BT_RECORDS"
+            ),
             f.min("SM_CONSECUTIVE_TIME_DIFFERENCE").alias(
-                "IP_MIN_TIME_BT_RECORDS"),
+                "IP_MIN_TIME_BT_RECORDS"
+            ),
             f.count(when(col("SM_EVENTID") == 7, True)).alias(
-                "IP_COUNT_ADMIN_LOGIN"),
+                "IP_COUNT_ADMIN_LOGIN"
+            ),
             f.count(when(col("SM_EVENTID") == 8, True)).alias(
-                "IP_COUNT_ADMIN_LOGOUT"),
+                "IP_COUNT_ADMIN_LOGOUT"
+            ),
             f.count(when(col("SM_EVENTID") == 9, True)).alias(
-                "IP_COUNT_ADMIN_REJECT"),
+                "IP_COUNT_ADMIN_REJECT"
+            ),
             f.count(when(col("SM_EVENTID") == 1, True)).alias(
-                "IP_COUNT_AUTH_ACCEPT"),
+                "IP_COUNT_AUTH_ACCEPT"
+            ),
             f.count(when(col("SM_EVENTID") == 3, True)).alias(
-                "IP_COUNT_ADMIN_ATTEMPT"),
+                "IP_COUNT_ADMIN_ATTEMPT"
+            ),
             f.count(when(col("SM_EVENTID") == 4, True)).alias(
                 "IP_COUNT_AUTH_CHALLENGE"
             ),
             f.count(when(col("SM_EVENTID") == 10, True)).alias(
-                "IP_COUNT_AUTH_LOGOUT"),
+                "IP_COUNT_AUTH_LOGOUT"
+            ),
             f.count(when(col("SM_EVENTID") == 2, True)).alias(
-                "IP_COUNT_AUTH_REJECT"),
+                "IP_COUNT_AUTH_REJECT"
+            ),
             f.count(when(col("SM_EVENTID") == 5, True)).alias(
-                "IP_COUNT_AZ_ACCEPT"),
+                "IP_COUNT_AZ_ACCEPT"
+            ),
             f.count(when(col("SM_EVENTID") == 6, True)).alias(
-                "IP_COUNT_AZ_REJECT"),
+                "IP_COUNT_AZ_REJECT"
+            ),
             f.count(
                 when(
                     (col("SM_EVENTID") == 2)
@@ -372,7 +386,8 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 )
             ).alias("IP_COUNT_FAILED"),
             f.count(when(col("SM_ACTION").contains("GET"), True)).alias(
-                "IP_COUNT_GET"),
+                "IP_COUNT_GET"
+            ),
             f.count(when(col("SM_ACTION").contains("POST"), True)).alias(
                 "IP_COUNT_POST"
             ),
@@ -394,17 +409,14 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 "IP_COUNT_OU_CMS"
             ),
             f.count(
-                when(col("SM_USERNAME").contains("ou=Identity"), True)).alias(
-                "IP_COUNT_OU_IDENTITY"
-            ),
-            f.count(when(col("SM_USERNAME").contains("ou=Credential"),
-                         True)).alias(
-                "IP_COUNT_OU_CRED"
-            ),
+                when(col("SM_USERNAME").contains("ou=Identity"), True)
+            ).alias("IP_COUNT_OU_IDENTITY"),
             f.count(
-                when(col("SM_USERNAME").contains("ou=SecureKey"), True)).alias(
-                "IP_COUNT_OU_SECUREKEY"
-            ),
+                when(col("SM_USERNAME").contains("ou=Credential"), True)
+            ).alias("IP_COUNT_OU_CRED"),
+            f.count(
+                when(col("SM_USERNAME").contains("ou=SecureKey"), True)
+            ).alias("IP_COUNT_OU_SECUREKEY"),
             f.count(when(col("SM_RESOURCE").contains("mima"), True)).alias(
                 "IP_COUNT_PORTAL_MYA"
             ),
@@ -415,10 +427,11 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
             f.countDistinct(col("CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
             f.countDistinct(col("SM_RESOURCE")).alias(
-                "IP_COUNT_UNIQUE_RESOURCES"),
+                "IP_COUNT_UNIQUE_RESOURCES"
+            ),
             f.countDistinct(col("SM_SESSIONID")).alias(
-                "IP_COUNT_UNIQUE_SESSIONS"),
-
+                "IP_COUNT_UNIQUE_SESSIONS"
+            ),
             (
                 f.size(
                     f.array_remove(
@@ -433,7 +446,8 @@ class IPFeatureGenerator(SparkNativeTransformer):
             ).alias("IP_COUNT_PORTAL_RAC"),
             f.count(col("CRA_SEQ")).alias("IP_COUNT_RECORDS"),
             f.count(when(col("SM_EVENTID") == 13, True)).alias(
-                "IP_COUNT_VISIT"),
+                "IP_COUNT_VISIT"
+            ),
             f.count(when(col("SM_EVENTID") == 11, True)).alias(
                 "IP_COUNT_VALIDATE_ACCEPT"
             ),
@@ -444,7 +458,8 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 "IP_UNIQUE_SM_ACTIONS"
             ),
             f.array_distinct(f.collect_list(col("CN"))).alias(
-                "IP_UNIQUE_USERNAME"),
+                "IP_UNIQUE_USERNAME"
+            ),
             f.array_distinct(f.collect_list(col("SM_SESSIONID"))).alias(
                 "IP_UNIQUE_SM_SESSION"
             ),
@@ -457,14 +472,16 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.array_remove(
                 f.array_distinct(
                     f.collect_list(
-                        regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+                        regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)
+                    )
                 ),
                 "",
             ).alias("IP_UNIQUE_USER_OU"),
             f.array_remove(
                 f.array_distinct(
                     f.collect_list(
-                        regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0))
+                        regexp_extract("SM_RESOURCE", r"(rep.*?)/", 0)
+                    )
                 ),
                 "",
             ).alias("IP_UNIQUE_REP_APP"),
@@ -473,7 +490,8 @@ class IPFeatureGenerator(SparkNativeTransformer):
                 f.array_remove(
                     f.array_distinct(
                         f.collect_list(
-                            regexp_extract("SM_USERNAME", r"ou=(.*?),", 0))
+                            regexp_extract("SM_USERNAME", r"ou=(.*?),", 0)
+                        )
                     ),
                     "",
                 )

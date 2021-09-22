@@ -14,8 +14,9 @@ from pyspark.sql.types import (
 )
 from pyspark.sql.window import Window
 
-from src.caaswx.spark._transformers.sparknativetransformer import \
-    SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 
 class ServerFeatureGenerator(SparkNativeTransformer):
@@ -114,12 +115,12 @@ class ServerFeatureGenerator(SparkNativeTransformer):
 
     @keyword_only
     def __init__(
-            self,
-            window_length=900,
-            window_step=900,
-            interval_threshold=2,
-            interval_epsilon=0.2,
-            partioning_entity="SM_USERNAME",
+        self,
+        window_length=900,
+        window_step=900,
+        interval_threshold=2,
+        interval_epsilon=0.2,
+        partioning_entity="SM_USERNAME",
     ):
         """
         :param window_length: Length of the sliding window (in seconds)
@@ -152,12 +153,12 @@ class ServerFeatureGenerator(SparkNativeTransformer):
 
     @keyword_only
     def set_params(
-            self,
-            window_length=900,
-            window_step=900,
-            interval_threshold=2,
-            interval_epsilon=0.2,
-            partioning_entity="SM_USERNAME",
+        self,
+        window_length=900,
+        window_step=900,
+        interval_threshold=2,
+        interval_epsilon=0.2,
+        partioning_entity="SM_USERNAME",
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
@@ -243,8 +244,11 @@ class ServerFeatureGenerator(SparkNativeTransformer):
             f.col("window")["start"].alias("StartTime"),
             f.col("window")["end"].alias("EndTime"),
             f.count(
-                when((dataset["SM_EVENTID"] >= 1) & (dataset["SM_EVENTID"] <= 6
-                                                     ), True)
+                when(
+                    (dataset["SM_EVENTID"] >= 1)
+                    & (dataset["SM_EVENTID"] <= 6),
+                    True,
+                )
             ).alias("VolOfAllLoginAttempts"),
             f.count(
                 when(
@@ -298,13 +302,17 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         )
 
         num_of_ips_login_multi_accounts_df = (
-            num_of_ips_login_multi_accounts_df.groupBy(
-                "window"
-            ).agg(
+            num_of_ips_login_multi_accounts_df.groupBy("window").agg(
                 f.count(
-                    when(num_of_ips_login_multi_accounts_df[
-                             "UNIQUE_USERS_COUNT"] > 1, True)
-                ).alias("NumOfIPsLoginMultiAccounts"))
+                    when(
+                        num_of_ips_login_multi_accounts_df[
+                            "UNIQUE_USERS_COUNT"
+                        ]
+                        > 1,
+                        True,
+                    )
+                ).alias("NumOfIPsLoginMultiAccounts")
+            )
         )
 
         temp_df = dataset.groupBy(
@@ -318,9 +326,9 @@ class ServerFeatureGenerator(SparkNativeTransformer):
             f.count(
                 f.when(
                     (
-                            dataset["SM_CONSECUTIVE_TIME_DIFFERENCE"]
-                            >= self.getOrDefault("interval_threshold")
-                            - self.getOrDefault("interval_epsilon")
+                        dataset["SM_CONSECUTIVE_TIME_DIFFERENCE"]
+                        >= self.getOrDefault("interval_threshold")
+                        - self.getOrDefault("interval_epsilon")
                     ),
                     True,
                 )
@@ -328,7 +336,8 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         )
 
         num_of_users_with_equal_interval_btn_reqs_df = temp_df.groupBy(
-            "window").agg(
+            "window"
+        ).agg(
             f.count(when(temp_df["temporary_column"] != 0, True)).alias(
                 "NumOfUsersWithEqualIntervalBtnReqs"
             )
@@ -338,8 +347,10 @@ class ServerFeatureGenerator(SparkNativeTransformer):
             max_of_failed_logins_with_same_ips_df, on="window"
         )
         result_df = result_df.join(
-            num_of_ips_login_multi_accounts_df, on="window")
+            num_of_ips_login_multi_accounts_df, on="window"
+        )
         result_df = result_df.join(
-            num_of_users_with_equal_interval_btn_reqs_df, on="window")
+            num_of_users_with_equal_interval_btn_reqs_df, on="window"
+        )
 
         return result_df

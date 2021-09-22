@@ -15,8 +15,9 @@ sc = SparkContext("local")
 spark = SparkSession(sc)
 
 PATH_DATA = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data/"
-PATH_FLATTENER = "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data" \
-                 "/flattener/ "
+PATH_FLATTENER = (
+    "mnt/repo-related/caa-streamworx/caaswx/spark/parquet_data" "/flattener/ "
+)
 
 
 class WriteDataToParquet:
@@ -69,8 +70,9 @@ class WriteDataToParquet:
             ]
         )
 
-        test_df = spark.createDataFrame(self.test_dataset,
-                                        schema=test_user_schema)
+        test_df = spark.createDataFrame(
+            self.test_dataset, schema=test_user_schema
+        )
         test_df = test_df.withColumn(
             "SM_TIMESTAMP", col("SM_TIMESTAMP_TEMP").cast("timestamp")
         )

@@ -6,8 +6,9 @@ from pyspark.ml.param.shared import (
 from pyspark.sql.functions import regexp_replace
 from pyspark.sql.types import StringType
 
-from src.caaswx.spark._transformers.sparknativetransformer import \
-    SparkNativeTransformer
+from src.caaswx.spark._transformers.sparknativetransformer import (
+    SparkNativeTransformer,
+)
 
 
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
@@ -39,8 +40,12 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     @keyword_only
     def __init__(self):
         """
-        :param setInputCol: Input column to be processed within the transformer which must contain "CN" strings like "cn=<AN_ALPHANUMERIC_STRING>"
-        :param OutputCol: Name of the output column to be set after extracting the CN from the SM_USERNAME column's comma separated strings
+        :param setInputCol: Input column to be processed within the
+        transformer which must contain "CN" strings like
+        "cn=<AN_ALPHANUMERIC_STRING>"
+        :param OutputCol: Name of the output
+        column to be set after extracting the CN from the SM_USERNAME
+        column's comma separated strings
         :type setInputCol: string
         :type OutputCol: string
 
@@ -77,12 +82,14 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""),
+                dataset[self.getOrDefault("inputCol")], r".*(cn=)", ""
+            ),
         )
         dataset = dataset.withColumn(
             self.getOrDefault("outputCol"),
             regexp_replace(
-                dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""),
+                dataset[self.getOrDefault("outputCol")], r"(,.*)$", ""
+            ),
         )
 
         return dataset
