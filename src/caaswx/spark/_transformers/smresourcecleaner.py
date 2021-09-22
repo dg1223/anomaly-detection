@@ -4,9 +4,7 @@ from pyspark.ml.param.shared import (
     HasInputCol,
     HasOutputCol,
 )
-from src.caaswx.spark._transformers.sparknativetransformer import (
-    SparkNativeTransformer,
-)
+from .sparknativetransformer import SparkNativeTransformer
 from pyspark import keyword_only
 
 

@@ -12,9 +12,7 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from src.caaswx.spark._transformers.sparknativetransformer import (
-    SparkNativeTransformer,
-)
+from .sparknativetransformer import SparkNativeTransformer
 
 
 class AgentStringFlattener(SparkNativeTransformer):
