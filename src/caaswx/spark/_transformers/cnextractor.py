@@ -6,9 +6,7 @@ from pyspark.ml.param.shared import (
 from pyspark.sql.functions import regexp_replace
 from pyspark.sql.types import StringType
 
-from src.caaswx.spark._transformers.sparknativetransformer import (
-    SparkNativeTransformer,
-)
+from .sparknativetransformer import SparkNativeTransformer
 
 
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):

@@ -15,9 +15,7 @@ from pyspark.sql.types import (
 )
 from pyspark.sql.window import Window
 
-from src.caaswx.spark._transformers.sparknativetransformer import (
-    SparkNativeTransformer,
-)
+from .sparknativetransformer import SparkNativeTransformer
 
 
 class IPFeatureGenerator(SparkNativeTransformer):
