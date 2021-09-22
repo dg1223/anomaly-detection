@@ -8,9 +8,7 @@ from pyspark.sql.types import TimestampType, StringType
 from pyspark.sql.window import Window
 
 # Importing the Transformer class to be extended by Flattener classes
-from src.caaswx.spark._transformers.sparknativetransformer import (
-    SparkNativeTransformer,
-)
+from .sparknativetransformer import SparkNativeTransformer
 
 import pyspark.sql.functions as func
 
