@@ -10,7 +10,6 @@ from pyspark.sql.functions import window
 from pyspark.sql.types import (
     TimestampType,
     StringType,
-    LongType,
     IntegerType,
 )
 from pyspark.sql.window import Window
