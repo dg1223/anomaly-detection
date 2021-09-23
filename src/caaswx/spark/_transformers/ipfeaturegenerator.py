@@ -11,7 +11,7 @@ from pyspark.sql.types import (
     TimestampType,
     LongType,
     StringType,
-    DoubleType, IntegerType,
+    IntegerType,
 )
 from pyspark.sql.window import Window
 
