@@ -9,7 +9,7 @@ from pyspark.sql.types import (
     LongType,
     StringType,
     TimestampType,
-    DoubleType,
+    DoubleType, IntegerType,
 )
 from pyspark.sql.window import Window
 
@@ -189,12 +189,12 @@ class SessionFeatureGenerator(SparkNativeTransformer):
 
     sch_dict = {
         "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
-        "SM_EVENTID": ["SM_EVENTID", LongType()],
+        "SM_EVENTID": ["SM_EVENTID", IntegerType()],
         "SM_RESOURCE": ["SM_RESOURCE", StringType()],
         "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
         "CN": ["CN", StringType()],
         "SM_ACTION": ["SM_ACTION", StringType()],
-        "CRA_SEQ": ["CRA_SEQ", DoubleType()],
+        "CRA_SEQ": ["CRA_SEQ", LongType()],
     }
 
     def _transform(self, dataset):
