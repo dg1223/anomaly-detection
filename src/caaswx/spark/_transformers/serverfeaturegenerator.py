@@ -8,9 +8,8 @@ from pyspark.sql.functions import (
 )
 from pyspark.sql.functions import window
 from pyspark.sql.types import (
-    LongType,
     StringType,
-    TimestampType,
+    TimestampType, IntegerType,
 )
 from pyspark.sql.window import Window
 
@@ -224,7 +223,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
 
     sch_dict = {
         "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
-        "SM_EVENTID": ["SM_EVENTID", LongType()],
+        "SM_EVENTID": ["SM_EVENTID", IntegerType()],
         "SM_RESOURCE": ["SM_RESOURCE", StringType()],
         "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
     }
