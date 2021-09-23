@@ -9,7 +9,8 @@ from pyspark.sql.functions import (
 from pyspark.sql.functions import window
 from pyspark.sql.types import (
     StringType,
-    TimestampType, IntegerType,
+    TimestampType,
+    IntegerType,
 )
 from pyspark.sql.window import Window
 
