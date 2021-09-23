@@ -9,7 +9,7 @@ from pyspark.sql.types import (
     LongType,
     StringType,
     TimestampType,
-    DoubleType, 
+    DoubleType,
     IntegerType,
 )
 from pyspark.sql.window import Window
