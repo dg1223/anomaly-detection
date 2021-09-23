@@ -11,7 +11,7 @@ from pyspark.sql.types import (
     TimestampType,
     LongType,
     StringType,
-    DoubleType,
+    IntegerType,
 )
 from pyspark.sql.window import Window
 
@@ -281,14 +281,14 @@ class IPFeatureGenerator(SparkNativeTransformer):
 
     sch_dict = {
         "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
-        "SM_EVENTID": ["SM_EVENTID", LongType()],
+        "SM_EVENTID": ["SM_EVENTID", IntegerType()],
         "SM_RESOURCE": ["SM_RESOURCE", StringType()],
         "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
         "CN": ["CN", StringType()],
         "SM_ACTION": ["SM_ACTION", StringType()],
         "SM_USERNAME": ["SM_USERNAME", StringType()],
         "SM_SESSIONID": ["SM_SESSIONID", StringType()],
-        "CRA_SEQ": ["CRA_SEQ", DoubleType()],
+        "CRA_SEQ": ["CRA_SEQ", LongType()],
         "SM_TRANSACTIONID": ["SM_TRANSACTIONID", StringType()],
     }
 
