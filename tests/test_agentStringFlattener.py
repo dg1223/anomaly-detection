@@ -14,7 +14,7 @@ def test_1():
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
     result = AgentStringFlattener(
-        agent_size_limit=2, entity_name="SM_CLIENTIP", run_parser=True
+        agent_size_limit=2, entity_name="SM_CLIENTIP"
     ).transform(df)
 
     ans_1_data = spark.read.parquet(
@@ -45,38 +45,3 @@ def test_1():
     assert result.count() == ans_1_data.count()
 
 
-def test_2():
-    df = spark.read.parquet(
-        "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
-    )
-    result = AgentStringFlattener(
-        agent_size_limit=2, entity_name="SM_CLIENTIP", run_parser=False
-    ).transform(df)
-
-    ans_2_data = spark.read.parquet(
-        "./data/parquet_data/agentStringFlattener_tests/ans_2_df.parquet"
-    )
-
-    df4_schema_file_path = (
-        "./data/JSON/agent_flattener_tests/ans_data_2_schema_agentflattener"
-        ".json"
-    )
-    with open(df4_schema_file_path) as json_file:
-        ans_2_data_schema = json.load(json_file)
-
-    ans_2_data_schema = pyspark.sql.types.StructType.fromJson(
-        json.loads(ans_2_data_schema)
-    )
-
-    # content test
-    assert result.subtract(ans_2_data).count() == 0
-
-    # schema test
-    null_swap(ans_2_data.schema, ans_2_data_schema)
-    print(result.schema)
-    print(ans_2_data_schema)
-    print(ans_2_data.schema)
-    assert result.schema == ans_2_data.schema
-
-    # row test
-    assert result.count() == ans_2_data.count()
