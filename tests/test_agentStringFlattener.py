@@ -43,5 +43,3 @@ def test_1():
 
     # row test
     assert result.count() == ans_1_data.count()
-
-
