@@ -72,7 +72,6 @@ class AgentStringFlattener(SparkNativeTransformer):
         typeConverter=TypeConverters.toInt,
     )
 
-
     @keyword_only
     def __init__(
         self,
