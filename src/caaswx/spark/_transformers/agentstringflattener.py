@@ -72,19 +72,12 @@ class AgentStringFlattener(SparkNativeTransformer):
         typeConverter=TypeConverters.toInt,
     )
 
-    run_parser = Param(
-        Params._dummy(),
-        "run_parser",
-        "Choose to parse parquet_data." + "Given as the boolean.",
-        typeConverter=TypeConverters.toBoolean,
-    )
 
     @keyword_only
     def __init__(
         self,
         entity_name="SM_USERNAME",
         agent_size_limit=5,
-        run_parser=False,
         window_length=900,
         window_step=900,
     ):
@@ -98,7 +91,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         httpagentparser library. :param window_length: Sets this
         AgentStringFlattener.'s window length. :param window_step: Sets this
         AgentStringFlattener's window step. :type entity_name: string :type
-        agent_size_limit: long :type run_parser: boolean :type window_length:
+        agent_size_limit: long :type window_length:
         long :type window_step: long :Example: >>> from agentstringflattener
         import AgentStringFlattener >>> flattener = AgentStringFlattener(
         window_length = 1800, window_step = 1800) >>> features =
@@ -110,7 +103,6 @@ class AgentStringFlattener(SparkNativeTransformer):
             window_step=900,
             entity_name="SM_USERNAME",
             agent_size_limit=5,
-            run_parser=False,
         )
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
@@ -122,7 +114,6 @@ class AgentStringFlattener(SparkNativeTransformer):
         agent_size_limit=5,
         window_length=900,
         window_step=900,
-        run_parser=False,
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
@@ -140,15 +131,6 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     def get_entity_name(self):
         return self.entity_name
-
-    def set_run_parser(self, value):
-        """
-        Sets the Entity Name
-        """
-        self._set(run_parser=value)
-
-    def get_run_parser(self):
-        return self.run_parser
 
     def set_agent_size_limit(self, value):
         """
@@ -234,11 +216,9 @@ class AgentStringFlattener(SparkNativeTransformer):
         """
 
         result = self.__flatten(self, dataset)
-        if self.getOrDefault("run_parser"):
-            http_parser_udf = udf(self.http_parser, StringType())
-            df = result.withColumn(
-                "Parsed_Agent_String", http_parser_udf(col("SM_AGENTNAME"))
-            ).drop("SM_AGENTNAME")
-            return df
-        else:
-            return result
+
+        http_parser_udf = udf(self.http_parser, StringType())
+        df = result.withColumn(
+            "Parsed_Agent_String", http_parser_udf(col("SM_AGENTNAME"))
+        ).drop("SM_AGENTNAME")
+        return df
