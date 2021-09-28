@@ -30,8 +30,8 @@ class ResourcesFlattener(SparkNativeTransformer):
     +-------------+----------+----------------------------------+
     Please refer to README.md for description.
         
-    Output: A Spark Dataframe with the following features calcluated on rows
-            aggregated by window and agg_col,
+    Output: A Spark Dataframe with the following features calculated on rows
+            aggregated by time window and agg_col,
             where the window is calculated using:
                 - length: how many seconds the window is
                 - step: the length of time between the start of
