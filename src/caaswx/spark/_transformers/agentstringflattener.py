@@ -44,7 +44,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window used for aggregation resolution. "
+        "Length of the sliding window. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -52,8 +52,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for aggregation"
-        + " resolution."
+        "Length of time between the start of successive time windows"
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -61,16 +60,15 @@ class AgentStringFlattener(SparkNativeTransformer):
     agg_col = Param(
         Params._dummy(),
         "agg_col",
-        "Name of the column to perform aggregation on, together with the "
-        + "sliding window.",
+        "Name of the column to perform aggregation on",
         typeConverter=TypeConverters.toString,
     )
 
     agent_size_limit = Param(
         Params._dummy(),
         "agent_size_limit",
-        "Number of agent strings processed " + "Given as the number of "
-        "strings.",
+        "Number of agent strings processed "
+        + "Given as the number of strings.",
         typeConverter=TypeConverters.toInt,
     )
 
