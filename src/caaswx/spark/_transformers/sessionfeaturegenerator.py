@@ -134,15 +134,14 @@ class SessionFeatureGenerator(SparkNativeTransformer, HasInputCol):
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window used for entity resolution. "
-        + "Given as an integer in seconds.",
+        "Length of the sliding window. " + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for entity resolution. "
+        "Length of time between start of successive time windows."
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -151,11 +150,10 @@ class SessionFeatureGenerator(SparkNativeTransformer, HasInputCol):
     def __init__(self):
         """
         :param window_length: Length of the sliding window (in seconds)
-        :param window_step: Length of the sliding window's step-size
-            (in seconds)
+        :param window_step: Length of time between start of successive time
+            windows (in seconds)
         :param inputCol: (default: "CN") Name of generated column that contains
             extracted CN
-
         :type window_length: long
         :type window_step: long
         :type inputCol: string
