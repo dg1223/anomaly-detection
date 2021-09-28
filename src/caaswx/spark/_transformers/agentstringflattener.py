@@ -17,31 +17,32 @@ from .sparknativetransformer import SparkNativeTransformer
 
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
-    A transformer that flattens and cleans a target column (SM_AGENTNAME)
-    of a spark dataframe.
+     A transformer that flattens and cleans a target column (SM_AGENTNAME)
+     of a spark dataframe.
 
-    Input: A Spark dataframe containing SM_AGENTNAME,
-    SM_TIMESTAMP, and SM_CLIENTIP (from raw_logs), and the following column.
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | self.getOr  | string   | Pivot Column containing the      |
-    | Default("   |          | CommonNames for each user. It is |
-    | agg_col")   |          | an alpha-numeric string and it   |
-    |             |          | may contain  NULL values.        |
-    +-------------+----------+----------------------------------+
-    Please refer to README.md for further description of raw_logs.
+     Input: A Spark dataframe containing SM_AGENTNAME,
+     SM_TIMESTAMP, and SM_CLIENTIP (from raw_logs), and the following column.
+     +-------------+----------+----------------------------------+
+     | Column_Name | Datatype | Description                      |
+     +=============+==========+==================================+
+     | self.getOr  | string   | Pivot Column containing the      |
+     | Default("   |          | CommonNames for each user. It is |
+     | agg_col")   |          | an alpha-numeric string and it   |
+     |             |          | may contain  NULL values.        |
+     +-------------+----------+----------------------------------+
+     Please refer to README.md for further description of raw_logs.
 
-   Output: A Spark Dataframe with the following features calculated on rows
-    aggregated by time window and agg_col, where the window is calculated using:
-        - length: how many seconds the window is
-        - step: the length of time between the start of successive time window
-    +-------------+----------+----------------------------------+
-    | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+
-    | SM_AGENTNAME|  array   | Contains a list of flattened     |
-    |             | <string> | and/or cleaned agentnames        |
-    +-------------+----------+----------------------------------+
+    Output: A Spark Dataframe with the following features calculated on rows
+     aggregated by time window and agg_col, where the window is calculated
+     using:
+         - length: how many seconds the window is
+         - step: the length of time between the start of successive time window
+     +-------------+----------+----------------------------------+
+     | Column_Name | Datatype | Description                      |
+     +=============+==========+==================================+
+     | SM_AGENTNAME|  array   | Contains a list of flattened     |
+     |             | <string> | and/or cleaned agentnames        |
+     +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
@@ -79,7 +80,8 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     agent_size_limit = Param(
         Params._dummy(),
         "agent_size_limit",
-        "Number of agent strings processed " + "Given as the number of " "strings.",
+        "Number of agent strings processed " + "Given as the number of "
+        "strings.",
         typeConverter=TypeConverters.toInt,
     )
 
