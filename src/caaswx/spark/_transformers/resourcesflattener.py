@@ -16,9 +16,9 @@ import pyspark.sql.functions as func
 class ResourcesFlattener(SparkNativeTransformer):
     """
     A module for flattening the resources into a list with respect to the
-    input pivot column. 
-    
-    Input: A Spark Dataframe containing SM_RESOURCE and SM_TIMESTAMP (from 
+    input pivot column.
+
+    Input: A Spark Dataframe containing SM_RESOURCE and SM_TIMESTAMP (from
     raw_logs) and the following column (default: "SM_USERNAME"):
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
@@ -29,7 +29,7 @@ class ResourcesFlattener(SparkNativeTransformer):
     |             |          | passed column.                   |
     +-------------+----------+----------------------------------+
     Please refer to README.md for description.
-        
+
     Output: A Spark Dataframe with the following features calculated on rows
             aggregated by time window and agg_col,
             where the window is calculated using:
@@ -56,7 +56,7 @@ class ResourcesFlattener(SparkNativeTransformer):
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for aggregation" 
+        "Length of the sliding window step-size used for aggregation"
         + " resolution."
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
