@@ -37,7 +37,12 @@ class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
     +-------------+----------+----------------------------------+
     Please refer to README.md for further description.
 
-    Output:
+    Output: A Spark Dataframe with the following features calculated on rows
+            aggregated by time window and SM_CLIENTIP, where the window is
+            calculated using:
+                - length: how many seconds the window is
+                - step: the length of time between the start of successive
+                    time window
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
