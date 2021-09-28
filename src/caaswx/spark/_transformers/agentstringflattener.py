@@ -44,7 +44,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window used for entity resolution. "
+        "Length of the sliding window used for aggregation resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -52,7 +52,8 @@ class AgentStringFlattener(SparkNativeTransformer):
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for entity resolution. "
+        "Length of the sliding window step-size used for aggregation"
+        + " resolution."
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -124,7 +125,7 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     def set_agg_col(self, value):
         """
-        Sets the Entity Name
+        Sets the aggregation column
         """
         self._set(agg_col=value)
 
@@ -156,8 +157,9 @@ class AgentStringFlattener(SparkNativeTransformer):
     def __flatten(self, df):
         """
         Flattens the URLs based on the order of their occurring timestamps
-        Input: Siteminder dataframe Output: Dataframe containing entity
-        name, window intervals and flattened URLs combined into lists
+        Input: Siteminder dataframe
+        Output: Dataframe containing aggregation column, window intervals and
+        flattened URLs combined into lists
         """
 
         # Sorting the dataframe w.r.t timestamps in ascending order
