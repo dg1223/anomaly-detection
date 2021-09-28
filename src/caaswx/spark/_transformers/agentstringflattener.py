@@ -44,8 +44,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window. "
-        + "Given as an integer in seconds.",
+        "Length of the sliding window. " + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
