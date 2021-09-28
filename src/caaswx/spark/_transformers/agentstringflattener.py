@@ -33,7 +33,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     Please refer to README.md for further description of raw_logs.
 
    Output: A Spark Dataframe with the following features calculated on rows
-    aggregated by window and agg_col, where the window is calculated using:
+    aggregated by time window and agg_col, where the window is calculated using:
         - length: how many seconds the window is
         - step: the length of time between the start of successive time window
     +-------------+----------+----------------------------------+
