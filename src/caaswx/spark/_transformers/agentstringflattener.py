@@ -32,7 +32,10 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     +-------------+----------+----------------------------------+
     Please refer to README.md for further description of raw_logs.
 
-    Output: Input dataframe with the following additional column.
+   Output: A Spark Dataframe with the following features calculated on rows
+    aggregated by window and agg_col, where the window is calculated using:
+        - length: how many seconds the window is
+        - step: the length of time between the start of successive time window
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -76,8 +79,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     agent_size_limit = Param(
         Params._dummy(),
         "agent_size_limit",
-        "Number of agent strings processed " + "Given as the number of "
-        "strings.",
+        "Number of agent strings processed " + "Given as the number of " "strings.",
         typeConverter=TypeConverters.toInt,
     )
 
@@ -197,8 +199,11 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
                 str(self.getOrDefault("window_length")) + " seconds",
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
-        ).agg(f.collect_set(self.getOrDefault("agent_string_col"))
-              .alias(self.getOrDefault("agent_string_col")))
+        ).agg(
+            f.collect_set(self.getOrDefault("agent_string_col")).alias(
+                self.getOrDefault("agent_string_col")
+            )
+        )
 
         result = result.sort("window")
         # Slicing to only get N User Agent Strings.
@@ -243,6 +248,6 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         http_parser_udf = udf(self.http_parser, StringType())
         df = result.withColumn(
             self.getOrDefault("outputCol"),
-            http_parser_udf(col(self.getOrDefault("agent_string_col")))
+            http_parser_udf(col(self.getOrDefault("agent_string_col"))),
         ).drop(self.getOrDefault("agent_string_col"))
         return df
