@@ -22,10 +22,10 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     Input: A Spark dataframe containing SM_AGENTNAME,
     SM_TIMESTAMP, and SM_CLIENTIP (from raw_logs), and the following column.
-    +-------------+----------+----------------------------------+ 
+    +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
-    +=============+==========+==================================+ 
-    | self.getOr  | string   | Pivot Column containing the      | 
+    +=============+==========+==================================+
+    | self.getOr  | string   | Pivot Column containing the      |
     | Default("   |          | CommonNames for each user. It is |
     | agg_col")   |          | an alpha-numeric string and it   |
     |             |          | may contain  NULL values.        |
@@ -84,8 +84,8 @@ class AgentStringFlattener(SparkNativeTransformer):
     ):
         """
         :param agg_col: Column to be grouped by when cleaning the
-        SM_AGENTNAME column along with the window column 
-        :param agent_size_limit: Defines a limit on number of agent strings 
+        SM_AGENTNAME column along with the window column
+        :param agent_size_limit: Defines a limit on number of agent strings
         in the output column  :param window_length: Sets this
         AgentStringFlattener.'s window length. :param window_step: Sets this
         AgentStringFlattener's window step. :type agg_col: string :type
