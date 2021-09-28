@@ -3,7 +3,7 @@ import pyspark.sql.functions as f
 # Import Essential packages
 
 from pyspark import keyword_only
-from pyspark.ml.param.shared import TypeConverters, Param, Params
+from pyspark.ml.param.shared import TypeConverters, Param, Params, HasInputCol
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
@@ -18,7 +18,7 @@ from pyspark.sql.window import Window
 from .sparknativetransformer import SparkNativeTransformer
 
 
-class IPFeatureGenerator(SparkNativeTransformer):
+class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
     """
     A module to generate features related to IP features.
     This transformer encompasses the IP addresses' behaviour and analytics
@@ -243,8 +243,12 @@ class IPFeatureGenerator(SparkNativeTransformer):
         :param window_length: Length of the sliding window (in seconds)
         :param window_step: Length of the sliding window's
             step-size (in seconds)
+        :param inputCol: (default: "CN") Name of generated column that contains
+            extracted CN
+
         :type window_length: long
         :type window_step: long
+        :type inputCol: string
 
         :Example:
         from ipfeaturegenerator import IPFeatureGenerator
@@ -253,7 +257,7 @@ class IPFeatureGenerator(SparkNativeTransformer):
         features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
-        self._setDefault(window_length=900, window_step=900)
+        self._setDefault(window_length=900, window_step=900, inputCol="CN")
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -284,7 +288,6 @@ class IPFeatureGenerator(SparkNativeTransformer):
         "SM_EVENTID": ["SM_EVENTID", IntegerType()],
         "SM_RESOURCE": ["SM_RESOURCE", StringType()],
         "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
-        "CN": ["CN", StringType()],
         "SM_ACTION": ["SM_ACTION", StringType()],
         "SM_USERNAME": ["SM_USERNAME", StringType()],
         "SM_SESSIONID": ["SM_SESSIONID", StringType()],
@@ -423,7 +426,7 @@ class IPFeatureGenerator(SparkNativeTransformer):
             ),
             f.countDistinct(col("SM_ACTION")).alias("IP_COUNT_UNIQUE_ACTIONS"),
             f.countDistinct(col("SM_EVENTID")).alias("IP_COUNT_UNIQUE_EVENTS"),
-            f.countDistinct(col("CN")).alias("IP_COUNT_UNIQUE_USERNAME"),
+            f.countDistinct(col(self.getOrDefault("inputCol"))).alias("IP_COUNT_UNIQUE_USERNAME"),
             f.countDistinct(col("SM_RESOURCE")).alias(
                 "IP_COUNT_UNIQUE_RESOURCES"
             ),
@@ -455,7 +458,7 @@ class IPFeatureGenerator(SparkNativeTransformer):
             f.array_distinct(f.collect_list(col("SM_ACTION"))).alias(
                 "IP_UNIQUE_SM_ACTIONS"
             ),
-            f.array_distinct(f.collect_list(col("CN"))).alias(
+            f.array_distinct(f.collect_list(col(self.getOrDefault("inputCol")))).alias(
                 "IP_UNIQUE_USERNAME"
             ),
             f.array_distinct(f.collect_list(col("SM_SESSIONID"))).alias(
