@@ -14,7 +14,7 @@ def test_1():
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
     result = AgentStringFlattener(
-        agent_size_limit=2, entity_name="SM_CLIENTIP"
+        agent_size_limit=2, agg_col="SM_CLIENTIP"
     ).transform(df)
 
     ans_1_data = spark.read.parquet(
