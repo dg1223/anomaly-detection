@@ -15,35 +15,40 @@ import pyspark.sql.functions as func
 
 class ResourcesFlattener(SparkNativeTransformer):
     """
-    A module for Flatenning the resources into a list with respect to the
-    input pivot column. Input: A Spark dataframe Columns from raw_logs:
-    SM_RESOURCE, SM_TIMESTAMP Please refer to README.md for description.
-    List of other required columns:
+    A module for flattening the resources into a list with respect to the
+    input pivot column.
 
-        +-------------+----------+----------------------------------+
-        | Column_Name | Datatype | Description                      |
-        +=============+==========+==================================+
-        | self.getOr  | string   | Pivot Column for creating the    |
-        | Default("en |          | time window of usage of different|
-        | tityName")  |          | resources with respect to the    |
-        |             |          | passed column.                   |
-        +-------------+----------+----------------------------------+
+    Input: A Spark Dataframe containing SM_RESOURCE and SM_TIMESTAMP (from
+    raw_logs) and the following column (default: "SM_USERNAME"):
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | self.getOr  | string   | Pivot Column for creating the    |
+    | Default("   |          | time window of usage of different|
+    | agg_col")   |          | resources with respect to the    |
+    |             |          | passed column.                   |
+    +-------------+----------+----------------------------------+
+    Please refer to README.md for description.
 
-        Output features:
-        +-------------+----------+----------------------------------+
-        | Column_Name | Datatype | Description                      |
-        +=============+==========+==================================+
-        | SM_RESOURCE |  array   | A list of resources used by the  |
-        |             | <string> | he pivot entity within the time  |
-        |             |          | window.                          |
-        +-------------+----------+----------------------------------+
-
+    Output: A Spark Dataframe with the following features calculated on rows
+            aggregated by time window and agg_col,
+            where the window is calculated using:
+                - length: how many seconds the window is
+                - step: the length of time between the start of
+                    successive time window
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_RESOURCE |  array   | A list of resources used by the  |
+    |             | <string> | pivot entity within the time     |
+    |             |          | window.                          |
+    +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window used for entity resolution. "
+        "Length of the sliding window used for aggregation resolution. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -51,14 +56,15 @@ class ResourcesFlattener(SparkNativeTransformer):
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for entity resolution. "
+        "Length of the sliding window step-size used for aggregation"
+        + " resolution."
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
-    entity_name = Param(
+    agg_col = Param(
         Params._dummy(),
-        "entity_name",
+        "agg_col",
         "Name of the column to perform aggregation on, together with the "
         + "sliding window.",
         typeConverter=TypeConverters.toString,
@@ -75,7 +81,7 @@ class ResourcesFlattener(SparkNativeTransformer):
     @keyword_only
     def __init__(
         self,
-        entity_name="SM_USERNAME",
+        agg_col="SM_USERNAME",
         window_length=900,
         window_step=900,
         max_resource_count=-1,
@@ -83,23 +89,23 @@ class ResourcesFlattener(SparkNativeTransformer):
         """
         :param window_length: Length of the sliding window (in seconds)
         :param window_step: Length of the sliding window step-size (in
-        seconds) :param entity_name: Name of the column to perform
+        seconds) :param agg_col: Name of the column to perform
         aggregation along with the window :param max_resource_count: Maximum
         count of resources allowed in the resource list :type window_length:
-        long :type window_step: long :type entity_name: string :type
+        long :type window_step: long :type agg_col: string :type
         max_resource_count: long
 
         :Example:
         from resourcesflattener import ResourcesFlattener
         flattener = ResourcesFlattener(window_length = 1800, window_step = 1800
-        ,entity_name = "SM_USERNAME", max_resource_count = 3)
+        ,agg_col = "SM_USERNAME", max_resource_count = 3)
         datafame_with_CN = flattener.transform(input_dataset)
         """
         super(ResourcesFlattener, self).__init__()
         self._setDefault(
             window_length=900,
             window_step=900,
-            entity_name="SM_USERNAME",
+            agg_col="SM_USERNAME",
             max_resource_count=-1,
         )
         kwargs = self._input_kwargs
@@ -108,7 +114,7 @@ class ResourcesFlattener(SparkNativeTransformer):
     @keyword_only
     def set_params(
         self,
-        entity_name="SM_USERNAME",
+        agg_col="SM_USERNAME",
         window_length=900,
         window_step=900,
         max_resource_count=-1,
@@ -119,11 +125,11 @@ class ResourcesFlattener(SparkNativeTransformer):
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
-    def set_entity_name(self, value):
+    def set_agg_col(self, value):
         """
         Sets the Entity Name
         """
-        self._set(entity_name=value)
+        self._set(agg_col=value)
 
     def set_window_length(self, value):
         """
@@ -156,7 +162,7 @@ class ResourcesFlattener(SparkNativeTransformer):
         """
         if int(self.getOrDefault("max_resource_count")) > 0:
             window_spec = Window.partitionBy(
-                "window", str(self.getOrDefault("entity_name"))
+                "window", str(self.getOrDefault("agg_col"))
             ).orderBy("SM_TIMESTAMP")
             dataset = dataset.withColumn(
                 "window",
@@ -171,7 +177,7 @@ class ResourcesFlattener(SparkNativeTransformer):
                 <= int(self.getOrDefault("max_resource_count"))
             )
         return dataset.groupby(
-            str(self.getOrDefault("entity_name")),
+            str(self.getOrDefault("agg_col")),
             window(
                 "SM_TIMESTAMP",
                 str(self.getOrDefault("window_length")) + " seconds",

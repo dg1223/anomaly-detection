@@ -1,7 +1,7 @@
 import pyspark.sql.functions as f
 
 from pyspark import keyword_only
-from pyspark.ml.param.shared import TypeConverters, Param, Params
+from pyspark.ml.param.shared import TypeConverters, Param, Params, HasInputCol
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.functions import regexp_extract
 from pyspark.sql.functions import window
@@ -16,131 +16,132 @@ from pyspark.sql.window import Window
 from .sparknativetransformer import SparkNativeTransformer
 
 
-class SessionFeatureGenerator(SparkNativeTransformer):
+class SessionFeatureGenerator(SparkNativeTransformer, HasInputCol):
     """
     A module to generate features related to session features.
-    This transformer encompasses the Session's behaviour and analytics.
-    Input: A Spark dataframe
 
-    Columns from raw_logs: SM_RESOURCE, SM_EVENTID, SM_ACTION,
-    SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID, CRA_SEQ
+    Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,
+    SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID and CRA_SEQ from raw_logs, and
+    the following columns:
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | self.getOr  | string   | Column containing the CommonNames|
+    | Default(    |          | for each user. It is an alpha-   |
+    | "inputCol") |          | numeric string and it may contain|
+    |             |          | NULL values. CNs can be generated|
+    |             |          | from SM_USERNAME column through  |
+    |             |          | the CnExtractor transformer.     |
+    +-------------+----------+----------------------------------+
     Please refer to README.md for description.
-    List of other required columns:
-        +-------------+----------+----------------------------------+
-        | Column_Name | Datatype | Description                      |
-        +=============+==========+==================================+
-        | CN          | string   | Column containing the CommonNames|
-        |             |          | for each user. It is an alpha-   |
-        |             |          | numeric string and it may contain|
-        |             |          | NULL values. CNs can be generated|
-        |             |          | from SM_USERNAME column through  |
-        |             |          | the CnExtractor transformer.     |
-        +-------------+----------+----------------------------------+
 
-    Output features:
-
-        +-------------+----------+----------------------------------+
-        | Column_Name | Datatype | Description                      |
-        +=============+==========+==================================+
-        | SESSION_APPS|  array   | A distinct list of main apps     |
-        |             | <string> | from each record in SM_RESOURCE  |
-        |             |          | during time window.              |
-        +-------------+----------+----------------------------------+
-        | COUNT_UNIQUE| integer  | Count of distinct Resource       |
-        | APPS        |          | strings in SM_RESOURCE during    |
-        |             |          | the time window.                 |
-        +-------------+----------+----------------------------------+
-        | SESSION_    |  array   | A distinct list of CNs           |
-        | USER        | <string> | in CN during time window.        |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of Admin Login events      |
-        | ADMIN_LOGIN |          | during the time window, defined  |
-        |             |          | by sm_eventid = 7.               |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of Admin Logout events     |
-        | ADMIN_LOGOUT|          | during the time window, defined  |
-        |             |          | by sm_eventid = 8.               |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of Admin reject events     |
-        | ADMIN_REJECT|          | during the time window, defined  |
-        |             |          | by sm_eventid = 9.               |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of all Reject events       |
-        | FAILED      |          | during the time window, defined  |
-        |             |          | by sm_eventid = 2,6 and 9.       |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of Visit events during the |
-        | VISIT       |          | time window, defined by          |
-        |             |          | sm_eventid = 13.                 |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of all GET HTTP actions    |
-        | GET         |          | during the time window.          |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of all POST HTTP actions   |
-        | POST        |          | during the time window.          |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of all GET and POST actions|
-        | HTTP_METHODS|          | during the time window.          |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Counts number of CRA_SEQs        |
-        | RECORDS     |          | (dataset primary key)            |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of distinct HTTP Actions   |
-        | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
-        | NS          |          | window.                          |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of distinct CNs in CN      |
-        | UNIQUE_USERN|          | during the time window.          |
-        | AME         |          |                                  |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of distinct Resource       |
-        | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
-        | RCES        |          | the time window.                 |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | Count of distinct EventIDs in    |
-        | UNIQUE_EVENT|          | SM_EVENTID  during the time      |
-        | S           |          | window.                          |
-        +-------------+----------+----------------------------------+
-        | COUNT_      | integer  | A count of Entries containing    |
-        | UNIQUE_REP  |          | “rep” followed by a string ending|
-        |             |          | in “/” in SM_RESOURCE during the |
-        |             |          | time window.                     |
-        +-------------+----------+----------------------------------+
-        | SESSION_    |  array   | A distinct list of HTTP Actions  |
-        | SM_ACTION   | <string> | in SM_ACTION during time window. |
-        +-------------+----------+----------------------------------+
-        | SESSION_    |  array   | A distinct list of Resource      |
-        | RESOURCE    | <string> | strings in SM_RESOURCE during    |
-        |             |          | time window.                     |
-        +-------------+----------+----------------------------------+
-        | SESSION_    |  array   | A distinct list of Entries       |
-        | REP_APP     | <string> | containing “rep” followed by a   |
-        |             |          | string ending in “/” in          |
-        |             |          | SM_RESOURCE during time window.  |
-        +-------------+----------+----------------------------------+
-        | SESSION_FIRS| timestamp| Minimum time at which a record   |
-        | T_TIME_SEEN |          | was logged during the time window|
-        +-------------+----------+----------------------------------+
-        | SESSION_LAST| timestamp| Maximum time at which a record   |
-        | _TIME_SEEN  |          | was logged during the time window|
-        +-------------+----------+----------------------------------+
-        | SDV_BT_RECOR| timestamp| Standard deviation of timestamp  |
-        | DS          |          | deltas during the time window.   |
-        +-------------+----------+----------------------------------+
+    Output: A Spark Dataframe with the following features calculated on rows
+        aggregated by time window and SM_SESSIONID, where the window is
+        calculated using:
+            - length: how many seconds the window is
+            - step: the length of time between the start of successive
+                time window
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SESSION_APPS|  array   | A distinct list of main apps     |
+    |             | <string> | from each record in SM_RESOURCE  |
+    |             |          | during time window.              |
+    +-------------+----------+----------------------------------+
+    | COUNT_UNIQUE| integer  | Count of distinct Resource       |
+    | APPS        |          | strings in SM_RESOURCE during    |
+    |             |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+    | SESSION_    |  array   | A distinct list of CNs           |
+    | USER        | <string> | in CN during time window.        |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of Admin Login events      |
+    | ADMIN_LOGIN |          | during the time window, defined  |
+    |             |          | by sm_eventid == 7.              |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of Admin Logout events     |
+    | ADMIN_LOGOUT|          | during the time window, defined  |
+    |             |          | by sm_eventid == 8.              |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of Admin reject events     |
+    | ADMIN_REJECT|          | during the time window, defined  |
+    |             |          | by sm_eventid == 9.              |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of all Reject events       |
+    | FAILED      |          | during the time window, defined  |
+    |             |          | by sm_eventid == 2,6 and 9.      |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of Visit events during the |
+    | VISIT       |          | time window, defined by          |
+    |             |          | sm_eventid == 13.                |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of all GET HTTP actions    |
+    | GET         |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of all POST HTTP actions   |
+    | POST        |          | during the time window.          |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of all GET and POST actions|
+    | HTTP_METHODS|          | during the time window.          |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Counts number of CRA_SEQs        |
+    | RECORDS     |          | (dataset primary key)            |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of distinct HTTP Actions   |
+    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |
+    | NS          |          | window.                          |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of distinct CNs in CN      |
+    | UNIQUE_USERN|          | during the time window.          |
+    | AME         |          |                                  |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of distinct Resource       |
+    | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |
+    | RCES        |          | the time window.                 |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | Count of distinct EventIDs in    |
+    | UNIQUE_EVENT|          | SM_EVENTID  during the time      |
+    | S           |          | window.                          |
+    +-------------+----------+----------------------------------+
+    | COUNT_      | integer  | A count of Entries containing    |
+    | UNIQUE_REP  |          | “rep” followed by a string ending|
+    |             |          | in “/” in SM_RESOURCE during the |
+    |             |          | time window.                     |
+    +-------------+----------+----------------------------------+
+    | SESSION_    |  array   | A distinct list of HTTP Actions  |
+    | SM_ACTION   | <string> | in SM_ACTION during time window. |
+    +-------------+----------+----------------------------------+
+    | SESSION_    |  array   | A distinct list of Resource      |
+    | RESOURCE    | <string> | strings in SM_RESOURCE during    |
+    |             |          | time window.                     |
+    +-------------+----------+----------------------------------+
+    | SESSION_    |  array   | A distinct list of Entries       |
+    | REP_APP     | <string> | containing “rep” followed by a   |
+    |             |          | string ending in “/” in          |
+    |             |          | SM_RESOURCE during time window.  |
+    +-------------+----------+----------------------------------+
+    | SESSION_FIRS| timestamp| Minimum time at which a record   |
+    | T_TIME_SEEN |          | was logged during the time window|
+    +-------------+----------+----------------------------------+
+    | SESSION_LAST| timestamp| Maximum time at which a record   |
+    | _TIME_SEEN  |          | was logged during the time window|
+    +-------------+----------+----------------------------------+
+    | SDV_BT_RECOR| timestamp| Standard deviation of timestamp  |
+    | DS          |          | deltas during the time window.   |
+    +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window used for entity resolution. "
-        + "Given as an integer in seconds.",
+        "Length of the sliding window. " + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for entity resolution. "
+        "Length of time between start of successive time windows."
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -149,10 +150,13 @@ class SessionFeatureGenerator(SparkNativeTransformer):
     def __init__(self):
         """
         :param window_length: Length of the sliding window (in seconds)
-        :param window_step: Length of the sliding window's step-size
-            (in seconds)
+        :param window_step: Length of time between start of successive time
+            windows (in seconds)
+        :param inputCol: (default: "CN") Name of generated column that contains
+            extracted CN
         :type window_length: long
         :type window_step: long
+        :type inputCol: string
 
         :Example:
         from sessionfeaturegenerator import SessionFeatureGenerator
@@ -161,7 +165,7 @@ class SessionFeatureGenerator(SparkNativeTransformer):
         features = feature_generator.transform(dataset = input_dataset)
         """
         super().__init__()
-        self._setDefault(window_length=900, window_step=900)
+        self._setDefault(inputCol="CN", window_length=900, window_step=900)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
@@ -192,7 +196,6 @@ class SessionFeatureGenerator(SparkNativeTransformer):
         "SM_EVENTID": ["SM_EVENTID", IntegerType()],
         "SM_RESOURCE": ["SM_RESOURCE", StringType()],
         "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
-        "CN": ["CN", StringType()],
         "SM_ACTION": ["SM_ACTION", StringType()],
         "CRA_SEQ": ["CRA_SEQ", LongType()],
     }
@@ -246,7 +249,9 @@ class SessionFeatureGenerator(SparkNativeTransformer):
                     "",
                 )
             ).alias("COUNT_UNIQUE_APPS"),
-            f.array_distinct(f.collect_list(col("CN"))).alias("SESSION_USER"),
+            f.array_distinct(
+                f.collect_list(col(self.getOrDefault("inputCol")))
+            ).alias("SESSION_USER"),
             f.count(when(col("SM_EVENTID") == 7, True)).alias(
                 "COUNT_ADMIN_LOGIN"
             ),
