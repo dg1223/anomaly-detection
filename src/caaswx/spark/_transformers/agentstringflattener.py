@@ -1,7 +1,7 @@
 import httpagentparser
 import pyspark.sql.functions as f
 from pyspark import keyword_only
-from pyspark.ml.param.shared import TypeConverters, Param, Params
+from pyspark.ml.param.shared import TypeConverters, Param, Params, HasOutputCol
 from pyspark.sql.functions import (
     window,
     col,
@@ -15,7 +15,7 @@ from pyspark.sql.types import (
 from .sparknativetransformer import SparkNativeTransformer
 
 
-class AgentStringFlattener(SparkNativeTransformer):
+class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
     A transformer that flattens and cleans a target column (SM_AGENTNAME)
     of a spark dataframe.
@@ -66,6 +66,13 @@ class AgentStringFlattener(SparkNativeTransformer):
         typeConverter=TypeConverters.toString,
     )
 
+    agent_string_col = Param(
+        Params._dummy(),
+        "agent_string_col",
+        "Name of the column that contains the agent string",
+        typeConverter=TypeConverters.toString,
+    )
+
     agent_size_limit = Param(
         Params._dummy(),
         "agent_size_limit",
@@ -78,6 +85,7 @@ class AgentStringFlattener(SparkNativeTransformer):
     def __init__(
         self,
         agg_col="SM_USERNAME",
+        agent_string_col="SM_AGENTNAME",
         agent_size_limit=5,
         window_length=900,
         window_step=900,
@@ -102,6 +110,8 @@ class AgentStringFlattener(SparkNativeTransformer):
             window_length=900,
             window_step=900,
             agg_col="SM_USERNAME",
+            agent_string_col="SM_AGENTNAME",
+            outputCol="Parsed_Agent_String",
             agent_size_limit=5,
         )
         kwargs = self._input_kwargs
@@ -111,12 +121,16 @@ class AgentStringFlattener(SparkNativeTransformer):
     def set_params(
         self,
         agg_col="SM_USERNAME",
+        agent_string_col="SM_AGENTNAME",
         agent_size_limit=5,
         window_length=900,
         window_step=900,
     ):
         """
-        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
+        set_params(self, \\*, threshold=0.0, inputCol=None,
+
+        outputCol=None,
+
         thresholds=None, inputCols=None, outputCols=None)
         Sets params for this AgentStringFlattener.
         """
@@ -131,6 +145,15 @@ class AgentStringFlattener(SparkNativeTransformer):
 
     def get_agg_col(self):
         return self.agg_col
+
+    def set_agent_string_col(self, value):
+        """
+        Sets the agent string column
+        """
+        self._set(agent_string_col=value)
+
+    def get_agent_string_col(self):
+        return self.agent_string_col
 
     def set_agent_size_limit(self, value):
         """
@@ -174,14 +197,15 @@ class AgentStringFlattener(SparkNativeTransformer):
                 str(self.getOrDefault("window_length")) + " seconds",
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
-        ).agg(f.collect_set("SM_AGENTNAME").alias("SM_AGENTNAME"))
+        ).agg(f.collect_set(self.getOrDefault("agent_string_col"))
+              .alias(self.getOrDefault("agent_string_col")))
 
         result = result.sort("window")
         # Slicing to only get N User Agent Strings.
         result = result.withColumn(
-            "SM_AGENTNAME",
+            self.getOrDefault("agent_string_col"),
             f.slice(
-                result["SM_AGENTNAME"],
+                result[self.getOrDefault("agent_string_col")],
                 1,
                 self.getOrDefault("agent_size_limit"),
             ),
@@ -204,9 +228,7 @@ class AgentStringFlattener(SparkNativeTransformer):
         return base
 
     sch_dict = {
-        "SM_CLIENTIP": ["SM_CLIENTIP", StringType()],
         "SM_TIMESTAMP": ["SM_TIMESTAMP", TimestampType()],
-        "SM_AGENTNAME": ["SM_AGENTNAME", StringType()],
     }
 
     def _transform(self, dataset):
@@ -220,6 +242,7 @@ class AgentStringFlattener(SparkNativeTransformer):
 
         http_parser_udf = udf(self.http_parser, StringType())
         df = result.withColumn(
-            "Parsed_Agent_String", http_parser_udf(col("SM_AGENTNAME"))
-        ).drop("SM_AGENTNAME")
+            self.getOrDefault("outputCol"),
+            http_parser_udf(col(self.getOrDefault("agent_string_col")))
+        ).drop(self.getOrDefault("agent_string_col"))
         return df
