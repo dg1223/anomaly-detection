@@ -24,67 +24,66 @@ class ServerFeatureGenerator(SparkNativeTransformer):
     and encompass details about login attempts in different time window
     along with users' behaviours.
 
-        Input: A Spark dataframe.
-        Columns from raw_logs: SM_EVENTID, SM_CLIENTIP, SM_TIMESTAMP,
-        SM_AGENTNAME, SM_RESOURCE.
-        Please refer to README.md for description.
-        List of other required columns:
-        +-------------+----------+----------------------------------+
-        | Column_Name | Datatype | Description                      |
-        +=============+==========+==================================+
-        | self.getOr  | string   | the column to be targeted for    |
-        | Default("pa |          | aggregation for generating the   |
-        | rtioning_e  |          | immediate preious timestamp. It  |
-        | ntity       |          | (by default set to "SM_USERNAME")|
-        +-------------+----------+----------------------------------+
+    Input: A Spark dataframe.
+    Columns from raw_logs: SM_EVENTID, SM_CLIENTIP, SM_TIMESTAMP,
+    SM_AGENTNAME, SM_RESOURCE.
+    Please refer to README.md for description.
+    List of other required columns:
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | self.getOr  | string   | the column to be targeted for    |
+    | Default("pa |          | aggregation for generating the   |
+    | rtioning_e  |          | immediate preious timestamp. It  |
+    | ntity       |          | (by default set to "SM_USERNAME")|
+    +-------------+----------+----------------------------------+
 
-        Output features:
+    Output features:
 
-        +-------------+----------+----------------------------------+
-        | Column_Name | Datatype | Description                      |
-        +=============+==========+==================================+
-        | StartTime   | timestamp| The beginning of a time window   |
-        +-------------+----------+----------------------------------+
-        | EndTime     | timestamp| The end of a time window         |
-        +-------------+----------+----------------------------------+
-        | VolOfAllLogi| integer  | Number of all login attempts     |
-        | nAttempts   |          | in the specified time window.    |
-        +-------------+----------+----------------------------------+
-        | VolOfAllFail| integer  |  Number of all failed login      |
-        | edLogins    |          | attempts in the  time window.    |
-        +-------------+----------+----------------------------------+
-        | MaxOfFailed | integer  | Maximum Number of all failed     |
-        | LoginsWithSa|          | login attempts with same IPs.    |
-        | meIPs       |          |                                  |
-        +-------------+----------+----------------------------------+
-        | NumOfIPsLogi| integer  | Number of IPs used for logging   |
-        | nMultiAccoun|          | into multiple accounts.          |
-        | ts          |          |                                  |
-        +-------------+----------+----------------------------------+
-        | NumOfReqsTo | integer  | Number of requests to change     |
-        | ChangePasswo|          | passwords in the time window.    |
-        | rds         |          |                                  |
-        +-------------+----------+----------------------------------+
-        | NumOfUsersWi| integer  | Number of users with at least    |
-        | thEqualInter|          | "interval_threshold" intervals   |
-        | valBtnReqs  |          | between consecutive requests that|
-        |             |          | are equal up to precision        |
-        |             |          | "interval_epsilon".              |
-        +-------------+----------+----------------------------------+
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | StartTime   | timestamp| The beginning of a time window   |
+    +-------------+----------+----------------------------------+
+    | EndTime     | timestamp| The end of a time window         |
+    +-------------+----------+----------------------------------+
+    | VolOfAllLogi| integer  | Number of all login attempts     |
+    | nAttempts   |          | in the specified time window.    |
+    +-------------+----------+----------------------------------+
+    | VolOfAllFail| integer  |  Number of all failed login      |
+    | edLogins    |          | attempts in the  time window.    |
+    +-------------+----------+----------------------------------+
+    | MaxOfFailed | integer  | Maximum Number of all failed     |
+    | LoginsWithSa|          | login attempts with same IPs.    |
+    | meIPs       |          |                                  |
+    +-------------+----------+----------------------------------+
+    | NumOfIPsLogi| integer  | Number of IPs used for logging   |
+    | nMultiAccoun|          | into multiple accounts.          |
+    | ts          |          |                                  |
+    +-------------+----------+----------------------------------+
+    | NumOfReqsTo | integer  | Number of requests to change     |
+    | ChangePasswo|          | passwords in the time window.    |
+    | rds         |          |                                  |
+    +-------------+----------+----------------------------------+
+    | NumOfUsersWi| integer  | Number of users with at least    |
+    | thEqualInter|          | "interval_threshold" intervals   |
+    | valBtnReqs  |          | between consecutive requests that|
+    |             |          | are equal up to precision        |
+    |             |          | "interval_epsilon".              |
+    +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
         Params._dummy(),
         "window_length",
-        "Length of the sliding window used for entity resolution. "
-        + "Given as an integer in seconds.",
+        "Length of the sliding window. " + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
 
     window_step = Param(
         Params._dummy(),
         "window_step",
-        "Length of the sliding window step-size used for entity resolution. "
+        "Length of time between start of successive time windows. "
         + "Given as an integer in seconds.",
         typeConverter=TypeConverters.toInt,
     )
@@ -92,22 +91,21 @@ class ServerFeatureGenerator(SparkNativeTransformer):
     interval_threshold = Param(
         Params._dummy(),
         "interval_threshold",
-        "an integer used to define feature NumOfUsersWithEqualIntervalBtnReqs",
+        "An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs",
         typeConverter=TypeConverters.toInt,
     )
 
     interval_epsilon = Param(
         Params._dummy(),
         "interval_epsilon",
-        "a float used to define feature NumOfUsersWithEqualIntervalBtnReqs",
+        "A float used to define feature NumOfUsersWithEqualIntervalBtnReqs",
         typeConverter=TypeConverters.toFloat,
     )
 
-    partioning_entity = Param(
+    agg_col = Param(
         Params._dummy(),
-        "partioning_entity",
-        "a string used to define the pivot column for partitioning the time "
-        "window",
+        "agg_col",
+        "Name of the partition column to pivot off of.",
         typeConverter=TypeConverters.toString,
     )
 
@@ -118,7 +116,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         window_step=900,
         interval_threshold=2,
         interval_epsilon=0.2,
-        partioning_entity="SM_USERNAME",
+        agg_col="SM_USERNAME",
     ):
         """
         :param window_length: Length of the sliding window (in seconds)
@@ -126,16 +124,16 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         seconds) :param interval_threshold: An integer used to define
         feature NumOfUsersWithEqualIntervalBtnReqs :param interval_epsilon:
         A float used to define feature NumOfUsersWithEqualIntervalBtnReqs
-        :param partioning_entity: A string used to define the pivot column
+        :param agg_col: A string used to define the pivot column
         for partitioning the time window :type window_length: long :type
         window_step: long :type interval_threshold: integer :type
-        interval_epsilon: float :type partioning_entity: string
+        interval_epsilon: float :type agg_col: string
 
         :Example:
         from serverfeaturegenerator import ServerFeatureGenerator
         feature_generator = ServerFeatureGenerator(window_length = 1800,
             window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3,
-             partioning_entity = "CN")
+             agg_col = "CN")
         features = feature_generator.transform(dataset = input_dataset)
         """
         super(ServerFeatureGenerator, self).__init__()
@@ -144,7 +142,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
             window_step=900,
             interval_threshold=2,
             interval_epsilon=0.2,
-            partioning_entity="SM_USERNAME",
+            agg_col="SM_USERNAME",
         )
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
@@ -156,7 +154,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         window_step=900,
         interval_threshold=2,
         interval_epsilon=0.2,
-        partioning_entity="SM_USERNAME",
+        agg_col="SM_USERNAME",
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,
@@ -179,7 +177,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         """
         self._set(window_step=value)
 
-    def setinterval_threshold(self, value):
+    def set_interval_threshold(self, value):
         """
         Sets this ServerFeatureGenerator's interval threshold
         """
@@ -191,14 +189,14 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         """
         self._set(interval_epsilon=value)
 
-    def set_partioning_entity(self, value):
+    def set_agg_col(self, value):
         """
-        Sets this ServerFeatureGenerator's interval epsilon
+        Sets this ServerFeatureGenerator's aggregation column
         """
-        self._set(partioning_entity=value)
+        self._set(agg_col=value)
 
     def process_data_frame_with_window(self, dataset):
-        pivot_entity = str(self.getOrDefault("partioning_entity"))
+        pivot_entity = str(self.getOrDefault("agg_col"))
         ts_window = Window.partitionBy(pivot_entity).orderBy("SM_TIMESTAMP")
 
         dataset = dataset.withColumn(
@@ -294,7 +292,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
                 str(self.getOrDefault("window_step")) + " seconds",
             ),
         ).agg(
-            f.countDistinct(str(self.getOrDefault("partioning_entity"))).alias(
+            f.countDistinct(str(self.getOrDefault("agg_col"))).alias(
                 "UNIQUE_USERS_COUNT"
             )
         )
@@ -314,7 +312,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
         )
 
         temp_df = dataset.groupBy(
-            str(self.getOrDefault("partioning_entity")),
+            str(self.getOrDefault("agg_col")),
             window(
                 "SM_TIMESTAMP",
                 str(self.getOrDefault("window_length")) + " seconds",
