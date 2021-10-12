@@ -95,3 +95,15 @@ def test_num_rows():
 
     # row test
     assert result.count() == ans_1_data.count()
+
+
+def test_empty_data():
+    df = spark.read.parquet(
+        "./data/parquet_data/agentStringFlattener_tests/data_empty_df.parquet"
+    )
+
+    result = AgentStringFlattener(
+        agent_size_limit=2, agg_col="SM_CLIENTIP"
+    ).transform(df)
+
+    assert result.count() == 0
