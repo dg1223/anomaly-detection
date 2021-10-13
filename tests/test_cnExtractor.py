@@ -22,13 +22,11 @@ def test_cnextractor():
 
     assert bool(sub1.head(1)) is bool(sub2.head(1)) is False
 
+
 def test_empty_data():
     obj = CnExtractor()
     test_df = load_parquet(
-        "data",
-        "parquet_data",
-        "cn_extractor_tests",
-        "data_empty_df.parquet",
+        "data", "parquet_data", "cn_extractor_tests", "data_empty_df.parquet",
     )
     result_df = obj.transform(test_df)
 
