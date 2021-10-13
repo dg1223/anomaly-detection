@@ -104,7 +104,7 @@ def test_empty_data():
         "data",
         "parquet_data",
         "ip_feature_generator_tests",
-        "data_empty_df.parquet"
+        "data_empty_df.parquet",
     )
 
     fg = IPFeatureGenerator()
