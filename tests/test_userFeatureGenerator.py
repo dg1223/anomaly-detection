@@ -107,7 +107,10 @@ def test_schema():
 
 def test_empty_data():
     test_df = load_test_data(
-        "data", "parquet_data", "user_feature_generator_tests", "data_empty_df.parquet"
+        "data",
+        "parquet_data",
+        "user_feature_generator_tests",
+        "data_empty_df.parquet"
     )
 
     fg = UserFeatureGenerator()
