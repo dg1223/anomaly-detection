@@ -121,4 +121,15 @@ def test_num_rows():
     assert result.count() == ans_1_data.count()
 
 
+def test_empty_data():
+    test_df = load_test_data(
+        "data",
+        "parquet_data",
+        "session_feature_generator_tests",
+        "data_empty_df.parquet",
+    )
 
+    fg = SessionFeatureGenerator()
+    result = fg.transform(test_df)
+
+    assert result.count() == 0
