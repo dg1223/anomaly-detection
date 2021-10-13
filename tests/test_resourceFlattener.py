@@ -142,3 +142,13 @@ def test_shuffled_dataset():
         result.subtract(expected_result).count() == 0
         and expected_result.subtract(result).count() == 0
     )
+
+
+def test_empty_data():
+    rf = ResourcesFlattener(max_resource_count=10)
+    df = load_test_data(
+        "data", "parquet_data", "flattener_tests", "data_empty_df.parquet"
+    )
+    result = rf.transform(df)
+
+    assert result.count() == 0
