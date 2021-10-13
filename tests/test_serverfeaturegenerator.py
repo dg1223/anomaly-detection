@@ -297,7 +297,7 @@ def test_empty_data():
         "data",
         "parquet_data",
         "server_feature_generator_tests",
-        "date_empty_df.parquet",
+        "data_empty_df.parquet",
     )
 
     result = fg.transform(test_df)
