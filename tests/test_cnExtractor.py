@@ -26,7 +26,10 @@ def test_cnextractor():
 def test_empty_data():
     obj = CnExtractor()
     test_df = load_parquet(
-        "data", "parquet_data", "cn_extractor_tests", "data_empty_df.parquet",
+        "data",
+        "parquet_data",
+        "cn_extractor_tests",
+        "data_empty_df.parquet",
     )
     result_df = obj.transform(test_df)
 
