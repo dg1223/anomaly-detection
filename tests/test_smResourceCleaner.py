@@ -92,3 +92,14 @@ def test_num_rows():
 
     # row test
     assert result.count() == ans_1_data.count()
+
+
+def test_empty_data():
+
+    df = load_test_data(
+        "data", "parquet_data", "sm_resource_tests", "data_empty_df.parquet"
+    )
+
+    result = SMResourceCleaner().transform(df)
+
+    assert result.count() == 0
