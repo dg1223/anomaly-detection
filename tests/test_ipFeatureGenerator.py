@@ -111,4 +111,3 @@ def test_empty_data():
     result = fg.transform(test_df)
 
     assert result.count() == 0
-
