@@ -289,3 +289,17 @@ def test_two_windows_multiple_ips():
 
     null_swap(ans_1_data.schema, ans_1_data_schema)
     assert result.schema == ans_1_data.schema
+
+
+def test_empty_data():
+    fg = ServerFeatureGenerator()
+    test_df = load_test_data(
+        "data",
+        "parquet_data",
+        "server_feature_generator_tests",
+        "data_empty_df.parquet",
+    )
+
+    result = fg.transform(test_df)
+
+    assert result.count() == 0
