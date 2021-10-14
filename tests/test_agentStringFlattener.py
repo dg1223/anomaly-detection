@@ -12,7 +12,7 @@ spark = SparkSession.builder.getOrCreate()
 def test_content():
     """
     Tests if the data in the results is the same as the data in the
-    expected data.
+    expected result.
     """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
@@ -32,7 +32,7 @@ def test_content():
 def test_schema():
     """
     Tests if the schemas are the same between the result and the expected
-    data.
+    result.
     """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
@@ -64,7 +64,7 @@ def test_schema():
 
 def test_num_rows():
     """
-    Tests if number of rows are the same between the results and expected data.
+    Tests if number of rows are the same between the results and expected result.
     """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
