@@ -12,6 +12,10 @@ spark = SparkSession.builder.getOrCreate()
 
 
 def test_content():
+    """
+    Tests if the data in the results is the same as the data in the
+    expected result.
+    """
     test_df = load_test_data(
         "data", "parquet_data", "ip_feature_generator_tests", "data_df.parquet"
     )
@@ -23,16 +27,6 @@ def test_content():
         "ans_data" ".parquet",
     )
 
-    df2_schema_file_path = load_path(
-        "data", "JSON", "ip_feature_generator_tests", "ans_data_schema.json"
-    )
-
-    with open(df2_schema_file_path) as json_file:
-        ans_1_data_schema = json.load(json_file)
-
-    ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
-        json.loads(ans_1_data_schema)
-    )
     fg = IPFeatureGenerator()
     result = fg.transform(test_df)
 
@@ -41,6 +35,10 @@ def test_content():
 
 
 def test_num_rows():
+    """
+    Tests if number of rows are the same between the results and expected
+    result.
+    """
     test_df = load_test_data(
         "data", "parquet_data", "ip_feature_generator_tests", "data_df.parquet"
     )
@@ -50,17 +48,6 @@ def test_num_rows():
         "parquet_data",
         "ip_feature_generator_tests",
         "ans_data" ".parquet",
-    )
-
-    df2_schema_file_path = load_path(
-        "data", "JSON", "ip_feature_generator_tests", "ans_data_schema.json"
-    )
-
-    with open(df2_schema_file_path) as json_file:
-        ans_1_data_schema = json.load(json_file)
-
-    ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
-        json.loads(ans_1_data_schema)
     )
     fg = IPFeatureGenerator()
     result = fg.transform(test_df)
@@ -70,6 +57,10 @@ def test_num_rows():
 
 
 def test_schema():
+    """
+    Tests if the schemas are the same between the result and the expected
+    result.
+    """
     test_df = load_test_data(
         "data", "parquet_data", "ip_feature_generator_tests", "data_df.parquet"
     )
@@ -100,6 +91,9 @@ def test_schema():
 
 
 def test_empty_data():
+    """
+    Tests transformer behaviour with an empty dataset.
+    """
     test_df = load_test_data(
         "data",
         "parquet_data",
