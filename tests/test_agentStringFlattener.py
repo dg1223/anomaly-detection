@@ -64,7 +64,8 @@ def test_schema():
 
 def test_num_rows():
     """
-    Tests if number of rows are the same between the results and expected result.
+    Tests if number of rows are the same between the results and expected
+    result.
     """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
