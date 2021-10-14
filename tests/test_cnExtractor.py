@@ -22,8 +22,8 @@ def test_cnextractor():
     )
     result = obj.transform(test_df)
     assert (
-            result.subtract(ans_1_data).count() == 0
-            and ans_1_data.subtract(result).count() == 0
+        result.subtract(ans_1_data).count() == 0
+        and ans_1_data.subtract(result).count() == 0
     )
 
 
