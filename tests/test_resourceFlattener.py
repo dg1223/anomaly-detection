@@ -4,10 +4,10 @@ from src.caaswx.spark._transformers.resourcesflattener import (
 from src.caaswx.spark.scripts.loadtestdata import load_test_data
 
 
-# maximum resource count is 10
-
-
 def test_single_window_dataframe():
+    """
+    Tests maximum resource count = 10
+    """
     rf = ResourcesFlattener(max_resource_count=10)
     df = load_test_data(
         "data", "parquet_data", "flattener_tests", "user_one_window_10.parquet"
@@ -25,10 +25,10 @@ def test_single_window_dataframe():
     )
 
 
-# user has multiple windows
-
-
 def test_multiple_windows_dataframe():
+    """
+    Tests a user which has multiple windows
+    """
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
         "data",
@@ -49,10 +49,10 @@ def test_multiple_windows_dataframe():
     )
 
 
-# window has duplicate resources
-
-
 def test_single_window_duplicate_resources():
+    """
+    Tests a window with duplicate resources
+    """
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
         "data",
@@ -73,11 +73,12 @@ def test_single_window_duplicate_resources():
     )
 
 
-# window had duplicate rows that is, the timestamps are also identical to
-# check if resources are dropped due to resource count limit
-
-
 def test_single_window_duplicate_rows():
+    """
+    Tests a window with duplicate rows that is, the timestamps are also
+    identical to check if resources are dropped due to resource count
+    limit.
+    """
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
         "data",
@@ -98,10 +99,10 @@ def test_single_window_duplicate_rows():
     )
 
 
-# check basic functionality with max resource count = 5
-
-
 def test_user_based_grouping():
+    """
+    Test checks basic functionality with max resource count = 5
+    """
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
         "data",
@@ -122,11 +123,11 @@ def test_user_based_grouping():
     )
 
 
-# unordered dataset to see if the order of resources is still correct
-# based on timestamps
-
-
 def test_shuffled_dataset():
+    """
+    Tests an unordered dataset to see if the order of resources is
+    still correct based on timestamps.
+    """
     rf = ResourcesFlattener(max_resource_count=5)
     df = load_test_data(
         "data", "parquet_data", "flattener_tests", "user_shuffled_data.parquet"
@@ -145,6 +146,9 @@ def test_shuffled_dataset():
 
 
 def test_empty_data():
+    """
+    Tests transformer behaviour with an empty dataset.
+    """
     rf = ResourcesFlattener(max_resource_count=10)
     df = load_test_data(
         "data", "parquet_data", "flattener_tests", "data_empty_df.parquet"
