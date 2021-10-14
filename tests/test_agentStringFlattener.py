@@ -10,6 +10,10 @@ spark = SparkSession.builder.getOrCreate()
 
 
 def test_content():
+    """
+    Tests if the data in the results is the same as the data in the
+    expected result.
+    """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
@@ -19,19 +23,6 @@ def test_content():
 
     ans_1_data = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/ans_1_df.parquet"
-    )
-
-    df2_schema_file_path = (
-        "./data/JSON/agent_flattener_tests/ans_data_1_schema_agentflattener"
-        ".json"
-    )
-
-    # ans_1_data = spark.read.json(df2_filePath)
-    with open(df2_schema_file_path) as json_file:
-        ans_1_data_schema = json.load(json_file)
-
-    ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
-        json.loads(ans_1_data_schema)
     )
 
     # content test
@@ -39,6 +30,10 @@ def test_content():
 
 
 def test_schema():
+    """
+    Tests if the schemas are the same between the result and the expected
+    result.
+    """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
@@ -55,7 +50,6 @@ def test_schema():
         ".json"
     )
 
-    # ans_1_data = spark.read.json(df2_filePath)
     with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
 
@@ -69,6 +63,10 @@ def test_schema():
 
 
 def test_num_rows():
+    """
+    Tests if number of rows are the same between the results and expected
+    result.
+    """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_df.parquet"
     )
@@ -80,24 +78,14 @@ def test_num_rows():
         "./data/parquet_data/agentStringFlattener_tests/ans_1_df.parquet"
     )
 
-    df2_schema_file_path = (
-        "./data/JSON/agent_flattener_tests/ans_data_1_schema_agentflattener"
-        ".json"
-    )
-
-    # ans_1_data = spark.read.json(df2_filePath)
-    with open(df2_schema_file_path) as json_file:
-        ans_1_data_schema = json.load(json_file)
-
-    ans_1_data_schema = pyspark.sql.types.StructType.fromJson(
-        json.loads(ans_1_data_schema)
-    )
-
     # row test
     assert result.count() == ans_1_data.count()
 
 
 def test_empty_data():
+    """
+    Tests transformer behaviour with an empty dataset.
+    """
     df = spark.read.parquet(
         "./data/parquet_data/agentStringFlattener_tests/data_empty_df.parquet"
     )
