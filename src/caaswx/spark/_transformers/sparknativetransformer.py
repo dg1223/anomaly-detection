@@ -5,19 +5,28 @@ from pyspark.sql.types import (
     ArrayType,
 )
 
-"""This class inherits from the Transformer class and overrides Transform to
-add input schema checking. For correct operation it is imperative that
-_transform be implemented in the child class and a dictionary "sch_dict" be
-implemented as a class attribute in the child class. The sch_dict is to be
-formatted as follows: sch_dict = { "Column_1": ["Column_1", __Type()],
-"Column_2": ["Column_2", __Type()], } where __Type() are pyspark.sql.types """
-
 
 class SparkNativeTransformer(Transformer):
+    """
+    This class inherits from the Transformer class and overrides Transform to
+    add input schema checking. For correct operation it is imperative that
+    _transform be implemented in the child class and a dictionary "sch_dict" be
+    implemented as a class attribute in the child class. The sch_dict is to be
+    formatted as follows: sch_dict = { "Column_1": ["Column_1", __Type()],
+    "Column_2": ["Column_2", __Type()], }
+        where:
+            "Column_X" is the actual Name of the Column
+            __Type() are pyspark.sql.types.
+        Example:
+            sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
+    """
+
     def test_schema(self, incoming_schema, sch_dict):
         def null_swap(st1, st2):
-            """Function to swap datatype null parameter within a nested
-            dataframe schema"""
+            """
+            Function to swap datatype null parameter within a nested
+            dataframe schema
+            """
             if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
                 raise ValueError(
                     "Keys for first schema aren't a subset of " "the second."
