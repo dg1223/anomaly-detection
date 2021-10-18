@@ -41,11 +41,7 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     |             |          | raw_logs for reference.          |
     +-------------+----------+----------------------------------+
 
-    Output: A Spark Dataframe with the following features calculated on rows
-    aggregated by time window and agg_col, where the window is calculated
-    using:
-        - length: how long the window is in seconds.
-        - step: the length of time between the start of successive time windows
+    Output: A Spark Dataframe with the following features calculated:
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
