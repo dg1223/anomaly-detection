@@ -11,26 +11,33 @@ from .sparknativetransformer import SparkNativeTransformer
 
 class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
-    Creates a CN column using the existing SM_USERNAME column
-    by:
-    - Removing the "cn=" all chars before it
+    Creates an Output Column (Default="CN") using the Input Column
+    (Default="SM_USERNAME) by:
+    - Removing all characters before "cn="
     - Removing the characters after the first comma (including the comma)
-    Input: Dataframe containing an SM_USERNAME that has a CN
 
     Notes:
     - Assumes the "cn=" and its contents are not at the end of the SM_USERNAME
     - Reminder that dict must change if SM_USERNAME is no longer used
-    Input: A Spark dataframe
-    Columns from raw_logs: SM_RESOURCE, SM_TIMESTAMP
-    Please refer to README.md for description.
 
-    Output: Same dataframe with a CN column appended
+    Input: A Spark dataframe the following column:
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | self.getOr  | string   | The username for the user        |
+    | Default("   |          | currently logged in with this    |
+    | inputCol")  |          | session. SM_USERNAME in          |
+    |             |          | raw_logs for reference.          |
+    +-------------+----------+----------------------------------+
+    Please refer to README.md for further description of raw_logs.
+
+    Output: A Spark Dataframe with the following features calculated:
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
     | self.getOr  | string   | Column containing the CommonNames|
     | Default("   |          | for each user. It is an alpha-   |
-    | OutputCol") |          | numeric string and it may contain|
+    | outputCol") |          | numeric string and it may contain|
     |             |          | NULL values.                     |
     +-------------+----------+----------------------------------+
     """
