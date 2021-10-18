@@ -10,23 +10,6 @@ from pyspark import keyword_only
 
 class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
-    Consolidates SM_RESOURCE elements to simplify redundant data, based off
-    of the following criteria: 1) SAML Requests Suggested Categorization:
-    Strings containing the prefix '/cmsws' and substrings 'redirect' and
-    'SAML'. The URLs starting with '/SAMLRequest'. Action: Replace with the
-    string '<SAML request>' 2) Query strings Suggested Categorization:
-    Strings containing the character '?' after the last occurrence of '/'.
-    Action: Replace everything after the relevant '?' by '*'. 3) URLs ending
-    with '%' Strip off the trailing '%' 4) URLs which start with
-    'SMASSERTIONREF' are quite long and contain the substring
-    '/cmsws/public/saml2sso'. To cleanup these long URLs, replace the entire
-    string with '/cmsws/public/saml2sso'. 5) Other strings Suggested
-    Categorization: Take whatever's left over from the previous two
-    categories that isn't null. Action: Do nothing. Input: The dataframe
-    containing SM_RESOURCE that needs needs to be cleaned. Output: Dataframe
-    appended with cleaned SM_RESOURCE. Notes: In some entries there may
-    exist some long
-
     Consolidates SM_RESOURCE elements to simplify redundant data, based
     off of the following criteria:
     1) SAML Requests
@@ -47,24 +30,28 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
       Suggested Categorization: Take whatever's left over from the previous
       two categories that isn't null.
       Action: Do nothing.
-    Input: The dataframe containing SM_RESOURCE that needs needs to be cleaned.
-    Output: Dataframe appended with cleaned SM_RESOURCE.
-    Notes: In some entries there may exist some long
 
-    A module to clean the SM_RESOURCE column.
-    Input: A Spark dataframe
-    Columns from raw_logs: SM_RESOURCE
-    Please refer to README.md for description.
-
-    Output:
-
-    Columns in the input dataframe plus following:
+    Input: A Spark dataframe containing the following column:
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
-    | SM_RESOURCE | string   | Column containing the cleaned    |
-    |             |          | forms of different URLs with     |
-    |             |          | respect to the aforementioned    |
+    | self.getOr  | string   | This is the resource, for example|
+    | Default("   |          | a web page, that the user is     |
+    | inputCol")  |          | requesting. SM_RESOURCE in       |
+    |             |          | raw_logs for reference.          |
+    +-------------+----------+----------------------------------+
+
+    Output: A Spark Dataframe with the following features calculated on rows
+    aggregated by time window and agg_col, where the window is calculated
+    using:
+        - length: how long the window is in seconds.
+        - step: the length of time between the start of successive time windows
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | self.getOr  | string   | Column containing the cleaned    |
+    | Default("   |          | forms of different URLs with     |
+    | outputCol") |          | respect to the aforementioned    |
     |             |          | cleaning strategies.             |
     +-------------+----------+----------------------------------+
     """
