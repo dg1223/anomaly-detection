@@ -1,0 +1,591 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>_transformers.ipfeaturegenerator &#8212; NetInsight 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for _transformers.ipfeaturegenerator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pyspark.sql.functions</span> <span class="k">as</span> <span class="nn">f</span>
+
+<span class="c1"># Import Essential packages</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="n">TypeConverters</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Params</span><span class="p">,</span> <span class="n">HasInputCol</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">col</span><span class="p">,</span> <span class="n">when</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">isnull</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">regexp_extract</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">window</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">TimestampType</span><span class="p">,</span>
+    <span class="n">LongType</span><span class="p">,</span>
+    <span class="n">StringType</span><span class="p">,</span>
+    <span class="n">IntegerType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.window</span> <span class="k">import</span> <span class="n">Window</span>
+
+<span class="kn">from</span> <span class="nn">.sparknativetransformer</span> <span class="k">import</span> <span class="n">SparkNativeTransformer</span>
+
+
+<div class="viewcode-block" id="IPFeatureGenerator"><a class="viewcode-back" href="../../_transformers.html#_transformers.ipfeaturegenerator.IPFeatureGenerator">[docs]</a><span class="k">class</span> <span class="nc">IPFeatureGenerator</span><span class="p">(</span><span class="n">SparkNativeTransformer</span><span class="p">,</span> <span class="n">HasInputCol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A module to generate features related to IP features.</span>
+
+<span class="sd">    Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,</span>
+<span class="sd">    SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID, and SM_USERNAME from raw_logs</span>
+<span class="sd">    and the following column (default name: &quot;CN&quot;)</span>
+
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | Column_Name | Datatype | Description                      |</span>
+<span class="sd">    +=============+==========+==================================+</span>
+<span class="sd">    | self.getOr  | string   | Column containing the CommonNames|</span>
+<span class="sd">    | Default(    |          | for each user. It is an alpha-   |</span>
+<span class="sd">    | &quot;inputCol&quot;) |          | numeric string and it may contain|</span>
+<span class="sd">    |             |          | NULL values. CNs can be generated|</span>
+<span class="sd">    |             |          | from SM_USERNAME column through  |</span>
+<span class="sd">    |             |          | the CnExtractor transformer.     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    Please refer to README.md for further description.</span>
+
+<span class="sd">    Output: A Spark Dataframe with the following features calculated on rows</span>
+<span class="sd">            aggregated by time window and SM_CLIENTIP, where the window is</span>
+<span class="sd">            calculated using:</span>
+<span class="sd">                - length: how many seconds the window is</span>
+<span class="sd">                - step: the length of time between the start of successive</span>
+<span class="sd">                    time window</span>
+
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | Column_Name | Datatype | Description                      |</span>
+<span class="sd">    +=============+==========+==================================+</span>
+<span class="sd">    | IP_APP      |  array   | A distinct list of main apps     |</span>
+<span class="sd">    |             | &lt;string&gt; | from each record in SM_RESOURCE  |</span>
+<span class="sd">    |             |          | during time window.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_AVG_TIME_| double   | Average time between records     |</span>
+<span class="sd">    | BT_RECORDS  |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_MAX_TIME_| double   | Maximum time between records     |</span>
+<span class="sd">    | BT_RECORDS  |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_MIN_TIME_| double   | Minimum time between records     |</span>
+<span class="sd">    | BT_RECORDS  |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Admin Login events      |</span>
+<span class="sd">    | ADMIN_LOGIN |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 7.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Admin Logout events     |</span>
+<span class="sd">    | ADMIN_LOGOUT|          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 8.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Admin reject events     |</span>
+<span class="sd">    | ADMIN_REJECT|          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 9.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Auth accept events      |</span>
+<span class="sd">    | AUTH_ACCEPT |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 1.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Admin attempt events    |</span>
+<span class="sd">    | ADMIN_ATTEMP|          | during the time window, defined  |</span>
+<span class="sd">    | T           |          | by sm_eventid == 3.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Auth challenge events   |</span>
+<span class="sd">    | AUTH_CHALLEN|          | during the time window, defined  |</span>
+<span class="sd">    | GE          |          | by sm_eventid == 4.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Auth Logout events      |</span>
+<span class="sd">    | AUTH_LOGOUT |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 10.             |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Auth reject events      |</span>
+<span class="sd">    | AUTH_REJECT |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 2.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Az accept events        |</span>
+<span class="sd">    | AZ_ACCEPT   |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 5.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Az reject events        |</span>
+<span class="sd">    | AZ_REJECT   |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 6.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all Reject events       |</span>
+<span class="sd">    | FAILED      |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 2,6 and 9.      |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all GET HTTP actions    |</span>
+<span class="sd">    | GET         |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all POST HTTP actions   |</span>
+<span class="sd">    | POST        |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all GET and POST actions|</span>
+<span class="sd">    | HTTP_METHODS|          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “ams” or “AMS”      |</span>
+<span class="sd">    | OU_AMS      |          | occurrences in SM_USERNAME OR    |</span>
+<span class="sd">    |             |          | SM_RESOURCE during time window.  |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “cra-cp” occurrences|</span>
+<span class="sd">    | OU_CMS      |          | in SM_USERNAME during the window.|</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “ou=Identity”       |</span>
+<span class="sd">    | OU_IDENTITY |          | occurrences in SM_USERNAME during|</span>
+<span class="sd">    |             |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “ou=Identity”       |</span>
+<span class="sd">    | OU_IDENTITY |          | occurrences in SM_USERNAME during|</span>
+<span class="sd">    |             |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “ou=Credential”     |</span>
+<span class="sd">    | OU_CRED     |          | occurrences in SM_USERNAME during|</span>
+<span class="sd">    |             |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “ou=SecureKey”      |</span>
+<span class="sd">    | OU_SECUREKEY|          | occurrences in SM_USERNAME during|</span>
+<span class="sd">    |             |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “mima” occurrences  |</span>
+<span class="sd">    | PORTAL_MYA  |          | in SM_RESOURCE during the time   |</span>
+<span class="sd">    |             |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of all “myba” occurrences  |</span>
+<span class="sd">    | PORTAL_MYbA |          | in SM_RESOURCE during the time   |</span>
+<span class="sd">    |             |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of distinct HTTP Actions   |</span>
+<span class="sd">    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |</span>
+<span class="sd">    | NS          |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of distinct HTTP Actions   |</span>
+<span class="sd">    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |</span>
+<span class="sd">    | NS          |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of distinct EventIDs in    |</span>
+<span class="sd">    | UNIQUE_EVENT|          | SM_EVENTID  during the time      |</span>
+<span class="sd">    | S           |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of distinct CNs in CN      |</span>
+<span class="sd">    | UNIQUE_USERN|          | during the time window.          |</span>
+<span class="sd">    | AME         |          |                                  |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | A distinct list of SessionIDs in |</span>
+<span class="sd">    | UNIQUE_SESSI|          | SM_SESSIONID during time window. |</span>
+<span class="sd">    | ON          |          |                                  |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of distinct Resource       |</span>
+<span class="sd">    | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |</span>
+<span class="sd">    | RCES        |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | A count of Entries containing    |</span>
+<span class="sd">    | UNIQUE_PORTA|          | “rep” followed by a string ending|</span>
+<span class="sd">    | L_RAC       |          | in “/” in SM_RESOURCE during the |</span>
+<span class="sd">    |             |          | time window.                     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Counts number of CRA_SEQs        |</span>
+<span class="sd">    | RECORDS     |          | (dataset primary key)            |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Visit events during the |</span>
+<span class="sd">    | VISIT       |          | time window, defined by          |</span>
+<span class="sd">    |             |          | sm_eventid == 13.                |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Validate Accept events  |</span>
+<span class="sd">    | VALIDATE_ACC|          | during the time window, defined) |</span>
+<span class="sd">    | EPT         |          |  by sm_eventid == 11.            |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | integer  | Count of Validate reject events  |</span>
+<span class="sd">    | VALIDATE_REJ|          | during the time window, defined) |</span>
+<span class="sd">    | ECT         |          |  by sm_eventid == 12.            |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of HTTP Actions  |</span>
+<span class="sd">    | SM_ACTIONS  | &lt;string&gt; | in SM_ACTION during time window. |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of CNs           |</span>
+<span class="sd">    | USERNAME    | &lt;string&gt; | in CN during time window.        |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of SessionIDs    |</span>
+<span class="sd">    | SM_SESSION  | &lt;string&gt; | in SM_SESSIONID during window.   |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of Resource      |</span>
+<span class="sd">    | SM_PORTALS  | &lt;string&gt; | strings in SM_RESOURCE during    |</span>
+<span class="sd">    |             |          | time window.                     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of Transaction   |</span>
+<span class="sd">    | SM_TRANSACTI| &lt;string&gt; | Ids in SM_TRANSACTIONID during   |</span>
+<span class="sd">    | ONS         |          | time window.                     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of Entries       |</span>
+<span class="sd">    | USER_OU     | &lt;string&gt; | containing “ou=” and a string    |</span>
+<span class="sd">    |             |          | ending in “,” in SM_USERNAME     |</span>
+<span class="sd">    |             |          | during time window.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_UNIQUE_  |  array   | A distinct list of Entries       |</span>
+<span class="sd">    | _REP_APP    | &lt;string&gt; | containing “rep” followed by a   |</span>
+<span class="sd">    |             |          | string ending in “/” in          |</span>
+<span class="sd">    |             |          | SM_RESOURCE during time window.  |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_TIMESTAM | timestamp| Earliest timestamp during time   |</span>
+<span class="sd">    | P           |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | IP_COUNT_   | iinteger | A count of distinct Entries      |</span>
+<span class="sd">    | UNIQUE_OU   |          | containing “ou=” and a string    |</span>
+<span class="sd">    |             |          | in “,” in SM_USERNAME during time|</span>
+<span class="sd">    |             |          | window                           |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">window_length</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+        <span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span>
+        <span class="s2">&quot;window_length&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Length of the sliding window used for entity resolution. &quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;Given as an integer in seconds.&quot;</span><span class="p">,</span>
+        <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">window_step</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+        <span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span>
+        <span class="s2">&quot;window_step&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Length of the sliding window step-size used for entity resolution. &quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;Given as an integer in seconds.&quot;</span><span class="p">,</span>
+        <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param window_length: Length of the sliding window (in seconds)</span>
+<span class="sd">        :param window_step: Length of the sliding window&#39;s</span>
+<span class="sd">            step-size (in seconds)</span>
+<span class="sd">        :param inputCol: (default: &quot;CN&quot;) Name of generated column that contains extracted CN</span>
+
+<span class="sd">        :type window_length: long</span>
+<span class="sd">        :type window_step: long</span>
+<span class="sd">        :type inputCol: string</span>
+
+<span class="sd">        :Example:</span>
+<span class="sd">        from ipfeaturegenerator import IPFeatureGenerator</span>
+<span class="sd">        feature_generator = IPFeatureGenerator</span>
+<span class="sd">            (window_length = 1800, window_step = 1800)</span>
+<span class="sd">        features = feature_generator.transform(dataset = input_dataset)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">window_length</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">window_step</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">inputCol</span><span class="o">=</span><span class="s2">&quot;CN&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="IPFeatureGenerator.set_params"><a class="viewcode-back" href="../../_transformers.html#_transformers.ipfeaturegenerator.IPFeatureGenerator.set_params">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,</span>
+<span class="sd">        thresholds=None, inputCols=None, outputCols=None) Sets params for</span>
+<span class="sd">        this SessionFeatureGenerator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IPFeatureGenerator.set_window_length"><a class="viewcode-back" href="../../_transformers.html#_transformers.ipfeaturegenerator.IPFeatureGenerator.set_window_length">[docs]</a>    <span class="k">def</span> <span class="nf">set_window_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets this IPFeatureGenerator&#39;s window length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">window_length</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IPFeatureGenerator.set_window_step"><a class="viewcode-back" href="../../_transformers.html#_transformers.ipfeaturegenerator.IPFeatureGenerator.set_window_step">[docs]</a>    <span class="k">def</span> <span class="nf">set_window_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets this IPFeatureGenerator&#39;s window step size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">window_step</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+    <span class="n">sch_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">,</span> <span class="n">TimestampType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_ACTION&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_SESSIONID&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_SESSIONID&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;CRA_SEQ&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;CRA_SEQ&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_TRANSACTIONID&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_TRANSACTIONID&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the given dataset by deriving IP features</span>
+<span class="sd">        and returning a new dataframe of those features</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ts_window</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+            <span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">,</span> <span class="n">lag</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">ts_window</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+            <span class="s2">&quot;SM_CONSECUTIVE_TIME_DIFFERENCE&quot;</span><span class="p">,</span>
+            <span class="n">when</span><span class="p">(</span>
+                <span class="n">isnull</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+                    <span class="o">-</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+                <span class="o">-</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">,</span>
+            <span class="n">window</span><span class="p">(</span>
+                <span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;window_length&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; seconds&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;window_step&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; seconds&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                        <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;/(.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_APP&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;SM_CONSECUTIVE_TIME_DIFFERENCE&quot;</span><span class="p">),</span> <span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_AVG_TIME_BT_RECORDS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="s2">&quot;SM_CONSECUTIVE_TIME_DIFFERENCE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_MAX_TIME_BT_RECORDS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="s2">&quot;SM_CONSECUTIVE_TIME_DIFFERENCE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_MIN_TIME_BT_RECORDS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_ADMIN_LOGIN&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_ADMIN_LOGOUT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_ADMIN_REJECT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_AUTH_ACCEPT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_ADMIN_ATTEMPT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_AUTH_CHALLENGE&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_AUTH_LOGOUT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_AUTH_REJECT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_AZ_ACCEPT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_AZ_REJECT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span><span class="p">),</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_FAILED&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_GET&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_POST&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">))</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">)),</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_HTTP_METHODS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;ams&quot;</span><span class="p">))</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;AMS&quot;</span><span class="p">)),</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_OU_AMS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;cra-cp&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_OU_CMS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;ou=Identity&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_OU_IDENTITY&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;ou=Credential&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_OU_CRED&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;ou=SecureKey&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_OU_SECUREKEY&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;mima&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_PORTAL_MYA&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;myba&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_PORTAL_MYBA&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_UNIQUE_ACTIONS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_UNIQUE_EVENTS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;inputCol&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_UNIQUE_USERNAME&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_UNIQUE_RESOURCES&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_SESSIONID&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_UNIQUE_SESSIONS&quot;</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                                <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;(rep.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_PORTAL_RAC&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;CRA_SEQ&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_RECORDS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_VISIT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_VALIDATE_ACCEPT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_COUNT_VALIDATE_REJECT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_UNIQUE_SM_ACTIONS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;inputCol&quot;</span><span class="p">)))</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_UNIQUE_USERNAME&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_SESSIONID&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_UNIQUE_SM_SESSION&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_UNIQUE_SM_PORTALS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_TRANSACTIONID&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;IP_UNIQUE_SM_TRANSACTIONS&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                        <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;ou=(.*?),&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_UNIQUE_USER_OU&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                        <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;(rep.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_UNIQUE_REP_APP&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_TIMESTAMP&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                            <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;ou=(.*?),&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;IP_COUNT_UNIQUE_OU&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Cyber Advanced Analytics Section.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -17,32 +17,33 @@ from .sparknativetransformer import SparkNativeTransformer
 
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
-     A transformer that flattens and cleans a target column (SM_AGENTNAME)
-     of a spark dataframe.
+    A transformer that flattens and cleans a target column (SM_AGENTNAME) of a spark dataframe.
 
-     Input: A Spark dataframe containing SM_AGENTNAME,
-     SM_TIMESTAMP, and SM_CLIENTIP (from raw_logs), and the following column.
-     +-------------+----------+----------------------------------+
-     | Column_Name | Datatype | Description                      |
-     +=============+==========+==================================+
-     | self.getOr  | string   | Pivot Column containing the      |
-     | Default("   |          | CommonNames for each user. It is |
-     | agg_col")   |          | an alpha-numeric string and it   |
-     |             |          | may contain  NULL values.        |
-     +-------------+----------+----------------------------------+
-     Please refer to README.md for further description of raw_logs.
+    Input: A Spark dataframe containing SM_AGENTNAME, SM_TIMESTAMP, and SM_CLIENTIP (from raw_logs), and the following column.
+
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | self.getOr  | string   | Pivot Column containing the      |
+    | Default("   |          | CommonNames for each user. It is |
+    | agg_col")   |          | an alpha-numeric string and it   |
+    |             |          | may contain  NULL values.        |
+    +-------------+----------+----------------------------------+
+
+    Please refer README.md for further description of raw_logs.
 
     Output: A Spark Dataframe with the following features calculated on rows
-     aggregated by time window and agg_col, where the window is calculated
-     using:
-         - length: how many seconds the window is
-         - step: the length of time between the start of successive time window
-     +-------------+----------+----------------------------------+
-     | Column_Name | Datatype | Description                      |
-     +=============+==========+==================================+
-     | SM_AGENTNAME|  array   | Contains a list of flattened     |
-     |             | <string> | and/or cleaned agentnames        |
-     +-------------+----------+----------------------------------+
+    aggregated by time window and agg_col, where the window is calculated
+    using:
+        - length: how many seconds the window is
+        - step: the length of time between the start of successive time window
+
+    +-------------+----------+----------------------------------+
+    | Column_Name | Datatype | Description                      |
+    +=============+==========+==================================+
+    | SM_AGENTNAME|  array   | Contains a list of flattened     |
+    |             | <string> | and/or cleaned agentnames        |
+    +-------------+----------+----------------------------------+
     """
 
     window_length = Param(
@@ -90,22 +91,24 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         agent_size_limit=5,
         window_length=900,
         window_step=900,
-    ):
-        """
-        :param agg_col: Column to be grouped by when cleaning the
-        SM_AGENTNAME column along with the window column
-        :param agent_size_limit: Defines a limit on number of agent strings
-        in the output column  :param window_length: Sets this
-        AgentStringFlattener.'s window length. :param window_step: Sets this
-        AgentStringFlattener's window step. :type agg_col: string :type
-        agent_size_limit: long :type window_length:
-        long :type window_step: long
-        :Example:
-        >>> from agentstringflattener import AgentStringFlattener
-        >>> flattener = AgentStringFlattener(
-                window_length = 1800, window_step = 1800)
-        >>> features = flattener.transform(input_dataset)
-        """
+        ):
+    
+    """
+    :param agg_col: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column
+    :param agent_size_limit: Defines a limit on number of agent strings in the output column
+    :param window_length: Sets this AgentStringFlattener.'s window length.
+    :param window_step: Sets this AgentStringFlattener's window step.
+    :type agg_col: string
+    :type agent_size_limit: long
+    :type window_length: long
+    :type window_step: long
+
+    :Example:
+    >>> from agentstringflattener import AgentStringFlattener
+    >>> flattener = AgentStringFlattener(
+            window_length = 1800, window_step = 1800)
+    >>> features = flattener.transform(input_dataset)
+    """
         super(AgentStringFlattener, self).__init__()
         self._setDefault(
             window_length=900,

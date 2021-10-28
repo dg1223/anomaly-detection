@@ -29,6 +29,7 @@ class ServerFeatureGenerator(SparkNativeTransformer):
     SM_AGENTNAME, SM_RESOURCE.
     Please refer to README.md for description.
     List of other required columns:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+

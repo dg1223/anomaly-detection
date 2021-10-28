@@ -25,6 +25,7 @@ class UserFeatureGenerator(SparkNativeTransformer, HasInputCol):
     SM_CATEGORYID,SM_EVENTID, SM_TIMESTAMP, SM_USERNAME, SM_CLIENTIP,
     SM_SESSIONID, SM_AGENTNAME and SM_TRANSACTION from raw_logs.
     and the following columns:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -35,6 +36,7 @@ class UserFeatureGenerator(SparkNativeTransformer, HasInputCol):
     |             |          | from SM_USERNAME column through  |
     |             |          | the CnExtractor transformer.     |
     +-------------+----------+----------------------------------+
+
     Please refer to README.md for description.
 
     Output: A Spark Dataframe with the following features calculated on rows
@@ -43,6 +45,7 @@ class UserFeatureGenerator(SparkNativeTransformer, HasInputCol):
             - length: how many seconds the window is
             - step: the length of time between the start of successive
                 time window
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+

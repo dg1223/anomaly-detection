@@ -1,0 +1,414 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>_transformers.sessionfeaturegenerator &#8212; NetInsight 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for _transformers.sessionfeaturegenerator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pyspark.sql.functions</span> <span class="k">as</span> <span class="nn">f</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="n">TypeConverters</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Params</span><span class="p">,</span> <span class="n">HasInputCol</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">col</span><span class="p">,</span> <span class="n">when</span><span class="p">,</span> <span class="n">lag</span><span class="p">,</span> <span class="n">isnull</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">regexp_extract</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">window</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">LongType</span><span class="p">,</span>
+    <span class="n">StringType</span><span class="p">,</span>
+    <span class="n">TimestampType</span><span class="p">,</span>
+    <span class="n">IntegerType</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.window</span> <span class="k">import</span> <span class="n">Window</span>
+
+<span class="kn">from</span> <span class="nn">.sparknativetransformer</span> <span class="k">import</span> <span class="n">SparkNativeTransformer</span>
+
+
+<div class="viewcode-block" id="SessionFeatureGenerator"><a class="viewcode-back" href="../../_transformers.html#_transformers.sessionfeaturegenerator.SessionFeatureGenerator">[docs]</a><span class="k">class</span> <span class="nc">SessionFeatureGenerator</span><span class="p">(</span><span class="n">SparkNativeTransformer</span><span class="p">,</span> <span class="n">HasInputCol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A module to generate features related to session features.</span>
+
+<span class="sd">    Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,</span>
+<span class="sd">    SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID and CRA_SEQ from raw_logs, and</span>
+<span class="sd">    the following columns:</span>
+
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | Column_Name | Datatype | Description                      |</span>
+<span class="sd">    +=============+==========+==================================+</span>
+<span class="sd">    | self.getOr  | string   | Column containing the CommonNames|</span>
+<span class="sd">    | Default(    |          | for each user. It is an alpha-   |</span>
+<span class="sd">    | &quot;inputCol&quot;) |          | numeric string and it may contain|</span>
+<span class="sd">    |             |          | NULL values. CNs can be generated|</span>
+<span class="sd">    |             |          | from SM_USERNAME column through  |</span>
+<span class="sd">    |             |          | the CnExtractor transformer.     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    Please refer to README.md for description.</span>
+
+<span class="sd">    Output: A Spark Dataframe with the following features calculated on rows</span>
+<span class="sd">        aggregated by time window and SM_SESSIONID, where the window is</span>
+<span class="sd">        calculated using:</span>
+<span class="sd">            - length: how many seconds the window is</span>
+<span class="sd">            - step: the length of time between the start of successive</span>
+<span class="sd">                time window</span>
+
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | Column_Name | Datatype | Description                      |</span>
+<span class="sd">    +=============+==========+==================================+</span>
+<span class="sd">    | SESSION_APPS|  array   | A distinct list of main apps     |</span>
+<span class="sd">    |             | &lt;string&gt; | from each record in SM_RESOURCE  |</span>
+<span class="sd">    |             |          | during time window.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_UNIQUE| integer  | Count of distinct Resource       |</span>
+<span class="sd">    | APPS        |          | strings in SM_RESOURCE during    |</span>
+<span class="sd">    |             |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SESSION_    |  array   | A distinct list of CNs           |</span>
+<span class="sd">    | USER        | &lt;string&gt; | in CN during time window.        |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of Admin Login events      |</span>
+<span class="sd">    | ADMIN_LOGIN |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 7.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of Admin Logout events     |</span>
+<span class="sd">    | ADMIN_LOGOUT|          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 8.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of Admin reject events     |</span>
+<span class="sd">    | ADMIN_REJECT|          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 9.              |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of all Reject events       |</span>
+<span class="sd">    | FAILED      |          | during the time window, defined  |</span>
+<span class="sd">    |             |          | by sm_eventid == 2,6 and 9.      |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of Visit events during the |</span>
+<span class="sd">    | VISIT       |          | time window, defined by          |</span>
+<span class="sd">    |             |          | sm_eventid == 13.                |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of all GET HTTP actions    |</span>
+<span class="sd">    | GET         |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of all POST HTTP actions   |</span>
+<span class="sd">    | POST        |          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of all GET and POST actions|</span>
+<span class="sd">    | HTTP_METHODS|          | during the time window.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Counts number of CRA_SEQs        |</span>
+<span class="sd">    | RECORDS     |          | (dataset primary key)            |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of distinct HTTP Actions   |</span>
+<span class="sd">    | UNIQUE_ACTIO|          | in SM_ACTION during the time     |</span>
+<span class="sd">    | NS          |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of distinct CNs in CN      |</span>
+<span class="sd">    | UNIQUE_USERN|          | during the time window.          |</span>
+<span class="sd">    | AME         |          |                                  |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of distinct Resource       |</span>
+<span class="sd">    | UNIQUE_RESOU|          | strings in SM_RESOURCE during    |</span>
+<span class="sd">    | RCES        |          | the time window.                 |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | Count of distinct EventIDs in    |</span>
+<span class="sd">    | UNIQUE_EVENT|          | SM_EVENTID  during the time      |</span>
+<span class="sd">    | S           |          | window.                          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | COUNT_      | integer  | A count of Entries containing    |</span>
+<span class="sd">    | UNIQUE_REP  |          | “rep” followed by a string ending|</span>
+<span class="sd">    |             |          | in “/” in SM_RESOURCE during the |</span>
+<span class="sd">    |             |          | time window.                     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SESSION_    |  array   | A distinct list of HTTP Actions  |</span>
+<span class="sd">    | SM_ACTION   | &lt;string&gt; | in SM_ACTION during time window. |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SESSION_    |  array   | A distinct list of Resource      |</span>
+<span class="sd">    | RESOURCE    | &lt;string&gt; | strings in SM_RESOURCE during    |</span>
+<span class="sd">    |             |          | time window.                     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SESSION_    |  array   | A distinct list of Entries       |</span>
+<span class="sd">    | REP_APP     | &lt;string&gt; | containing “rep” followed by a   |</span>
+<span class="sd">    |             |          | string ending in “/” in          |</span>
+<span class="sd">    |             |          | SM_RESOURCE during time window.  |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SESSION_FIRS| timestamp| Minimum time at which a record   |</span>
+<span class="sd">    | T_TIME_SEEN |          | was logged during the time window|</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SESSION_LAST| timestamp| Maximum time at which a record   |</span>
+<span class="sd">    | _TIME_SEEN  |          | was logged during the time window|</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | SDV_BT_RECOR| timestamp| Standard deviation of timestamp  |</span>
+<span class="sd">    | DS          |          | deltas during the time window.   |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">window_length</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+        <span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span>
+        <span class="s2">&quot;window_length&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Length of the sliding window. &quot;</span> <span class="o">+</span> <span class="s2">&quot;Given as an integer in seconds.&quot;</span><span class="p">,</span>
+        <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">window_step</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+        <span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span>
+        <span class="s2">&quot;window_step&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Length of time between start of successive time windows.&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;Given as an integer in seconds.&quot;</span><span class="p">,</span>
+        <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param window_length: Length of the sliding window (in seconds)</span>
+<span class="sd">        :param window_step: Length of time between start of successive time</span>
+<span class="sd">            windows (in seconds)</span>
+<span class="sd">        :param inputCol: (default: &quot;CN&quot;) Name of generated column that contains</span>
+<span class="sd">            extracted CN</span>
+<span class="sd">        :type window_length: long</span>
+<span class="sd">        :type window_step: long</span>
+<span class="sd">        :type inputCol: string</span>
+
+<span class="sd">        :Example:</span>
+<span class="sd">        from sessionfeaturegenerator import SessionFeatureGenerator</span>
+<span class="sd">        feature_generator = SessionFeatureGenerator(window_length = 1800,</span>
+<span class="sd">            window_step = 1800)</span>
+<span class="sd">        features = feature_generator.transform(dataset = input_dataset)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="s2">&quot;CN&quot;</span><span class="p">,</span> <span class="n">window_length</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">window_step</span><span class="o">=</span><span class="mi">900</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SessionFeatureGenerator.set_params"><a class="viewcode-back" href="../../_transformers.html#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_params">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set_params(self, \\*, threshold=0.0, inputCol=None, outputCol=None,</span>
+<span class="sd">        thresholds=None, inputCols=None, outputCols=None) Sets params for</span>
+<span class="sd">        this SessionFeatureGenerator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionFeatureGenerator.set_window_length"><a class="viewcode-back" href="../../_transformers.html#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_window_length">[docs]</a>    <span class="k">def</span> <span class="nf">set_window_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets this SessionFeatureGenerator&#39;s window length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">window_length</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SessionFeatureGenerator.set_window_step"><a class="viewcode-back" href="../../_transformers.html#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_window_step">[docs]</a>    <span class="k">def</span> <span class="nf">set_window_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets this SessionFeatureGenerator&#39;s window step size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">window_step</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+    <span class="n">sch_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">,</span> <span class="n">TimestampType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;SM_ACTION&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+        <span class="s2">&quot;CRA_SEQ&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;CRA_SEQ&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">()],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="n">ts_window</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="s2">&quot;SM_SESSIONID&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+            <span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">,</span> <span class="n">lag</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">ts_window</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+            <span class="s2">&quot;SM_CONSECUTIVE_TIME_DIFFERENCE&quot;</span><span class="p">,</span>
+            <span class="n">when</span><span class="p">(</span>
+                <span class="n">isnull</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+                    <span class="o">-</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+                <span class="o">-</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;SM_PREV_TIMESTAMP&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+            <span class="s2">&quot;SM_SESSIONID&quot;</span><span class="p">,</span>
+            <span class="n">window</span><span class="p">(</span>
+                <span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;window_length&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; seconds&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;window_step&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot; seconds&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                        <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;/(.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;SESSION_APPS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                            <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;/(.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_UNIQUE_APPS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;inputCol&quot;</span><span class="p">)))</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;SESSION_USER&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_ADMIN_LOGIN&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_ADMIN_LOGOUT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_AUTH_ATTEMPT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_AUTH_REJECT&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span><span class="p">),</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_FAILED&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">13</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_VISIT&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_GET&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_POST&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span>
+                <span class="n">when</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">))</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">)),</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_HTTP_METHODS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;CRA_SEQ&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_RECORDS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_UNIQUE_ACTIONS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_EVENTID&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_UNIQUE_EVENTS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_CLIENTIP&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_UNIQUE_IPS&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;COUNT_UNIQUE_RESOURCES&quot;</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">size</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                                <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;(rep.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;COUNT_UNIQUE_REP&quot;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_ACTION&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;SESSION_SM_ACTION&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;SESSION_RESOURCE&quot;</span>
+            <span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">array_remove</span><span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">array_distinct</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">collect_list</span><span class="p">(</span>
+                        <span class="n">regexp_extract</span><span class="p">(</span><span class="s2">&quot;SM_RESOURCE&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;(rep.*?)/&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;SESSION_REP_APP&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;SESSSION_FIRST_TIME_SEEN&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;SM_TIMESTAMP&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;SESSSION_LAST_TIME_SEEN&quot;</span><span class="p">),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="s2">&quot;SM_CONSECUTIVE_TIME_DIFFERENCE&quot;</span><span class="p">),</span> <span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">&quot;SDV_BT_RECORDS&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Cyber Advanced Analytics Section.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

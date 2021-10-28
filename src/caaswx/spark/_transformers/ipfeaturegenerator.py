@@ -25,6 +25,7 @@ class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
     Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,
     SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID, and SM_USERNAME from raw_logs
     and the following column (default name: "CN")
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -35,6 +36,7 @@ class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
     |             |          | from SM_USERNAME column through  |
     |             |          | the CnExtractor transformer.     |
     +-------------+----------+----------------------------------+
+
     Please refer to README.md for further description.
 
     Output: A Spark Dataframe with the following features calculated on rows
@@ -43,6 +45,7 @@ class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
                 - length: how many seconds the window is
                 - step: the length of time between the start of successive
                     time window
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -246,8 +249,7 @@ class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
         :param window_length: Length of the sliding window (in seconds)
         :param window_step: Length of the sliding window's
             step-size (in seconds)
-        :param inputCol: (default: "CN") Name of generated column that contains
-            extracted CN
+        :param inputCol: (default: "CN") Name of generated column that contains extracted CN
 
         :type window_length: long
         :type window_step: long

@@ -1,0 +1,2048 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>_transformers package &#8212; NetInsight 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="transformers-package">
+<h1>_transformers package<a class="headerlink" href="#transformers-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-_transformers.agentstringflattener">
+<span id="transformers-agentstringflattener-module"></span><h2>_transformers.agentstringflattener module<a class="headerlink" href="#module-_transformers.agentstringflattener" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener">
+<em class="property">class </em><code class="descclassname">_transformers.agentstringflattener.</code><code class="descname">AgentStringFlattener</code><span class="sig-paren">(</span><em>agg_col='SM_USERNAME'</em>, <em>agent_string_col='SM_AGENTNAME'</em>, <em>agent_size_limit=5</em>, <em>window_length=900</em>, <em>window_step=900</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasOutputCol</span></code></p>
+<p>A transformer that flattens and cleans a target column (SM_AGENTNAME) of a spark dataframe.</p>
+<p>Input: A Spark dataframe containing SM_AGENTNAME, SM_TIMESTAMP, and SM_CLIENTIP (from raw_logs), and the following column.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(”
+agg_col”)</td>
+<td>string</td>
+<td>Pivot Column containing the
+CommonNames for each user. It is
+an alpha-numeric string and it
+may contain  NULL values.</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer README.md for further description of raw_logs.</p>
+<p>Output: A Spark Dataframe with the following features calculated on rows
+aggregated by time window and agg_col, where the window is calculated
+using:</p>
+<blockquote>
+<div><ul class="simple">
+<li>length: how many seconds the window is</li>
+<li>step: the length of time between the start of successive time window</li>
+</ul>
+</div></blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>SM_AGENTNAME</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>Contains a list of flattened
+and/or cleaned agentnames</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.agent_size_limit">
+<code class="descname">agent_size_limit</code><em class="property"> = Param(parent='undefined', name='agent_size_limit', doc='Number of agent strings processed.Given as the number of strings.')</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.agent_size_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.agent_string_col">
+<code class="descname">agent_string_col</code><em class="property"> = Param(parent='undefined', name='agent_string_col', doc='Name of the column that contains the agent string.')</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.agent_string_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.agg_col">
+<code class="descname">agg_col</code><em class="property"> = Param(parent='undefined', name='agg_col', doc='Name of the column to perform aggregation on.')</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.agg_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.get_agent_size_limit">
+<code class="descname">get_agent_size_limit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.get_agent_size_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.get_agent_size_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.get_agent_string_col">
+<code class="descname">get_agent_string_col</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.get_agent_string_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.get_agent_string_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.get_agg_col">
+<code class="descname">get_agg_col</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.get_agg_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.get_agg_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.http_parser">
+<code class="descname">http_parser</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.http_parser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.http_parser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType]}</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.set_agent_size_limit">
+<code class="descname">set_agent_size_limit</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.set_agent_size_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.set_agent_size_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the Agent Size</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.set_agent_string_col">
+<code class="descname">set_agent_string_col</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.set_agent_string_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.set_agent_string_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the agent string column</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.set_agg_col">
+<code class="descname">set_agg_col</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.set_agg_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.set_agg_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the aggregation column</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>agg_col='SM_USERNAME'</em>, <em>agent_string_col='SM_AGENTNAME'</em>, <em>agent_size_limit=5</em>, <em>window_length=900</em>, <em>window_step=900</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>set_params(self, *, threshold=0.0, inputCol=None,</p>
+<p>outputCol=None,</p>
+<p>thresholds=None, inputCols=None, outputCols=None)
+Sets params for this AgentStringFlattener.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.set_window_length">
+<code class="descname">set_window_length</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.set_window_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.set_window_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this AgentStringFlattener’s window length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.set_window_step">
+<code class="descname">set_window_step</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/agentstringflattener.html#AgentStringFlattener.set_window_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.set_window_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this AgentStringFlattener’s window step size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.window_length">
+<code class="descname">window_length</code><em class="property"> = Param(parent='undefined', name='window_length', doc='Length of the sliding window. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.window_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.agentstringflattener.AgentStringFlattener.window_step">
+<code class="descname">window_step</code><em class="property"> = Param(parent='undefined', name='window_step', doc='Length of time between start of successive time windows.Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.window_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.cnextractor">
+<span id="transformers-cnextractor-module"></span><h2>_transformers.cnextractor module<a class="headerlink" href="#module-_transformers.cnextractor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.cnextractor.CnExtractor">
+<em class="property">class </em><code class="descclassname">_transformers.cnextractor.</code><code class="descname">CnExtractor</code><a class="reference internal" href="_modules/_transformers/cnextractor.html#CnExtractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.cnextractor.CnExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasInputCol</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasOutputCol</span></code></p>
+<p>Creates an Output Column (Default=”CN”) using the Input Column
+(Default=”SM_USERNAME) by:
+- Removing all characters before “cn=”
+- Removing the characters after the first comma (including the comma)</p>
+<p>Notes:
+- Assumes the “cn=” and its contents are not at the end of the SM_USERNAME
+- Reminder that dict must change if SM_USERNAME is no longer used</p>
+<p>Input: A Spark dataframe the following column:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(”
+inputCol”)</td>
+<td>string</td>
+<td>The username for the user
+currently logged in with this
+session. SM_USERNAME in
+raw_logs for reference.</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer to README.md for further description of raw_logs.</p>
+<p>Output: A Spark Dataframe with the following features calculated:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(”
+outputCol”)</td>
+<td>string</td>
+<td>Column containing the CommonNames
+for each user. It is an alpha-
+numeric string and it may contain
+NULL values.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.cnextractor.CnExtractor.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'SM_USERNAME': ['SM_USERNAME', StringType]}</em><a class="headerlink" href="#_transformers.cnextractor.CnExtractor.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.cnextractor.CnExtractor.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/cnextractor.html#CnExtractor.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.cnextractor.CnExtractor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets params for the CN extractor</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.ipfeaturegenerator">
+<span id="transformers-ipfeaturegenerator-module"></span><h2>_transformers.ipfeaturegenerator module<a class="headerlink" href="#module-_transformers.ipfeaturegenerator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator">
+<em class="property">class </em><code class="descclassname">_transformers.ipfeaturegenerator.</code><code class="descname">IPFeatureGenerator</code><a class="reference internal" href="_modules/_transformers/ipfeaturegenerator.html#IPFeatureGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasInputCol</span></code></p>
+<p>A module to generate features related to IP features.</p>
+<p>Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,
+SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID, and SM_USERNAME from raw_logs
+and the following column (default name: “CN”)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(
+“inputCol”)</td>
+<td>string</td>
+<td>Column containing the CommonNames
+for each user. It is an alpha-
+numeric string and it may contain
+NULL values. CNs can be generated
+from SM_USERNAME column through
+the CnExtractor transformer.</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer to README.md for further description.</p>
+<dl class="docutils">
+<dt>Output: A Spark Dataframe with the following features calculated on rows</dt>
+<dd><p class="first">aggregated by time window and SM_CLIENTIP, where the window is
+calculated using:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>length: how many seconds the window is</li>
+<li><dl class="first docutils">
+<dt>step: the length of time between the start of successive</dt>
+<dd>time window</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>IP_APP</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of main apps
+from each record in SM_RESOURCE
+during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id1"><span class="problematic" id="id2">IP_AVG_TIME_</span></a>
+BT_RECORDS</td>
+<td>double</td>
+<td>Average time between records
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id3"><span class="problematic" id="id4">IP_MAX_TIME_</span></a>
+BT_RECORDS</td>
+<td>double</td>
+<td>Maximum time between records
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id5"><span class="problematic" id="id6">IP_MIN_TIME_</span></a>
+BT_RECORDS</td>
+<td>double</td>
+<td>Minimum time between records
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id7"><span class="problematic" id="id8">IP_COUNT_</span></a>
+ADMIN_LOGIN</td>
+<td>integer</td>
+<td>Count of Admin Login events
+during the time window, defined
+by sm_eventid == 7.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id9"><span class="problematic" id="id10">IP_COUNT_</span></a>
+ADMIN_LOGOUT</td>
+<td>integer</td>
+<td>Count of Admin Logout events
+during the time window, defined
+by sm_eventid == 8.</td>
+</tr>
+<tr class="row-even"><td><a href="#id11"><span class="problematic" id="id12">IP_COUNT_</span></a>
+ADMIN_REJECT</td>
+<td>integer</td>
+<td>Count of Admin reject events
+during the time window, defined
+by sm_eventid == 9.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id13"><span class="problematic" id="id14">IP_COUNT_</span></a>
+AUTH_ACCEPT</td>
+<td>integer</td>
+<td>Count of Auth accept events
+during the time window, defined
+by sm_eventid == 1.</td>
+</tr>
+<tr class="row-even"><td><a href="#id15"><span class="problematic" id="id16">IP_COUNT_</span></a>
+ADMIN_ATTEMP
+T</td>
+<td>integer</td>
+<td>Count of Admin attempt events
+during the time window, defined
+by sm_eventid == 3.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id17"><span class="problematic" id="id18">IP_COUNT_</span></a>
+AUTH_CHALLEN
+GE</td>
+<td>integer</td>
+<td>Count of Auth challenge events
+during the time window, defined
+by sm_eventid == 4.</td>
+</tr>
+<tr class="row-even"><td><a href="#id19"><span class="problematic" id="id20">IP_COUNT_</span></a>
+AUTH_LOGOUT</td>
+<td>integer</td>
+<td>Count of Auth Logout events
+during the time window, defined
+by sm_eventid == 10.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id21"><span class="problematic" id="id22">IP_COUNT_</span></a>
+AUTH_REJECT</td>
+<td>integer</td>
+<td>Count of Auth reject events
+during the time window, defined
+by sm_eventid == 2.</td>
+</tr>
+<tr class="row-even"><td><a href="#id23"><span class="problematic" id="id24">IP_COUNT_</span></a>
+AZ_ACCEPT</td>
+<td>integer</td>
+<td>Count of Az accept events
+during the time window, defined
+by sm_eventid == 5.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id25"><span class="problematic" id="id26">IP_COUNT_</span></a>
+AZ_REJECT</td>
+<td>integer</td>
+<td>Count of Az reject events
+during the time window, defined
+by sm_eventid == 6.</td>
+</tr>
+<tr class="row-even"><td><a href="#id27"><span class="problematic" id="id28">IP_COUNT_</span></a>
+FAILED</td>
+<td>integer</td>
+<td>Count of all Reject events
+during the time window, defined
+by sm_eventid == 2,6 and 9.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id29"><span class="problematic" id="id30">IP_COUNT_</span></a>
+GET</td>
+<td>integer</td>
+<td>Count of all GET HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id31"><span class="problematic" id="id32">IP_COUNT_</span></a>
+POST</td>
+<td>integer</td>
+<td>Count of all POST HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id33"><span class="problematic" id="id34">IP_COUNT_</span></a>
+HTTP_METHODS</td>
+<td>integer</td>
+<td>Count of all GET and POST actions
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id35"><span class="problematic" id="id36">IP_COUNT_</span></a>
+OU_AMS</td>
+<td>integer</td>
+<td>Count of all “ams” or “AMS”
+occurrences in SM_USERNAME OR
+SM_RESOURCE during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id37"><span class="problematic" id="id38">IP_COUNT_</span></a>
+OU_CMS</td>
+<td>integer</td>
+<td>Count of all “cra-cp” occurrences
+in SM_USERNAME during the window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id39"><span class="problematic" id="id40">IP_COUNT_</span></a>
+OU_IDENTITY</td>
+<td>integer</td>
+<td>Count of all “ou=Identity”
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id41"><span class="problematic" id="id42">IP_COUNT_</span></a>
+OU_IDENTITY</td>
+<td>integer</td>
+<td>Count of all “ou=Identity”
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id43"><span class="problematic" id="id44">IP_COUNT_</span></a>
+OU_CRED</td>
+<td>integer</td>
+<td>Count of all “ou=Credential”
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id45"><span class="problematic" id="id46">IP_COUNT_</span></a>
+OU_SECUREKEY</td>
+<td>integer</td>
+<td>Count of all “ou=SecureKey”
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id47"><span class="problematic" id="id48">IP_COUNT_</span></a>
+PORTAL_MYA</td>
+<td>integer</td>
+<td>Count of all “mima” occurrences
+in SM_RESOURCE during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id49"><span class="problematic" id="id50">IP_COUNT_</span></a>
+PORTAL_MYbA</td>
+<td>integer</td>
+<td>Count of all “myba” occurrences
+in SM_RESOURCE during the time
+window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id51"><span class="problematic" id="id52">IP_COUNT_</span></a>
+UNIQUE_ACTIO
+NS</td>
+<td>integer</td>
+<td>Count of distinct HTTP Actions
+in SM_ACTION during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id53"><span class="problematic" id="id54">IP_COUNT_</span></a>
+UNIQUE_ACTIO
+NS</td>
+<td>integer</td>
+<td>Count of distinct HTTP Actions
+in SM_ACTION during the time
+window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id55"><span class="problematic" id="id56">IP_COUNT_</span></a>
+UNIQUE_EVENT
+S</td>
+<td>integer</td>
+<td>Count of distinct EventIDs in
+SM_EVENTID  during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id57"><span class="problematic" id="id58">IP_COUNT_</span></a>
+UNIQUE_USERN
+AME</td>
+<td>integer</td>
+<td>Count of distinct CNs in CN
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id59"><span class="problematic" id="id60">IP_COUNT_</span></a>
+UNIQUE_SESSI
+ON</td>
+<td>integer</td>
+<td>A distinct list of SessionIDs in
+SM_SESSIONID during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id61"><span class="problematic" id="id62">IP_COUNT_</span></a>
+UNIQUE_RESOU
+RCES</td>
+<td>integer</td>
+<td>Count of distinct Resource
+strings in SM_RESOURCE during
+the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id63"><span class="problematic" id="id64">IP_COUNT_</span></a>
+UNIQUE_PORTA
+L_RAC</td>
+<td>integer</td>
+<td>A count of Entries containing
+“rep” followed by a string ending
+in “/” in SM_RESOURCE during the
+time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id65"><span class="problematic" id="id66">IP_COUNT_</span></a>
+RECORDS</td>
+<td>integer</td>
+<td>Counts number of CRA_SEQs
+(dataset primary key)</td>
+</tr>
+<tr class="row-even"><td><a href="#id67"><span class="problematic" id="id68">IP_COUNT_</span></a>
+VISIT</td>
+<td>integer</td>
+<td>Count of Visit events during the
+time window, defined by
+sm_eventid == 13.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id69"><span class="problematic" id="id70">IP_COUNT_</span></a>
+VALIDATE_ACC
+EPT</td>
+<td>integer</td>
+<td><p class="first">Count of Validate Accept events
+during the time window, defined)</p>
+<blockquote class="last">
+<div>by sm_eventid == 11.</div></blockquote>
+</td>
+</tr>
+<tr class="row-even"><td><a href="#id71"><span class="problematic" id="id72">IP_COUNT_</span></a>
+VALIDATE_REJ
+ECT</td>
+<td>integer</td>
+<td><p class="first">Count of Validate reject events
+during the time window, defined)</p>
+<blockquote class="last">
+<div>by sm_eventid == 12.</div></blockquote>
+</td>
+</tr>
+<tr class="row-odd"><td><a href="#id73"><span class="problematic" id="id74">IP_UNIQUE_</span></a>
+SM_ACTIONS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of HTTP Actions
+in SM_ACTION during time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id75"><span class="problematic" id="id76">IP_UNIQUE_</span></a>
+USERNAME</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of CNs
+in CN during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id77"><span class="problematic" id="id78">IP_UNIQUE_</span></a>
+SM_SESSION</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of SessionIDs
+in SM_SESSIONID during window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id79"><span class="problematic" id="id80">IP_UNIQUE_</span></a>
+SM_PORTALS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Resource
+strings in SM_RESOURCE during
+time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id81"><span class="problematic" id="id82">IP_UNIQUE_</span></a>
+SM_TRANSACTI
+ONS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Transaction
+Ids in SM_TRANSACTIONID during
+time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id83"><span class="problematic" id="id84">IP_UNIQUE_</span></a>
+USER_OU</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Entries
+containing “ou=” and a string
+ending in “,” in SM_USERNAME
+during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id85"><span class="problematic" id="id86">IP_UNIQUE_</span></a>
+_REP_APP</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Entries
+containing “rep” followed by a
+string ending in “/” in
+SM_RESOURCE during time window.</td>
+</tr>
+<tr class="row-even"><td>IP_TIMESTAM
+P</td>
+<td>timestamp</td>
+<td>Earliest timestamp during time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id87"><span class="problematic" id="id88">IP_COUNT_</span></a>
+UNIQUE_OU</td>
+<td>iinteger</td>
+<td>A count of distinct Entries
+containing “ou=” and a string
+in “,” in SM_USERNAME during time
+window</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'CRA_SEQ': ['CRA_SEQ', LongType], 'SM_ACTION': ['SM_ACTION', StringType], 'SM_CLIENTIP': ['SM_CLIENTIP', StringType], 'SM_EVENTID': ['SM_EVENTID', IntegerType], 'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_SESSIONID': ['SM_SESSIONID', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType], 'SM_TRANSACTIONID': ['SM_TRANSACTIONID', StringType], 'SM_USERNAME': ['SM_USERNAME', StringType]}</em><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/ipfeaturegenerator.html#IPFeatureGenerator.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>set_params(self, *, threshold=0.0, inputCol=None, outputCol=None,
+thresholds=None, inputCols=None, outputCols=None) Sets params for
+this SessionFeatureGenerator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.set_window_length">
+<code class="descname">set_window_length</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/ipfeaturegenerator.html#IPFeatureGenerator.set_window_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.set_window_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this IPFeatureGenerator’s window length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.set_window_step">
+<code class="descname">set_window_step</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/ipfeaturegenerator.html#IPFeatureGenerator.set_window_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.set_window_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this IPFeatureGenerator’s window step size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.window_length">
+<code class="descname">window_length</code><em class="property"> = Param(parent='undefined', name='window_length', doc='Length of the sliding window used for entity resolution. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.window_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.window_step">
+<code class="descname">window_step</code><em class="property"> = Param(parent='undefined', name='window_step', doc='Length of the sliding window step-size used for entity resolution. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.window_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.resourcesflattener">
+<span id="transformers-resourcesflattener-module"></span><h2>_transformers.resourcesflattener module<a class="headerlink" href="#module-_transformers.resourcesflattener" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener">
+<em class="property">class </em><code class="descclassname">_transformers.resourcesflattener.</code><code class="descname">ResourcesFlattener</code><span class="sig-paren">(</span><em>agg_col='SM_USERNAME'</em>, <em>window_length=900</em>, <em>window_step=900</em>, <em>max_resource_count=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/resourcesflattener.html#ResourcesFlattener"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a></p>
+<p>A module for flattening the resources into a list with respect to the
+input pivot column.</p>
+<p>Input: A Spark Dataframe containing SM_RESOURCE and SM_TIMESTAMP (from
+raw_logs) and the following column (default: “SM_USERNAME”):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(”
+agg_col”)</td>
+<td>string</td>
+<td>Pivot Column for creating the
+time window of usage of different
+resources with respect to the
+passed column.</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer to README.md for description.</p>
+<dl class="docutils">
+<dt>Output: A Spark Dataframe with the following features calculated on rows</dt>
+<dd><p class="first">aggregated by time window and agg_col,
+where the window is calculated using:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>length: how many seconds the window is</li>
+<li><dl class="first docutils">
+<dt>step: the length of time between the start of</dt>
+<dd>successive time window</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>SM_RESOURCE</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A list of resources used by the
+pivot entity within the time
+window.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.agg_col">
+<code class="descname">agg_col</code><em class="property"> = Param(parent='undefined', name='agg_col', doc='Name of the column to perform aggregation on, together with the sliding window.')</em><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.agg_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.max_resource_count">
+<code class="descname">max_resource_count</code><em class="property"> = Param(parent='undefined', name='max_resource_count', doc='Maximum count of resources allowed in the resource list within the sliding window.')</em><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.max_resource_count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType]}</em><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.set_agg_col">
+<code class="descname">set_agg_col</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/resourcesflattener.html#ResourcesFlattener.set_agg_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.set_agg_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the Entity Name</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.set_max_resource_count">
+<code class="descname">set_max_resource_count</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/resourcesflattener.html#ResourcesFlattener.set_max_resource_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.set_max_resource_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ResourcesFlattener’s maximum resource count.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>agg_col='SM_USERNAME'</em>, <em>window_length=900</em>, <em>window_step=900</em>, <em>max_resource_count=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/resourcesflattener.html#ResourcesFlattener.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets params for this ResourcesFlattener.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.set_window_length">
+<code class="descname">set_window_length</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/resourcesflattener.html#ResourcesFlattener.set_window_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.set_window_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ResourcesFlattener’s window length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.set_window_step">
+<code class="descname">set_window_step</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/resourcesflattener.html#ResourcesFlattener.set_window_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.set_window_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ResourcesFlattener’s window step size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.window_length">
+<code class="descname">window_length</code><em class="property"> = Param(parent='undefined', name='window_length', doc='Length of the sliding window used for aggregation resolution. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.window_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.resourcesflattener.ResourcesFlattener.window_step">
+<code class="descname">window_step</code><em class="property"> = Param(parent='undefined', name='window_step', doc='Length of the sliding window step-size used for aggregation resolution.Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.resourcesflattener.ResourcesFlattener.window_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.serverfeaturegenerator">
+<span id="transformers-serverfeaturegenerator-module"></span><h2>_transformers.serverfeaturegenerator module<a class="headerlink" href="#module-_transformers.serverfeaturegenerator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator">
+<em class="property">class </em><code class="descclassname">_transformers.serverfeaturegenerator.</code><code class="descname">ServerFeatureGenerator</code><span class="sig-paren">(</span><em>window_length=900</em>, <em>window_step=900</em>, <em>interval_threshold=2</em>, <em>interval_epsilon=0.2</em>, <em>agg_col='SM_USERNAME'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a></p>
+<p>A module to generate features related to server.
+The ServerFeatureGenerator will aggregate simply on time window
+and encompass details about login attempts in different time window
+along with users’ behaviours.</p>
+<p>Input: A Spark dataframe.
+Columns from raw_logs: SM_EVENTID, SM_CLIENTIP, SM_TIMESTAMP,
+SM_AGENTNAME, SM_RESOURCE.
+Please refer to README.md for description.
+List of other required columns:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(“pa
+rtioning_e
+ntity</td>
+<td>string</td>
+<td>the column to be targeted for
+aggregation for generating the
+immediate preious timestamp. It
+(by default set to “SM_USERNAME”)</td>
+</tr>
+</tbody>
+</table>
+<p>Output features:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>StartTime</td>
+<td>timestamp</td>
+<td>The beginning of a time window</td>
+</tr>
+<tr class="row-odd"><td>EndTime</td>
+<td>timestamp</td>
+<td>The end of a time window</td>
+</tr>
+<tr class="row-even"><td>VolOfAllLogi
+nAttempts</td>
+<td>integer</td>
+<td>Number of all login attempts
+in the specified time window.</td>
+</tr>
+<tr class="row-odd"><td>VolOfAllFail
+edLogins</td>
+<td>integer</td>
+<td><blockquote class="first">
+<div>Number of all failed login</div></blockquote>
+<p class="last">attempts in the  time window.</p>
+</td>
+</tr>
+<tr class="row-even"><td>MaxOfFailed
+LoginsWithSa
+meIPs</td>
+<td>integer</td>
+<td>Maximum Number of all failed
+login attempts with same IPs.</td>
+</tr>
+<tr class="row-odd"><td>NumOfIPsLogi
+nMultiAccoun
+ts</td>
+<td>integer</td>
+<td>Number of IPs used for logging
+into multiple accounts.</td>
+</tr>
+<tr class="row-even"><td>NumOfReqsTo
+ChangePasswo
+rds</td>
+<td>integer</td>
+<td>Number of requests to change
+passwords in the time window.</td>
+</tr>
+<tr class="row-odd"><td>NumOfUsersWi
+thEqualInter
+valBtnReqs</td>
+<td>integer</td>
+<td>Number of users with at least
+“interval_threshold” intervals
+between consecutive requests that
+are equal up to precision
+“interval_epsilon”.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.agg_col">
+<code class="descname">agg_col</code><em class="property"> = Param(parent='undefined', name='agg_col', doc='Name of the partition column to pivot off of.')</em><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.agg_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.interval_epsilon">
+<code class="descname">interval_epsilon</code><em class="property"> = Param(parent='undefined', name='interval_epsilon', doc='A float used to define feature NumOfUsersWithEqualIntervalBtnReqs')</em><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.interval_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.interval_threshold">
+<code class="descname">interval_threshold</code><em class="property"> = Param(parent='undefined', name='interval_threshold', doc='An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs')</em><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.interval_threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.process_data_frame_with_window">
+<code class="descname">process_data_frame_with_window</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.process_data_frame_with_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.process_data_frame_with_window" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'SM_CLIENTIP': ['SM_CLIENTIP', StringType], 'SM_EVENTID': ['SM_EVENTID', IntegerType], 'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType]}</em><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_agg_col">
+<code class="descname">set_agg_col</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.set_agg_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_agg_col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ServerFeatureGenerator’s aggregation column</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_interval_epsilon">
+<code class="descname">set_interval_epsilon</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.set_interval_epsilon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_interval_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ServerFeatureGenerator’s interval epsilon</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_interval_threshold">
+<code class="descname">set_interval_threshold</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.set_interval_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_interval_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ServerFeatureGenerator’s interval threshold</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>window_length=900</em>, <em>window_step=900</em>, <em>interval_threshold=2</em>, <em>interval_epsilon=0.2</em>, <em>agg_col='SM_USERNAME'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>set_params(self, *, threshold=0.0, inputCol=None, outputCol=None,
+thresholds=None, inputCols=None, outputCols=None) Sets params for
+this ServerFeatureGenerator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_window_length">
+<code class="descname">set_window_length</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.set_window_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_window_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ServerFeatureGenerator’s window length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_window_step">
+<code class="descname">set_window_step</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/serverfeaturegenerator.html#ServerFeatureGenerator.set_window_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.set_window_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this ServerFeatureGenerator’s window step size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.window_length">
+<code class="descname">window_length</code><em class="property"> = Param(parent='undefined', name='window_length', doc='Length of the sliding window. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.window_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.serverfeaturegenerator.ServerFeatureGenerator.window_step">
+<code class="descname">window_step</code><em class="property"> = Param(parent='undefined', name='window_step', doc='Length of time between start of successive time windows. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.serverfeaturegenerator.ServerFeatureGenerator.window_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.sessionfeaturegenerator">
+<span id="transformers-sessionfeaturegenerator-module"></span><h2>_transformers.sessionfeaturegenerator module<a class="headerlink" href="#module-_transformers.sessionfeaturegenerator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator">
+<em class="property">class </em><code class="descclassname">_transformers.sessionfeaturegenerator.</code><code class="descname">SessionFeatureGenerator</code><a class="reference internal" href="_modules/_transformers/sessionfeaturegenerator.html#SessionFeatureGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasInputCol</span></code></p>
+<p>A module to generate features related to session features.</p>
+<p>Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,
+SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID and CRA_SEQ from raw_logs, and
+the following columns:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(
+“inputCol”)</td>
+<td>string</td>
+<td>Column containing the CommonNames
+for each user. It is an alpha-
+numeric string and it may contain
+NULL values. CNs can be generated
+from SM_USERNAME column through
+the CnExtractor transformer.</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer to README.md for description.</p>
+<dl class="docutils">
+<dt>Output: A Spark Dataframe with the following features calculated on rows</dt>
+<dd><p class="first">aggregated by time window and SM_SESSIONID, where the window is
+calculated using:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>length: how many seconds the window is</li>
+<li><dl class="first docutils">
+<dt>step: the length of time between the start of successive</dt>
+<dd>time window</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>SESSION_APPS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of main apps
+from each record in SM_RESOURCE
+during time window.</td>
+</tr>
+<tr class="row-odd"><td>COUNT_UNIQUE
+APPS</td>
+<td>integer</td>
+<td>Count of distinct Resource
+strings in SM_RESOURCE during
+the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id89"><span class="problematic" id="id90">SESSION_</span></a>
+USER</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of CNs
+in CN during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id91"><span class="problematic" id="id92">COUNT_</span></a>
+ADMIN_LOGIN</td>
+<td>integer</td>
+<td>Count of Admin Login events
+during the time window, defined
+by sm_eventid == 7.</td>
+</tr>
+<tr class="row-even"><td><a href="#id93"><span class="problematic" id="id94">COUNT_</span></a>
+ADMIN_LOGOUT</td>
+<td>integer</td>
+<td>Count of Admin Logout events
+during the time window, defined
+by sm_eventid == 8.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id95"><span class="problematic" id="id96">COUNT_</span></a>
+ADMIN_REJECT</td>
+<td>integer</td>
+<td>Count of Admin reject events
+during the time window, defined
+by sm_eventid == 9.</td>
+</tr>
+<tr class="row-even"><td><a href="#id97"><span class="problematic" id="id98">COUNT_</span></a>
+FAILED</td>
+<td>integer</td>
+<td>Count of all Reject events
+during the time window, defined
+by sm_eventid == 2,6 and 9.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id99"><span class="problematic" id="id100">COUNT_</span></a>
+VISIT</td>
+<td>integer</td>
+<td>Count of Visit events during the
+time window, defined by
+sm_eventid == 13.</td>
+</tr>
+<tr class="row-even"><td><a href="#id101"><span class="problematic" id="id102">COUNT_</span></a>
+GET</td>
+<td>integer</td>
+<td>Count of all GET HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id103"><span class="problematic" id="id104">COUNT_</span></a>
+POST</td>
+<td>integer</td>
+<td>Count of all POST HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id105"><span class="problematic" id="id106">COUNT_</span></a>
+HTTP_METHODS</td>
+<td>integer</td>
+<td>Count of all GET and POST actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id107"><span class="problematic" id="id108">COUNT_</span></a>
+RECORDS</td>
+<td>integer</td>
+<td>Counts number of CRA_SEQs
+(dataset primary key)</td>
+</tr>
+<tr class="row-even"><td><a href="#id109"><span class="problematic" id="id110">COUNT_</span></a>
+UNIQUE_ACTIO
+NS</td>
+<td>integer</td>
+<td>Count of distinct HTTP Actions
+in SM_ACTION during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id111"><span class="problematic" id="id112">COUNT_</span></a>
+UNIQUE_USERN
+AME</td>
+<td>integer</td>
+<td>Count of distinct CNs in CN
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id113"><span class="problematic" id="id114">COUNT_</span></a>
+UNIQUE_RESOU
+RCES</td>
+<td>integer</td>
+<td>Count of distinct Resource
+strings in SM_RESOURCE during
+the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id115"><span class="problematic" id="id116">COUNT_</span></a>
+UNIQUE_EVENT
+S</td>
+<td>integer</td>
+<td>Count of distinct EventIDs in
+SM_EVENTID  during the time
+window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id117"><span class="problematic" id="id118">COUNT_</span></a>
+UNIQUE_REP</td>
+<td>integer</td>
+<td>A count of Entries containing
+“rep” followed by a string ending
+in “/” in SM_RESOURCE during the
+time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id119"><span class="problematic" id="id120">SESSION_</span></a>
+SM_ACTION</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of HTTP Actions
+in SM_ACTION during time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id121"><span class="problematic" id="id122">SESSION_</span></a>
+RESOURCE</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Resource
+strings in SM_RESOURCE during
+time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id123"><span class="problematic" id="id124">SESSION_</span></a>
+REP_APP</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Entries
+containing “rep” followed by a
+string ending in “/” in
+SM_RESOURCE during time window.</td>
+</tr>
+<tr class="row-even"><td>SESSION_FIRS
+T_TIME_SEEN</td>
+<td>timestamp</td>
+<td>Minimum time at which a record
+was logged during the time window</td>
+</tr>
+<tr class="row-odd"><td>SESSION_LAST
+_TIME_SEEN</td>
+<td>timestamp</td>
+<td>Maximum time at which a record
+was logged during the time window</td>
+</tr>
+<tr class="row-even"><td>SDV_BT_RECOR
+DS</td>
+<td>timestamp</td>
+<td>Standard deviation of timestamp
+deltas during the time window.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'CRA_SEQ': ['CRA_SEQ', LongType], 'SM_ACTION': ['SM_ACTION', StringType], 'SM_CLIENTIP': ['SM_CLIENTIP', StringType], 'SM_EVENTID': ['SM_EVENTID', IntegerType], 'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType]}</em><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/sessionfeaturegenerator.html#SessionFeatureGenerator.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>set_params(self, *, threshold=0.0, inputCol=None, outputCol=None,
+thresholds=None, inputCols=None, outputCols=None) Sets params for
+this SessionFeatureGenerator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_window_length">
+<code class="descname">set_window_length</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/sessionfeaturegenerator.html#SessionFeatureGenerator.set_window_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_window_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this SessionFeatureGenerator’s window length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_window_step">
+<code class="descname">set_window_step</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/sessionfeaturegenerator.html#SessionFeatureGenerator.set_window_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.set_window_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this SessionFeatureGenerator’s window step size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.window_length">
+<code class="descname">window_length</code><em class="property"> = Param(parent='undefined', name='window_length', doc='Length of the sliding window. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.window_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.window_step">
+<code class="descname">window_step</code><em class="property"> = Param(parent='undefined', name='window_step', doc='Length of time between start of successive time windows.Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.window_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.smresourcecleaner">
+<span id="transformers-smresourcecleaner-module"></span><h2>_transformers.smresourcecleaner module<a class="headerlink" href="#module-_transformers.smresourcecleaner" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.smresourcecleaner.SMResourceCleaner">
+<em class="property">class </em><code class="descclassname">_transformers.smresourcecleaner.</code><code class="descname">SMResourceCleaner</code><a class="reference internal" href="_modules/_transformers/smresourcecleaner.html#SMResourceCleaner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.smresourcecleaner.SMResourceCleaner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasInputCol</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasOutputCol</span></code></p>
+<p>Consolidates SM_RESOURCE elements to simplify redundant data, based
+off of the following criteria:
+1) SAML Requests</p>
+<blockquote>
+<div>Suggested Categorization: Strings containing the prefix ‘/cmsws’ and
+substrings ‘redirect’ and ‘SAML’. The URLs starting with ‘/SAMLRequest’.
+Action: Replace with the string ‘&lt;SAML request&gt;’</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Query strings</li>
+</ol>
+<blockquote>
+<div>Suggested Categorization: Strings containing the character ‘?’ after the
+last occurrence of ‘/’.
+Action: Replace everything after the relevant ‘?’ by ‘*’.</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>URLs ending with ‘%’</li>
+</ol>
+<blockquote>
+<div>Strip off the trailing ‘%’</div></blockquote>
+<p>4) URLs which start with ‘SMASSERTIONREF’ are quite long and contain the
+substring ‘/cmsws/public/saml2sso’.</p>
+<blockquote>
+<div>To cleanup these long URLs, replace the entire string with
+‘/cmsws/public/saml2sso’.</div></blockquote>
+<ol class="arabic simple" start="5">
+<li>Other strings</li>
+</ol>
+<blockquote>
+<div>Suggested Categorization: Take whatever’s left over from the previous
+two categories that isn’t null.
+Action: Do nothing.</div></blockquote>
+<p>Input: A Spark dataframe containing the following column:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(”
+inputCol”)</td>
+<td>string</td>
+<td>This is the resource, for example
+a web page, that the user is
+requesting. SM_RESOURCE in
+raw_logs for reference.</td>
+</tr>
+</tbody>
+</table>
+<p>Output: A Spark Dataframe with the following features calculated:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(”
+outputCol”)</td>
+<td>string</td>
+<td>Column containing the cleaned
+forms of different URLs with
+respect to the aforementioned
+cleaning strategies.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.smresourcecleaner.SMResourceCleaner.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'SM_RESOURCE': ['SM_RESOURCE', StringType]}</em><a class="headerlink" href="#_transformers.smresourcecleaner.SMResourceCleaner.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.smresourcecleaner.SMResourceCleaner.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/smresourcecleaner.html#SMResourceCleaner.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.smresourcecleaner.SMResourceCleaner.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets params for the SM_RESOURCE Cleaner</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.sparknativetransformer">
+<span id="transformers-sparknativetransformer-module"></span><h2>_transformers.sparknativetransformer module<a class="headerlink" href="#module-_transformers.sparknativetransformer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.sparknativetransformer.SparkNativeTransformer">
+<em class="property">class </em><code class="descclassname">_transformers.sparknativetransformer.</code><code class="descname">SparkNativeTransformer</code><a class="reference internal" href="_modules/_transformers/sparknativetransformer.html#SparkNativeTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.base.Transformer</span></code></p>
+<p>This class inherits from the Transformer class and overrides Transform to
+add input schema checking. For correct operation it is imperative that
+_transform be implemented in the child class and a dictionary “sch_dict” be
+implemented as a class attribute in the child class. The sch_dict is to be
+formatted as follows: sch_dict = { “Column_1”: [“Column_1”, __Type()],
+“Column_2”: [“Column_2”, __Type()], }</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>where:</dt>
+<dd>“Column_X” is the actual Name of the Column
+__Type() are pyspark.sql.types.</dd>
+<dt>Example:</dt>
+<dd>sch_dict = {“SM_RESOURCE”: [“SM_RESOURCE”, StringType()]}</dd>
+</dl>
+</div></blockquote>
+<dl class="method">
+<dt id="_transformers.sparknativetransformer.SparkNativeTransformer.test_schema">
+<code class="descname">test_schema</code><span class="sig-paren">(</span><em>incoming_schema</em>, <em>sch_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/sparknativetransformer.html#SparkNativeTransformer.test_schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sparknativetransformer.SparkNativeTransformer.test_schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.sparknativetransformer.SparkNativeTransformer.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/sparknativetransformer.html#SparkNativeTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.sparknativetransformer.SparkNativeTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms the input dataset with optional parameters.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.3.0.</span></p>
+</div>
+<dl class="docutils">
+<dt>dataset <span class="classifier-delimiter">:</span> <span class="classifier"><code class="xref py py-class docutils literal"><span class="pre">pyspark.sql.DataFrame</span></code></span></dt>
+<dd>input dataset</dd>
+<dt>params <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
+<dd>an optional param map that overrides embedded params.</dd>
+</dl>
+<dl class="docutils">
+<dt><code class="xref py py-class docutils literal"><span class="pre">pyspark.sql.DataFrame</span></code></dt>
+<dd>transformed dataset</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers.userfeaturegenerator">
+<span id="transformers-userfeaturegenerator-module"></span><h2>_transformers.userfeaturegenerator module<a class="headerlink" href="#module-_transformers.userfeaturegenerator" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator">
+<em class="property">class </em><code class="descclassname">_transformers.userfeaturegenerator.</code><code class="descname">UserFeatureGenerator</code><a class="reference internal" href="_modules/_transformers/userfeaturegenerator.html#UserFeatureGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasInputCol</span></code></p>
+<p>A module to generate features related to users.</p>
+<p>Input: A Spark dataframe containing CRA_SEQ, SM_ACTION, SM_RESOURCE,
+SM_CATEGORYID,SM_EVENTID, SM_TIMESTAMP, SM_USERNAME, SM_CLIENTIP,
+SM_SESSIONID, SM_AGENTNAME and SM_TRANSACTION from raw_logs.
+and the following columns:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>self.getOr
+Default(
+“inputCol”)</td>
+<td>string</td>
+<td>Column containing the CommonNames
+for each user. It is an alpha-
+numeric string and it may contain
+NULL values. CNs can be generated
+from SM_USERNAME column through
+the CnExtractor transformer.</td>
+</tr>
+</tbody>
+</table>
+<p>Please refer to README.md for description.</p>
+<dl class="docutils">
+<dt>Output: A Spark Dataframe with the following features calculated on rows</dt>
+<dd><p class="first">aggregated by time window and CN, where the window is
+calculated using:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>length: how many seconds the window is</li>
+<li><dl class="first docutils">
+<dt>step: the length of time between the start of successive</dt>
+<dd>time window</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="18%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Column_Name</th>
+<th class="head">Datatype</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a href="#id125"><span class="problematic" id="id126">COUNT_</span></a>
+ADMIN_LOGIN</td>
+<td>integer</td>
+<td>Count of Admin Login events
+during the time window, defined
+by sm_eventid == 7.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id127"><span class="problematic" id="id128">COUNT_</span></a>
+AUTH_ACCEPT</td>
+<td>integer</td>
+<td>Count of Auth accept events
+during the time window, defined
+by sm_eventid == 1.</td>
+</tr>
+<tr class="row-even"><td><a href="#id129"><span class="problematic" id="id130">COUNT_</span></a>
+ADMIN_LOGOUT</td>
+<td>integer</td>
+<td>Count of Admin Logout events
+during the time window, defined
+by sm_eventid == 8.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id131"><span class="problematic" id="id132">COUNT_</span></a>
+ADMIN_REJECT</td>
+<td>integer</td>
+<td>Count of Admin reject events
+during the time window, defined
+by sm_eventid == 9.</td>
+</tr>
+<tr class="row-even"><td><a href="#id133"><span class="problematic" id="id134">COUNT_</span></a>
+ADMIN_ATTEMP
+T</td>
+<td>integer</td>
+<td>Count of Admin attempt events
+during the time window, defined
+by sm_eventid == 3.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id135"><span class="problematic" id="id136">COUNT_</span></a>
+FAILED</td>
+<td>integer</td>
+<td>Count of all Reject events
+during the time window, defined
+by sm_eventid == 2,6 and 9.</td>
+</tr>
+<tr class="row-even"><td><a href="#id137"><span class="problematic" id="id138">COUNT_</span></a>
+VISIT</td>
+<td>integer</td>
+<td>Count of Visit events during the
+time window, defined by
+sm_eventid == 13.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id139"><span class="problematic" id="id140">COUNT_</span></a>
+AUTH_CHALLEN
+GE</td>
+<td>integer</td>
+<td>Count of Auth challenge events
+during the time window, defined
+by sm_eventid == 4.</td>
+</tr>
+<tr class="row-even"><td><a href="#id141"><span class="problematic" id="id142">COUNT_</span></a>
+GET</td>
+<td>integer</td>
+<td>Count of all GET HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id143"><span class="problematic" id="id144">COUNT_</span></a>
+POST</td>
+<td>integer</td>
+<td>Count of all POST HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id145"><span class="problematic" id="id146">COUNT_</span></a>
+HTTP_METHODS</td>
+<td>integer</td>
+<td>Count of all GET and POST actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id147"><span class="problematic" id="id148">COUNT_</span></a>
+AUTH_LOGOUT</td>
+<td>integer</td>
+<td>Count of Auth Logout events
+during the time window, defined
+by sm_eventid == 10.</td>
+</tr>
+<tr class="row-even"><td><a href="#id149"><span class="problematic" id="id150">COUNT_</span></a>
+RECORDS</td>
+<td>integer</td>
+<td>Counts number of CRA_SEQs
+(dataset primary key)</td>
+</tr>
+<tr class="row-odd"><td><a href="#id151"><span class="problematic" id="id152">COUNT_</span></a>
+UNIQUE_ACTIO
+NS</td>
+<td>integer</td>
+<td>Count of distinct HTTP Actions
+in SM_ACTION during the time
+window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id153"><span class="problematic" id="id154">COUNT_</span></a>
+<a href="#id155"><span class="problematic" id="id156">UNIQUE_USER_</span></a>
+APPS</td>
+<td>integer</td>
+<td>A count of distinct root nodes
+from each record in SM_RESOURCE
+during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id157"><span class="problematic" id="id158">COUNT_</span></a>
+AUTH_REJECT</td>
+<td>integer</td>
+<td>Count of Auth reject events
+during the time window, defined
+by sm_eventid == 2.</td>
+</tr>
+<tr class="row-even"><td><a href="#id159"><span class="problematic" id="id160">COUNT_</span></a>
+AZ_ACCEPT</td>
+<td>integer</td>
+<td>Count of Az accept events
+during the time window, defined
+by sm_eventid == 5.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id161"><span class="problematic" id="id162">COUNT_</span></a>
+AZ_REJECT</td>
+<td>integer</td>
+<td>Count of Az reject events
+during the time window, defined
+by sm_eventid == 6.</td>
+</tr>
+<tr class="row-even"><td><a href="#id163"><span class="problematic" id="id164">COUNT_</span></a>
+OU_AMS</td>
+<td>integer</td>
+<td>Count of all ams or AMS
+occurrences in SM_USERNAME OR
+SM_RESOURCE during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id165"><span class="problematic" id="id166">COUNT_</span></a>
+OU_CMS</td>
+<td>integer</td>
+<td>Count of all cra-cp occurrences
+in SM_USERNAME during the window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id167"><span class="problematic" id="id168">COUNT_</span></a>
+VALIDATE_ACC
+EPT</td>
+<td>integer</td>
+<td><p class="first">Count of Validate Accept events
+during the time window, defined)</p>
+<blockquote class="last">
+<div>by sm_eventid = 11.</div></blockquote>
+</td>
+</tr>
+<tr class="row-odd"><td><a href="#id169"><span class="problematic" id="id170">COUNT_</span></a>
+VALIDATE_REJ
+ECT</td>
+<td>integer</td>
+<td><p class="first">Count of Validate reject events
+during the time window, defined)</p>
+<blockquote class="last">
+<div>by sm_eventid = 12.</div></blockquote>
+</td>
+</tr>
+<tr class="row-even"><td><a href="#id171"><span class="problematic" id="id172">COUNT_</span></a>
+GET</td>
+<td>integer</td>
+<td>Count of all GET HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id173"><span class="problematic" id="id174">COUNT_</span></a>
+POST</td>
+<td>integer</td>
+<td>Count of all POST HTTP actions
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id175"><span class="problematic" id="id176">COUNT_</span></a>
+HTTP_METHODS</td>
+<td>integer</td>
+<td>Count of all GET and POST actions
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id177"><span class="problematic" id="id178">COUNT_</span></a>
+OU_IDENTITY</td>
+<td>integer</td>
+<td>Count of all ou=Identity
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id179"><span class="problematic" id="id180">COUNT_</span></a>
+OU_CRED</td>
+<td>integer</td>
+<td>Count of all ou=Credential
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id181"><span class="problematic" id="id182">COUNT_</span></a>
+OU_SECUREKEY</td>
+<td>integer</td>
+<td>Count of allou=SecureKey
+occurrences in SM_USERNAME during
+the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id183"><span class="problematic" id="id184">COUNT_</span></a>
+PORTAL_MYA</td>
+<td>integer</td>
+<td>Count of all
+in SM_RESOURCE during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id185"><span class="problematic" id="id186">COUNT_</span></a>
+PORTAL_MYBA</td>
+<td>integer</td>
+<td>Count of all
+in SM_RESOURCE during the time
+window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id187"><span class="problematic" id="id188">COUNT_</span></a>
+UNIQUE_ACTIO
+NS</td>
+<td>integer</td>
+<td>Count of distinct HTTP Actions
+in SM_ACTION during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id189"><span class="problematic" id="id190">COUNT_</span></a>
+UNIQUE_EVENT
+S</td>
+<td>integer</td>
+<td>Count of distinct EventIDs in
+SM_EVENTID  during the time
+window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id191"><span class="problematic" id="id192">COUNT_</span></a>
+UNIQUE_USERN
+AME</td>
+<td>integer</td>
+<td>Count of distinct CNs in CN
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id193"><span class="problematic" id="id194">COUNT_</span></a>
+UNIQUE_SESSI
+ON</td>
+<td>integer</td>
+<td>A distinct list of SessionIDs in
+SM_SESSIONID during time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id195"><span class="problematic" id="id196">COUNT_</span></a>
+UNIQUE_RESOU
+RCES</td>
+<td>integer</td>
+<td>Count of distinct Resource
+strings in SM_RESOURCE during
+the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id197"><span class="problematic" id="id198">COUNT_</span></a>
+UNIQUE_PORTA
+L_RAC</td>
+<td>integer</td>
+<td>A count of Entries containing
+rep followed by a string ending
+in “/”in SM_RESOURCE during the
+time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id199"><span class="problematic" id="id200">COUNT_</span></a>
+UNIQUE_IPS</td>
+<td>integer</td>
+<td>Count of distinct IPs in
+SM_CLIENTIP during the time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id201"><span class="problematic" id="id202">COUNT_</span></a>
+RECORDS</td>
+<td>integer</td>
+<td>Counts number of CRA_SEQs
+(dataset primary key)</td>
+</tr>
+<tr class="row-even"><td><a href="#id203"><span class="problematic" id="id204">UNIQUE_</span></a>
+SM_ACTIONS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of HTTP Actions
+in SM_ACTION during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id205"><span class="problematic" id="id206">UNIQUE_</span></a>
+USERNAME</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of CNs
+in CN during time window.</td>
+</tr>
+<tr class="row-even"><td>SM_SESSIONS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of SessionIDs
+in SM_SESSIONID during window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id207"><span class="problematic" id="id208">UNIQUE_</span></a>
+SM_PORTALS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Resource
+strings in SM_RESOURCE during
+time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id209"><span class="problematic" id="id210">UNIQUE_</span></a>
+SM_TRANSACTI
+ONS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Transaction
+Ids in SM_TRANSACTIONID during
+time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id211"><span class="problematic" id="id212">UNIQUE_</span></a>
+USER_OU</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Entries
+containing “ou=”and a string
+ending in “/” in SM_USERNAME
+during time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id213"><span class="problematic" id="id214">UNIQUE_</span></a>
+PORTAL_RAC</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of Entries
+containing rep followed by a
+string ending in  “/” in
+SM_RESOURCE during time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id215"><span class="problematic" id="id216">UNIQUE_</span></a>
+USER_APPS</td>
+<td><blockquote class="first">
+<div>array</div></blockquote>
+<p class="last">&lt;string&gt;</p>
+</td>
+<td>A distinct list of main apps
+from each record in SM_RESOURCE
+during time window.</td>
+</tr>
+<tr class="row-even"><td>USER_TIMESTA
+MP</td>
+<td>timestamp</td>
+<td>Earliest timestamp during time
+window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id217"><span class="problematic" id="id218">AVG_TIME_</span></a>
+BT_RECORDS</td>
+<td>double</td>
+<td>Average time between records
+during the time window.</td>
+</tr>
+<tr class="row-even"><td><a href="#id219"><span class="problematic" id="id220">MAX_TIME_</span></a>
+BT_RECORDS</td>
+<td>double</td>
+<td>Maximum time between records
+during the time window.</td>
+</tr>
+<tr class="row-odd"><td><a href="#id221"><span class="problematic" id="id222">MIN_TIME_</span></a>
+BT_RECORDS</td>
+<td>double</td>
+<td>Minimum time between records
+during the time window.</td>
+</tr>
+<tr class="row-even"><td>UserLogin
+Attempts</td>
+<td>integer</td>
+<td>Total number of login attempts
+from the user within the window.</td>
+</tr>
+<tr class="row-odd"><td>UserAvgFaile
+dLoginsWithS
+ameIPs</td>
+<td>integer</td>
+<td>Average number of failed logins
+with same IPs from the user.</td>
+</tr>
+<tr class="row-even"><td>UserNumOfAcc
+ountsLoginWi
+thSameIPs</td>
+<td>integer</td>
+<td>Total number of accounts visited
+by the IPs used by this user</td>
+</tr>
+<tr class="row-odd"><td>UserNumOfPas
+swordChange</td>
+<td>integer</td>
+<td>Total number of requests for
+changing passwords by the user.</td>
+</tr>
+<tr class="row-even"><td>UserIsUsing
+UnusualBrows
+er</td>
+<td>integer</td>
+<td>Whether or not the browser used
+by user in current time  window
+is same as that in the previous
+time window</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator.sch_dict">
+<code class="descname">sch_dict</code><em class="property"> = {'SM_ACTION': ['SM_ACTION', StringType], 'SM_EVENTID': ['SM_EVENTID', IntegerType], 'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_SESSIONID': ['SM_SESSIONID', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType], 'SM_TRANSACTIONID': ['SM_TRANSACTIONID', StringType], 'SM_USERNAME': ['SM_USERNAME', StringType]}</em><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator.sch_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/userfeaturegenerator.html#UserFeatureGenerator.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>set_params(self, *, threshold=0.0, inputCol=None, outputCol=None,</dt>
+<dd>thresholds=None, inputCols=None, outputCols=None)</dd>
+</dl>
+<p>Sets params for this UserFeatureGenerator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator.set_window_length">
+<code class="descname">set_window_length</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/userfeaturegenerator.html#UserFeatureGenerator.set_window_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator.set_window_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this UserFeatureGenerator’s window length.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator.set_window_step">
+<code class="descname">set_window_step</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/_transformers/userfeaturegenerator.html#UserFeatureGenerator.set_window_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator.set_window_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets this UserFeatureGenerator’s window step size.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator.window_length">
+<code class="descname">window_length</code><em class="property"> = Param(parent='undefined', name='window_length', doc='Length of the sliding window. Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator.window_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="_transformers.userfeaturegenerator.UserFeatureGenerator.window_step">
+<code class="descname">window_step</code><em class="property"> = Param(parent='undefined', name='window_step', doc='Length of time between start of successive time windows.Given as an integer in seconds.')</em><a class="headerlink" href="#_transformers.userfeaturegenerator.UserFeatureGenerator.window_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-_transformers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-_transformers" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Cyber Advanced Analytics Section.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/_transformers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

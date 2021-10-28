@@ -20,6 +20,7 @@ class ResourcesFlattener(SparkNativeTransformer):
 
     Input: A Spark Dataframe containing SM_RESOURCE and SM_TIMESTAMP (from
     raw_logs) and the following column (default: "SM_USERNAME"):
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -28,6 +29,7 @@ class ResourcesFlattener(SparkNativeTransformer):
     | agg_col")   |          | resources with respect to the    |
     |             |          | passed column.                   |
     +-------------+----------+----------------------------------+
+
     Please refer to README.md for description.
 
     Output: A Spark Dataframe with the following features calculated on rows
@@ -36,6 +38,7 @@ class ResourcesFlattener(SparkNativeTransformer):
                 - length: how many seconds the window is
                 - step: the length of time between the start of
                     successive time window
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+

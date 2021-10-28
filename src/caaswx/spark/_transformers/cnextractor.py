@@ -21,6 +21,7 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     - Reminder that dict must change if SM_USERNAME is no longer used
 
     Input: A Spark dataframe the following column:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -29,9 +30,11 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     | inputCol")  |          | session. SM_USERNAME in          |
     |             |          | raw_logs for reference.          |
     +-------------+----------+----------------------------------+
+
     Please refer to README.md for further description of raw_logs.
 
     Output: A Spark Dataframe with the following features calculated:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+

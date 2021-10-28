@@ -32,6 +32,7 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
       Action: Do nothing.
 
     Input: A Spark dataframe containing the following column:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -42,6 +43,7 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     +-------------+----------+----------------------------------+
 
     Output: A Spark Dataframe with the following features calculated:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+

@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>_transformers.cnextractor &#8212; NetInsight 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for _transformers.cnextractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">HasInputCol</span><span class="p">,</span>
+    <span class="n">HasOutputCol</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">regexp_replace</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="n">StringType</span>
+
+<span class="kn">from</span> <span class="nn">.sparknativetransformer</span> <span class="k">import</span> <span class="n">SparkNativeTransformer</span>
+
+
+<div class="viewcode-block" id="CnExtractor"><a class="viewcode-back" href="../../_transformers.html#_transformers.cnextractor.CnExtractor">[docs]</a><span class="k">class</span> <span class="nc">CnExtractor</span><span class="p">(</span><span class="n">SparkNativeTransformer</span><span class="p">,</span> <span class="n">HasInputCol</span><span class="p">,</span> <span class="n">HasOutputCol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an Output Column (Default=&quot;CN&quot;) using the Input Column</span>
+<span class="sd">    (Default=&quot;SM_USERNAME) by:</span>
+<span class="sd">    - Removing all characters before &quot;cn=&quot;</span>
+<span class="sd">    - Removing the characters after the first comma (including the comma)</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">    - Assumes the &quot;cn=&quot; and its contents are not at the end of the SM_USERNAME</span>
+<span class="sd">    - Reminder that dict must change if SM_USERNAME is no longer used</span>
+
+<span class="sd">    Input: A Spark dataframe the following column:</span>
+
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | Column_Name | Datatype | Description                      |</span>
+<span class="sd">    +=============+==========+==================================+</span>
+<span class="sd">    | self.getOr  | string   | The username for the user        |</span>
+<span class="sd">    | Default(&quot;   |          | currently logged in with this    |</span>
+<span class="sd">    | inputCol&quot;)  |          | session. SM_USERNAME in          |</span>
+<span class="sd">    |             |          | raw_logs for reference.          |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    Please refer to README.md for further description of raw_logs.</span>
+
+<span class="sd">    Output: A Spark Dataframe with the following features calculated:</span>
+
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    | Column_Name | Datatype | Description                      |</span>
+<span class="sd">    +=============+==========+==================================+</span>
+<span class="sd">    | self.getOr  | string   | Column containing the CommonNames|</span>
+<span class="sd">    | Default(&quot;   |          | for each user. It is an alpha-   |</span>
+<span class="sd">    | outputCol&quot;) |          | numeric string and it may contain|</span>
+<span class="sd">    |             |          | NULL values.                     |</span>
+<span class="sd">    +-------------+----------+----------------------------------+</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param setInputCol: Input column to be processed within the</span>
+<span class="sd">        transformer which must contain &quot;CN&quot; strings like</span>
+<span class="sd">        &quot;cn=&lt;AN_ALPHANUMERIC_STRING&gt;&quot;</span>
+<span class="sd">        :param OutputCol: Name of the output</span>
+<span class="sd">        column to be set after extracting the CN from the SM_USERNAME</span>
+<span class="sd">        column&#39;s comma separated strings</span>
+<span class="sd">        :type setInputCol: string</span>
+<span class="sd">        :type OutputCol: string</span>
+
+<span class="sd">        :Example:</span>
+<span class="sd">        &gt;&gt;&gt; from cnextractor import CnExtractor</span>
+<span class="sd">        &gt;&gt;&gt; cne = CnExtractor(setInputCol=&quot;SM_USERNAME&quot;, OutputCol=&quot;CN&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; datafame_with_CN = cne.transform(input_dataset)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CnExtractor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">inputCol</span><span class="o">=</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">,</span> <span class="n">outputCol</span><span class="o">=</span><span class="s2">&quot;CN&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CnExtractor.set_params"><a class="viewcode-back" href="../../_transformers.html#_transformers.cnextractor.CnExtractor.set_params">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets params for the CN extractor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="n">sch_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()],</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform the new CN column</span>
+<span class="sd">        Params:</span>
+<span class="sd">        - dataset: dataframe containing SM_USERNAME, to have CN extracted</span>
+<span class="sd">        Returns:</span>
+<span class="sd">        - dataset with CN appended</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;outputCol&quot;</span><span class="p">),</span>
+            <span class="n">regexp_replace</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;inputCol&quot;</span><span class="p">)],</span> <span class="sa">r</span><span class="s2">&quot;.*(cn=)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;outputCol&quot;</span><span class="p">),</span>
+            <span class="n">regexp_replace</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="s2">&quot;outputCol&quot;</span><span class="p">)],</span> <span class="sa">r</span><span class="s2">&quot;(,.*)$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dataset</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Cyber Advanced Analytics Section.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -23,6 +23,7 @@ class SessionFeatureGenerator(SparkNativeTransformer, HasInputCol):
     Input: A Spark dataframe containing SM_RESOURCE, SM_EVENTID, SM_ACTION,
     SM_CLIENTIP, SM_TIMESTAMP, SM_SESSIONID and CRA_SEQ from raw_logs, and
     the following columns:
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
@@ -33,6 +34,7 @@ class SessionFeatureGenerator(SparkNativeTransformer, HasInputCol):
     |             |          | from SM_USERNAME column through  |
     |             |          | the CnExtractor transformer.     |
     +-------------+----------+----------------------------------+
+
     Please refer to README.md for description.
 
     Output: A Spark Dataframe with the following features calculated on rows
@@ -41,6 +43,7 @@ class SessionFeatureGenerator(SparkNativeTransformer, HasInputCol):
             - length: how many seconds the window is
             - step: the length of time between the start of successive
                 time window
+
     +-------------+----------+----------------------------------+
     | Column_Name | Datatype | Description                      |
     +=============+==========+==================================+
