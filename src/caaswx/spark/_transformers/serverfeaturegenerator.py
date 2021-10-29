@@ -72,6 +72,24 @@ class ServerFeatureGenerator(SparkNativeTransformer):
     |             |          | are equal up to precision        |
     |             |          | "interval_epsilon".              |
     +-------------+----------+----------------------------------+
+
+    :param window_length: Length of the sliding window (in seconds)
+    :param window_step: Length of the sliding window's step-size (inseconds)
+    :param interval_threshold: An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs
+    :param interval_epsilon: A float used to define feature NumOfUsersWithEqualIntervalBtnReqs
+    :param agg_col: A string used to define the pivot column for partitioning the time window
+    :type window_length: long 
+    :type window_step: long
+    :type interval_threshold: integer
+    :type interval_epsilon: float 
+    :type agg_col: string
+
+    :Example:
+        >>> from serverfeaturegenerator import ServerFeatureGenerator
+        >>> feature_generator = ServerFeatureGenerator(window_length = 1800,
+            window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3,
+             agg_col = "CN")
+        >>> features = feature_generator.transform(dataset = input_dataset)
     """
 
     window_length = Param(

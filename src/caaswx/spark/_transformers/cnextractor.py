@@ -43,6 +43,16 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
     | outputCol") |          | numeric string and it may contain|
     |             |          | NULL values.                     |
     +-------------+----------+----------------------------------+
+
+    :param setInputCol: Input column to be processed within the transformer which must contain "CN" strings like "cn=<AN_ALPHANUMERIC_STRING>"
+    :param OutputCol: Name of the output column to be set after extracting the CN from the SM_USERNAME column's comma separated strings
+    :type setInputCol: string
+    :type OutputCol: string
+
+    :Example:
+        >>> from cnextractor import CnExtractor
+        >>> cne = CnExtractor(setInputCol="SM_USERNAME", OutputCol="CN")
+        >>> datafame_with_CN = cne.transform(input_dataset)
     """
 
     @keyword_only

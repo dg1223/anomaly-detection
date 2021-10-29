@@ -44,6 +44,21 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     | SM_AGENTNAME|  array   | Contains a list of flattened     |
     |             | <string> | and/or cleaned agentnames        |
     +-------------+----------+----------------------------------+
+
+    :param agg_col: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column
+    :param agent_size_limit: Defines a limit on number of agent strings in the output column
+    :param window_length: Sets this AgentStringFlattener.'s window length.
+    :param window_step: Sets this AgentStringFlattener's window step.
+    :type agg_col: string
+    :type agent_size_limit: long
+    :type window_length: long
+    :type window_step: long
+
+    :Example:
+        >>> from agentstringflattener import AgentStringFlattener
+        >>> flattener = AgentStringFlattener(
+                window_length = 1800, window_step = 1800)
+        >>> features = flattener.transform(input_dataset)
     """
 
     window_length = Param(
@@ -91,24 +106,23 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         agent_size_limit=5,
         window_length=900,
         window_step=900,
-        ):
-    
-    """
-    :param agg_col: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column
-    :param agent_size_limit: Defines a limit on number of agent strings in the output column
-    :param window_length: Sets this AgentStringFlattener.'s window length.
-    :param window_step: Sets this AgentStringFlattener's window step.
-    :type agg_col: string
-    :type agent_size_limit: long
-    :type window_length: long
-    :type window_step: long
+    ):
+        """
+        :param agg_col: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column
+        :param agent_size_limit: Defines a limit on number of agent strings in the output column
+        :param window_length: Sets this AgentStringFlattener.'s window length.
+        :param window_step: Sets this AgentStringFlattener's window step.
+        :type agg_col: string
+        :type agent_size_limit: long
+        :type window_length: long
+        :type window_step: long
 
-    :Example:
-    >>> from agentstringflattener import AgentStringFlattener
-    >>> flattener = AgentStringFlattener(
-            window_length = 1800, window_step = 1800)
-    >>> features = flattener.transform(input_dataset)
-    """
+        :Example:
+        >>> from agentstringflattener import AgentStringFlattener
+        >>> flattener = AgentStringFlattener(
+                window_length = 1800, window_step = 1800)
+        >>> features = flattener.transform(input_dataset)
+        """
         super(AgentStringFlattener, self).__init__()
         self._setDefault(
             window_length=900,

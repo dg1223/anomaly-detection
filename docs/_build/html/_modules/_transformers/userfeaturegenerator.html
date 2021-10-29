@@ -297,6 +297,18 @@
 <span class="sd">    |             |          | time window                      |</span>
 <span class="sd">    +-------------+----------+----------------------------------+</span>
 
+<span class="sd">    :param window_length: Length of the sliding window (in seconds)</span>
+<span class="sd">    :param window_step: Length of time between start of successive time windows (in seconds)</span>
+<span class="sd">    :param inputCol: (default: &quot;CN&quot;) Name of generated column that contains extracted CN</span>
+<span class="sd">    :type window_length: long</span>
+<span class="sd">    :type window_step: long</span>
+<span class="sd">    :type inputCol: string</span>
+
+<span class="sd">    :Example:</span>
+<span class="sd">        &gt;&gt;&gt; from userfeaturegenerator import UserFeatureGenerator</span>
+<span class="sd">        &gt;&gt;&gt; feature_generator = UserFeatureGenerator(</span>
+<span class="sd">                window_length = 1800, window_step = 1800)</span>
+<span class="sd">        &gt;&gt;&gt; features = feature_generator.transform(dataset = input_dataset)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">window_length</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>

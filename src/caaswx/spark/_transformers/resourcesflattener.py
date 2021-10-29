@@ -46,6 +46,21 @@ class ResourcesFlattener(SparkNativeTransformer):
     |             | <string> | pivot entity within the time     |
     |             |          | window.                          |
     +-------------+----------+----------------------------------+
+
+    :param window_length: Length of the sliding window (in seconds)
+    :param window_step: Length of the sliding window step-size (in seconds)
+    :param agg_col: Name of the column to perform aggregation along with the window
+    :param max_resource_count: Maximum count of resources allowed in the resource list
+    :type window_length: long
+    :type window_step: long
+    :type agg_col: string
+    :type max_resource_count: long
+
+    :Example:
+        >>> from resourcesflattener import ResourcesFlattener
+        >>> flattener = ResourcesFlattener(window_length = 1800, window_step = 1800
+        ,agg_col = "SM_USERNAME", max_resource_count = 3)
+        >>> datafame_with_CN = flattener.transform(input_dataset)
     """
 
     window_length = Param(

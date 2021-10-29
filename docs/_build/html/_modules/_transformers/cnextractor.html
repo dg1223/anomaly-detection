@@ -84,6 +84,16 @@
 <span class="sd">    | outputCol&quot;) |          | numeric string and it may contain|</span>
 <span class="sd">    |             |          | NULL values.                     |</span>
 <span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    :param setInputCol: Input column to be processed within the transformer which must contain &quot;CN&quot; strings like &quot;cn=&lt;AN_ALPHANUMERIC_STRING&gt;&quot;</span>
+<span class="sd">    :param OutputCol: Name of the output column to be set after extracting the CN from the SM_USERNAME column&#39;s comma separated strings</span>
+<span class="sd">    :type setInputCol: string</span>
+<span class="sd">    :type OutputCol: string</span>
+
+<span class="sd">    :Example:</span>
+<span class="sd">        &gt;&gt;&gt; from cnextractor import CnExtractor</span>
+<span class="sd">        &gt;&gt;&gt; cne = CnExtractor(setInputCol=&quot;SM_USERNAME&quot;, OutputCol=&quot;CN&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; datafame_with_CN = cne.transform(input_dataset)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@keyword_only</span>

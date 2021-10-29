@@ -53,6 +53,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Consolidates SM_RESOURCE elements to simplify redundant data, based</span>
 <span class="sd">    off of the following criteria:</span>
+
 <span class="sd">    1) SAML Requests</span>
 <span class="sd">      Suggested Categorization: Strings containing the prefix &#39;/cmsws&#39; and</span>
 <span class="sd">      substrings &#39;redirect&#39; and &#39;SAML&#39;. The URLs starting with &#39;/SAMLRequest&#39;.</span>
@@ -93,6 +94,11 @@
 <span class="sd">    | outputCol&quot;) |          | respect to the aforementioned    |</span>
 <span class="sd">    |             |          | cleaning strategies.             |</span>
 <span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    :param inputCol: Input column to be processed within the transformer</span>
+<span class="sd">    :param outputCol: Name of the output column</span>
+<span class="sd">    :type inputCol: string</span>
+<span class="sd">    :type outputCol: string</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@keyword_only</span>

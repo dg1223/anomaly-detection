@@ -256,6 +256,18 @@ class UserFeatureGenerator(SparkNativeTransformer, HasInputCol):
     |             |          | time window                      |
     +-------------+----------+----------------------------------+
 
+    :param window_length: Length of the sliding window (in seconds)
+    :param window_step: Length of time between start of successive time windows (in seconds)
+    :param inputCol: (default: "CN") Name of generated column that contains extracted CN
+    :type window_length: long
+    :type window_step: long
+    :type inputCol: string
+
+    :Example:
+        >>> from userfeaturegenerator import UserFeatureGenerator
+        >>> feature_generator = UserFeatureGenerator(
+                window_length = 1800, window_step = 1800)
+        >>> features = feature_generator.transform(dataset = input_dataset)
     """
 
     window_length = Param(

@@ -85,6 +85,21 @@
 <span class="sd">    | SM_AGENTNAME|  array   | Contains a list of flattened     |</span>
 <span class="sd">    |             | &lt;string&gt; | and/or cleaned agentnames        |</span>
 <span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    :param agg_col: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column</span>
+<span class="sd">    :param agent_size_limit: Defines a limit on number of agent strings in the output column</span>
+<span class="sd">    :param window_length: Sets this AgentStringFlattener.&#39;s window length.</span>
+<span class="sd">    :param window_step: Sets this AgentStringFlattener&#39;s window step.</span>
+<span class="sd">    :type agg_col: string</span>
+<span class="sd">    :type agent_size_limit: long</span>
+<span class="sd">    :type window_length: long</span>
+<span class="sd">    :type window_step: long</span>
+
+<span class="sd">    :Example:</span>
+<span class="sd">        &gt;&gt;&gt; from agentstringflattener import AgentStringFlattener</span>
+<span class="sd">        &gt;&gt;&gt; flattener = AgentStringFlattener(</span>
+<span class="sd">                window_length = 1800, window_step = 1800)</span>
+<span class="sd">        &gt;&gt;&gt; features = flattener.transform(input_dataset)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">window_length</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
@@ -132,7 +147,7 @@
         <span class="n">agent_size_limit</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
         <span class="n">window_length</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
         <span class="n">window_step</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
-        <span class="p">):</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param agg_col: Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column</span>
 <span class="sd">        :param agent_size_limit: Defines a limit on number of agent strings in the output column</span>

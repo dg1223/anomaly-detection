@@ -113,6 +113,24 @@
 <span class="sd">    |             |          | are equal up to precision        |</span>
 <span class="sd">    |             |          | &quot;interval_epsilon&quot;.              |</span>
 <span class="sd">    +-------------+----------+----------------------------------+</span>
+
+<span class="sd">    :param window_length: Length of the sliding window (in seconds)</span>
+<span class="sd">    :param window_step: Length of the sliding window&#39;s step-size (inseconds)</span>
+<span class="sd">    :param interval_threshold: An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs</span>
+<span class="sd">    :param interval_epsilon: A float used to define feature NumOfUsersWithEqualIntervalBtnReqs</span>
+<span class="sd">    :param agg_col: A string used to define the pivot column for partitioning the time window</span>
+<span class="sd">    :type window_length: long </span>
+<span class="sd">    :type window_step: long</span>
+<span class="sd">    :type interval_threshold: integer</span>
+<span class="sd">    :type interval_epsilon: float </span>
+<span class="sd">    :type agg_col: string</span>
+
+<span class="sd">    :Example:</span>
+<span class="sd">        &gt;&gt;&gt; from serverfeaturegenerator import ServerFeatureGenerator</span>
+<span class="sd">        &gt;&gt;&gt; feature_generator = ServerFeatureGenerator(window_length = 1800,</span>
+<span class="sd">            window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3,</span>
+<span class="sd">             agg_col = &quot;CN&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; features = feature_generator.transform(dataset = input_dataset)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">window_length</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>

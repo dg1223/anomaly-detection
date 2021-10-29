@@ -12,6 +12,7 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     """
     Consolidates SM_RESOURCE elements to simplify redundant data, based
     off of the following criteria:
+
     1) SAML Requests
       Suggested Categorization: Strings containing the prefix '/cmsws' and
       substrings 'redirect' and 'SAML'. The URLs starting with '/SAMLRequest'.
@@ -52,6 +53,11 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
     | outputCol") |          | respect to the aforementioned    |
     |             |          | cleaning strategies.             |
     +-------------+----------+----------------------------------+
+
+    :param inputCol: Input column to be processed within the transformer
+    :param outputCol: Name of the output column
+    :type inputCol: string
+    :type outputCol: string
     """
 
     @keyword_only

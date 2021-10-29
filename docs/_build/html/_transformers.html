@@ -108,6 +108,28 @@ and/or cleaned agentnames</td>
 </tr>
 </tbody>
 </table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>agg_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – Column to be grouped by when cleaning the SM_AGENTNAME column along with the window column</li>
+<li><strong>agent_size_limit</strong> (<em>long</em>) – Defines a limit on number of agent strings in the output column</li>
+<li><strong>window_length</strong> (<em>long</em>) – Sets this AgentStringFlattener.’s window length.</li>
+<li><strong>window_step</strong> (<em>long</em>) – Sets this AgentStringFlattener’s window step.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">agentstringflattener</span> <span class="k">import</span> <span class="n">AgentStringFlattener</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flattener</span> <span class="o">=</span> <span class="n">AgentStringFlattener</span><span class="p">(</span>
+<span class="go">        window_length = 1800, window_step = 1800)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">flattener</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="_transformers.agentstringflattener.AgentStringFlattener.agent_size_limit">
 <code class="descname">agent_size_limit</code><em class="property"> = Param(parent='undefined', name='agent_size_limit', doc='Number of agent strings processed.Given as the number of strings.')</em><a class="headerlink" href="#_transformers.agentstringflattener.AgentStringFlattener.agent_size_limit" title="Permalink to this definition">¶</a></dt>
@@ -261,6 +283,25 @@ outputCol”)</td>
 for each user. It is an alpha-
 numeric string and it may contain
 NULL values.</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>setInputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – Input column to be processed within the transformer which must contain “CN” strings like “cn=&lt;AN_ALPHANUMERIC_STRING&gt;”</li>
+<li><strong>OutputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – Name of the output column to be set after extracting the CN from the SM_USERNAME column’s comma separated strings</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">cnextractor</span> <span class="k">import</span> <span class="n">CnExtractor</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cne</span> <span class="o">=</span> <span class="n">CnExtractor</span><span class="p">(</span><span class="n">setInputCol</span><span class="o">=</span><span class="s2">&quot;SM_USERNAME&quot;</span><span class="p">,</span> <span class="n">OutputCol</span><span class="o">=</span><span class="s2">&quot;CN&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datafame_with_CN</span> <span class="o">=</span> <span class="n">cne</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -697,6 +738,27 @@ window</td>
 </tr>
 </tbody>
 </table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>window_length</strong> (<em>long</em>) – Length of the sliding window (in seconds)</li>
+<li><strong>window_step</strong> (<em>long</em>) – Length of the sliding window’s step-size (in seconds)</li>
+<li><strong>inputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – (default: “CN”) Name of generated column that contains extracted CN</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ipfeaturegenerator</span> <span class="k">import</span> <span class="n">IPFeatureGenerator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">feature_generator</span> <span class="o">=</span> <span class="n">IPFeatureGenerator</span>
+<span class="go">     (window_length = 1800, window_step = 1800)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">feature_generator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="_transformers.ipfeaturegenerator.IPFeatureGenerator.sch_dict">
 <code class="descname">sch_dict</code><em class="property"> = {'CRA_SEQ': ['CRA_SEQ', LongType], 'SM_ACTION': ['SM_ACTION', StringType], 'SM_CLIENTIP': ['SM_CLIENTIP', StringType], 'SM_EVENTID': ['SM_EVENTID', IntegerType], 'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_SESSIONID': ['SM_SESSIONID', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType], 'SM_TRANSACTIONID': ['SM_TRANSACTIONID', StringType], 'SM_USERNAME': ['SM_USERNAME', StringType]}</em><a class="headerlink" href="#_transformers.ipfeaturegenerator.IPFeatureGenerator.sch_dict" title="Permalink to this definition">¶</a></dt>
@@ -807,6 +869,28 @@ where the window is calculated using:</p>
 <td>A list of resources used by the
 pivot entity within the time
 window.</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>window_length</strong> (<em>long</em>) – Length of the sliding window (in seconds)</li>
+<li><strong>window_step</strong> (<em>long</em>) – Length of the sliding window step-size (in seconds)</li>
+<li><strong>agg_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – Name of the column to perform aggregation along with the window</li>
+<li><strong>max_resource_count</strong> (<em>long</em>) – Maximum count of resources allowed in the resource list</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">resourcesflattener</span> <span class="k">import</span> <span class="n">ResourcesFlattener</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flattener</span> <span class="o">=</span> <span class="n">ResourcesFlattener</span><span class="p">(</span><span class="n">window_length</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">,</span> <span class="n">window_step</span> <span class="o">=</span> <span class="mi">1800</span>
+<span class="go">,agg_col = &quot;SM_USERNAME&quot;, max_resource_count = 3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">datafame_with_CN</span> <span class="o">=</span> <span class="n">flattener</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -974,6 +1058,30 @@ valBtnReqs</td>
 between consecutive requests that
 are equal up to precision
 “interval_epsilon”.</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>window_length</strong> (<em>long</em>) – Length of the sliding window (in seconds)</li>
+<li><strong>window_step</strong> (<em>long</em>) – Length of the sliding window’s step-size (inseconds)</li>
+<li><strong>interval_threshold</strong> (<em>integer</em>) – An integer used to define feature NumOfUsersWithEqualIntervalBtnReqs</li>
+<li><strong>interval_epsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – A float used to define feature NumOfUsersWithEqualIntervalBtnReqs</li>
+<li><strong>agg_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – A string used to define the pivot column for partitioning the time window</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">serverfeaturegenerator</span> <span class="k">import</span> <span class="n">ServerFeatureGenerator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">feature_generator</span> <span class="o">=</span> <span class="n">ServerFeatureGenerator</span><span class="p">(</span><span class="n">window_length</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">,</span>
+<span class="go">    window_step = 1800, interval_threshold = 4, interval_epsilon = 0.3,</span>
+<span class="go">     agg_col = &quot;CN&quot;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">feature_generator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1292,6 +1400,27 @@ deltas during the time window.</td>
 </tr>
 </tbody>
 </table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>window_length</strong> (<em>long</em>) – Length of the sliding window (in seconds)</li>
+<li><strong>window_step</strong> (<em>long</em>) – Length of time between start of successive time windows (in seconds)</li>
+<li><strong>inputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – (default: “CN”) Name of generated column that contains extracted CN</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sessionfeaturegenerator</span> <span class="k">import</span> <span class="n">SessionFeatureGenerator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">feature_generator</span> <span class="o">=</span> <span class="n">SessionFeatureGenerator</span><span class="p">(</span><span class="n">window_length</span> <span class="o">=</span> <span class="mi">1800</span><span class="p">,</span>
+<span class="go">    window_step = 1800)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">feature_generator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="_transformers.sessionfeaturegenerator.SessionFeatureGenerator.sch_dict">
 <code class="descname">sch_dict</code><em class="property"> = {'CRA_SEQ': ['CRA_SEQ', LongType], 'SM_ACTION': ['SM_ACTION', StringType], 'SM_CLIENTIP': ['SM_CLIENTIP', StringType], 'SM_EVENTID': ['SM_EVENTID', IntegerType], 'SM_RESOURCE': ['SM_RESOURCE', StringType], 'SM_TIMESTAMP': ['SM_TIMESTAMP', TimestampType]}</em><a class="headerlink" href="#_transformers.sessionfeaturegenerator.SessionFeatureGenerator.sch_dict" title="Permalink to this definition">¶</a></dt>
@@ -1337,8 +1466,10 @@ this SessionFeatureGenerator.</p>
 <em class="property">class </em><code class="descclassname">_transformers.smresourcecleaner.</code><code class="descname">SMResourceCleaner</code><a class="reference internal" href="_modules/_transformers/smresourcecleaner.html#SMResourceCleaner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#_transformers.smresourcecleaner.SMResourceCleaner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#_transformers.sparknativetransformer.SparkNativeTransformer" title="_transformers.sparknativetransformer.SparkNativeTransformer"><code class="xref py py-class docutils literal"><span class="pre">_transformers.sparknativetransformer.SparkNativeTransformer</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasInputCol</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pyspark.ml.param.shared.HasOutputCol</span></code></p>
 <p>Consolidates SM_RESOURCE elements to simplify redundant data, based
-off of the following criteria:
-1) SAML Requests</p>
+off of the following criteria:</p>
+<ol class="arabic simple">
+<li>SAML Requests</li>
+</ol>
 <blockquote>
 <div>Suggested Categorization: Strings containing the prefix ‘/cmsws’ and
 substrings ‘redirect’ and ‘SAML’. The URLs starting with ‘/SAMLRequest’.
@@ -1414,6 +1545,18 @@ outputCol”)</td>
 forms of different URLs with
 respect to the aforementioned
 cleaning strategies.</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – Input column to be processed within the transformer</li>
+<li><strong>outputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – Name of the output column</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1955,6 +2098,27 @@ er</td>
 by user in current time  window
 is same as that in the previous
 time window</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>window_length</strong> (<em>long</em>) – Length of the sliding window (in seconds)</li>
+<li><strong>window_step</strong> (<em>long</em>) – Length of time between start of successive time windows (in seconds)</li>
+<li><strong>inputCol</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.10)"><em>string</em></a>) – (default: “CN”) Name of generated column that contains extracted CN</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Example:</th><td class="field-body"><div class="first last highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">userfeaturegenerator</span> <span class="k">import</span> <span class="n">UserFeatureGenerator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">feature_generator</span> <span class="o">=</span> <span class="n">UserFeatureGenerator</span><span class="p">(</span>
+<span class="go">        window_length = 1800, window_step = 1800)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">features</span> <span class="o">=</span> <span class="n">feature_generator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">input_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</td>
 </tr>
 </tbody>
 </table>

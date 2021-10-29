@@ -225,6 +225,19 @@ class IPFeatureGenerator(SparkNativeTransformer, HasInputCol):
     |             |          | in “,” in SM_USERNAME during time|
     |             |          | window                           |
     +-------------+----------+----------------------------------+
+
+    :param window_length: Length of the sliding window (in seconds)
+    :param window_step: Length of the sliding window's step-size (in seconds)
+    :param inputCol: (default: "CN") Name of generated column that contains extracted CN
+    :type window_length: long
+    :type window_step: long
+    :type inputCol: string
+
+    :Example:
+       >>> from ipfeaturegenerator import IPFeatureGenerator
+       >>> feature_generator = IPFeatureGenerator
+            (window_length = 1800, window_step = 1800)
+       >>> features = feature_generator.transform(dataset = input_dataset)
     """
 
     window_length = Param(
