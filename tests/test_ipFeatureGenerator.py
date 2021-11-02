@@ -5,8 +5,8 @@ from pyspark.sql.session import SparkSession
 from src.caaswx.spark._transformers.ipfeaturegenerator import (
     IPFeatureGenerator,
 )
-from src.caaswx.spark.scripts.loadtestdata import load_test_data, load_path
-from src.caaswx.spark.scripts.nullswap import null_swap
+from src.caaswx.spark.utilities.loadtestdata import load_test_data, load_path
+from src.caaswx.spark.utilities.nullswap import null_swap
 
 spark = SparkSession.builder.getOrCreate()
 

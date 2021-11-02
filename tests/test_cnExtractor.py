@@ -1,5 +1,5 @@
 from src.caaswx.spark._transformers.cnextractor import CnExtractor
-from src.caaswx.spark.scripts.loadWriteParquet import load_parquet
+from src.caaswx.spark.utilities.loadWriteParquet import load_parquet
 
 
 def test_cnextractor():
