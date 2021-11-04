@@ -5,7 +5,38 @@ caa-streamworx is a code repository for the backend data pipeline development of
 The code in this repository is written in python and meant to be deployed on a databricks service running in a CRA azure subscription. Thus, it is largely a spark-based project. Since the deployment takes place in Azure, some dev ops are staged in the appropriate azure services, and some additional development takes place in notebooks which are not version-controlled here.
 
 # Installation/Deployment
-[Deployment of a new release on databricks using Azure Dev Ops](https://github.com/CRA-CAA/caa-streamworx/files/6894297/library.Release.pdf)
+
+Creating a new library release:
+
+1) Increment version number in setup.cfg in master.
+2) Create a pull request from master to azureDevOpsbranch.
+3) Run Pipeline:
+  - Open dev.azure.com
+  - Select Pipelines -> Pipelines
+  - Select CRA-CAA.caa-streamworx
+  - Select Run Pipeline
+4) Edit release on Azure Devops Page:
+  - Open dev.azure.com
+  - Select Pipelines -> Releases
+  - Select Edit -> Tasks
+5) Update version number. 
+6) Update feed and dbfs names in Release script to the current version number.
+7) Save, then Create Release -> Create
+Note: If the release is not initially deployed, try again as we may not have been assigned a worker yet
+
+To install on single cluster:
+
+1) Use:
+  %pip install /dbfs/FileStore/wheelFiles/caaswx-0.0.XX-py3-none-any.whl
+  in a notebook to install for that session.
+
+To change initial install cluster:
+
+1) Select the release pipeline, then Edit -> Variables, and change variables to those corresponding
+to desired cluster.
+
+For further details reference 
+[here.](https://github.com/CRA-CAA/caa-streamworx/files/6894297/library.Release.pdf)
 
 # Project Structure
 This project consists of three broad categories of assets for constructing pipelines and machine learning models:
