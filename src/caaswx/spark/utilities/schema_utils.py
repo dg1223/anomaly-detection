@@ -2,8 +2,10 @@ from pyspark.sql.types import StructType, ArrayType
 
 
 def null_swap(st1, st2):
-    """Function to swap datatype null parameter within a nested dataframe
-    schema"""
+    """
+    Function to swap datatype null parameter within a nested dataframe
+    schema
+    """
     for sf in st1:
         sf.nullable = st2[sf.name].nullable
         if isinstance(sf.dataType, StructType):
@@ -13,6 +15,9 @@ def null_swap(st1, st2):
 
 
 def struct_field_compare(sf1, sf2):
+    """
+    Returns True if two structfeilds are the same, else False.
+    """
     if isinstance(sf1.dataType, StructType):
         return struct_compare(sf1.dataType, sf2.dataType)
     else:
@@ -20,6 +25,9 @@ def struct_field_compare(sf1, sf2):
 
 
 def struct_compare(st1, st2):
+    """
+    Returns True if one schema is a subset of another, else False.
+    """
     if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
         return False
     for sf in st1:
@@ -64,3 +72,21 @@ def schema_contains(schema, structfield, compare_nulls=False):
     if compare_nulls:
         return structfield in schema
     return struct_compare(StructType([structfield]), schema)
+
+
+def schema_concat(schema_list):
+    """
+    Returns a Schema, without any duplicates. If their is a duplicate name
+    amongst the structfields with differing datatype an Exception will be
+    thrown.
+    """
+
+    duplicate_rem = set()
+    for sf in schema_list:
+        duplicate_rem.add(sf)
+
+    schema_name_list = [sf.name for sf in duplicate_rem]
+    if len(schema_name_list) != len(set(schema_name_list)):
+        raise Exception("Duplicate Name, Type Mismatch ERROR.")
+
+    return StructType(list(duplicate_rem))
