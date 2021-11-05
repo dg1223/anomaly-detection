@@ -57,10 +57,10 @@ def schema_contains(schema, structfield, compare_nulls=False):
 
 def schema_concat(schema_list):
     """
-  Specs:
-  - If name is the same, but rest of structfield isn't, throw exception
-  - If everything is the same, do not duplicate
-  """
+    Specs:
+    - If name is the same, but rest of structfield isn't, throw exception
+    - If everything is the same, do not duplicate
+    """
 
     duplicate_rem = set()
     for sf in schema_list:
