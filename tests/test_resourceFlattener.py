@@ -1,7 +1,7 @@
 from src.caaswx.spark._transformers.resourcesflattener import (
     ResourcesFlattener,
 )
-from src.caaswx.spark.scripts.loadtestdata import load_test_data
+from src.caaswx.spark.utilities.loadtestdata import load_test_data
 
 
 def test_single_window_dataframe():

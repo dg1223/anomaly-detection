@@ -1,4 +1,4 @@
-from src.caaswx.spark.scripts.nullswap import null_swap
+from src.caaswx.spark.utilities.schema_utils import null_swap
 from pyspark.sql.session import SparkSession
 import json
 import pyspark.sql.types
