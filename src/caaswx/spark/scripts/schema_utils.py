@@ -55,3 +55,24 @@ def schema_contains(schema, structfield, compare_nulls=False):
     if compare_nulls:
         return structfield in schema
     return struct_compare(StructType([structfield]), schema)
+
+def schema_concat(schema_list):
+  """
+  Specs:
+  - If name is the same, but rest of structfield isn't, throw exception
+  - If everything is the same, do not duplicate
+  """
+   
+  duplicate_rem = set()
+  for sf in schema_list:
+    duplicate_rem.add(sf) 
+    
+  schema_dict = {}
+  for sf in duplicate_rem:
+    if sf.name in schema_dict.keys():
+      schema_dict[sf.name] = schema_dict[sf.name]+1
+      raise Exception("DUPLICATE NAME, TYPE MISMATCH ERROR")
+    else:
+      schema_dict[sf.name] = 1
+  
+  return StructType(list(duplicate_rem))
