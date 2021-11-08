@@ -18,6 +18,7 @@ class HasInputSchema(Transformer):
     |             |          | Spark DatFrame.                  |
     +-------------+----------+----------------------------------+
     """
+
     input_schema = Param(
         Params._dummy(),
         "input_schema",
