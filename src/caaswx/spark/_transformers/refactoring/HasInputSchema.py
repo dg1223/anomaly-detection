@@ -7,16 +7,7 @@ from pyspark.ml.param import Param, Params
 
 class HasInputSchema(Transformer):
     """
-    Class skeleton for verifying the Input Schema with a given schema
-
-    +-------------+----------+----------------------------------+
-    | Input Object | Datatype | Description                     |
-    +=============+==========+==================================+
-    | schema      | StructTy | The schema of the Spark DatFrame |
-    |             | pe       | to be verified. It ise output of |
-    |             |          | "df.schema" where "df" is a      |
-    |             |          | Spark DatFrame.                  |
-    +-------------+----------+----------------------------------+
+    A mixin class skeleton for verifying the Input Schema with a given schema
     """
 
     input_schema = Param(
@@ -35,15 +26,6 @@ class HasInputSchema(Transformer):
         self._setDefault(input_schema=None)
         kwargs = self._input_kwargs
         self.setParams(**kwargs)
-
-    @keyword_only
-    def setparams(self, *, input_schema=None):
-        """
-        setparams(self, *, input_schema=None)
-        sets the parameters for HasInputSchema
-        """
-        kwargs = self._input_kwargs
-        return self._set(**kwargs)
 
     def schema_is_admissable(
         self, schema: pyspark.sql.types.StructType, compare_nulls=False
