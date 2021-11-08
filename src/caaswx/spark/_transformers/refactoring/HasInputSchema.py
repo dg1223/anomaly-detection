@@ -6,6 +6,18 @@ from pyspark.ml.param import Param, Params
 
 
 class HasInputSchema(Transformer):
+    """
+    Class skeleton for verifying the Input Schema with a given schema
+
+    +-------------+----------+----------------------------------+
+    | Input Object | Datatype | Description                     |
+    +=============+==========+==================================+
+    | schema      | StructTy | The schema of the Spark DatFrame |
+    |             | pe       | to be verified. It ise output of |
+    |             |          | "df.schema" where "df" is a      |
+    |             |          | Spark DatFrame.                  |
+    +-------------+----------+----------------------------------+
+    """
     input_schema = Param(
         Params._dummy(),
         "input_schema",
@@ -15,7 +27,8 @@ class HasInputSchema(Transformer):
     @keyword_only
     def __init__(self, *, input_schema=None):
         """
-        Constructor accepting the input schema to be verified
+        :param input_schema: The schema to be verified
+        :type input_schema: structtype
         """
         super(HasInputSchema, self).__init__()
         self._setDefault(input_schema=None)
@@ -26,6 +39,7 @@ class HasInputSchema(Transformer):
     def setparams(self, *, input_schema=None):
         """
         setparams(self, *, input_schema=None)
+        sets the parameters for HasInputSchema
         """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
@@ -36,6 +50,21 @@ class HasInputSchema(Transformer):
         """
         Method for verifying if the schema specified in
         the arugment is a subset of self's schema
+
+        This method accepts the following input parameters:
+
+        +-------------+----------+----------------------------------+
+        | Input       | Datatype | Description                      |
+        +=============+==========+==================================+
+        | schema      | StructTy | The schema of the Spark DatFrame |
+        |             | pe       | to be checked. It ise output of  |
+        |             |          | "df.schema" where "df" is a      |
+        |             |          | Spark DatFrame.                  |
+        +-------------+----------+----------------------------------+
+        | compare_nul | boolean  | Argument for schema_is_subset()  |
+        | ls          |          | Determines if nullability would  |
+        |             |          | be considered.                   |
+        +-------------+----------+----------------------------------+
         """
         return schema_is_subset(
             self.input_schema, schema, compare_nulls=compare_nulls
