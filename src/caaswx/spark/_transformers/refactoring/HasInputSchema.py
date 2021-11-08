@@ -1,4 +1,4 @@
-from src.caaswx.spark.utilities.schema_utils import *
+from src.caaswx.spark.utilities.schema_utils import schema_is_subset
 import pyspark
 from pyspark import keyword_only
 from pyspark.ml import Transformer
@@ -12,9 +12,6 @@ class HasInputSchema(Transformer):
         "Param specifying the required schema of the input dataframe.",
     )
 
-    def __init__(self):
-        super(HasInputSchema, self).__init__()
-
     @keyword_only
     def __init__(self, *, input_schema=None):
         super(HasInputSchema, self).__init__()
@@ -23,7 +20,7 @@ class HasInputSchema(Transformer):
         self.setParams(**kwargs)
 
     @keyword_only
-    def setParams(self, *, input_schema=None):
+    def setparams(self, *, input_schema=None):
         kwargs = self._input_kwargs
         return self._set(**kwargs)
 
