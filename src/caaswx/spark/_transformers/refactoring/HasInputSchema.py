@@ -34,20 +34,13 @@ class HasInputSchema(Transformer):
         Method for verifying if the schema specified in
         the arugment is a subset of self's schema
 
-        This method accepts the following input parameters:
-
-        +-------------+----------+----------------------------------+
-        | Input       | Datatype | Description                      |
-        +=============+==========+==================================+
-        | schema      | StructTy | The schema of the Spark DatFrame |
-        |             | pe       | to be checked. It ise output of  |
-        |             |          | "df.schema" where "df" is a      |
-        |             |          | Spark DatFrame.                  |
-        +-------------+----------+----------------------------------+
-        | compare_nul | boolean  | Argument for schema_is_subset()  |
-        | ls          |          | Determines if nullability would  |
-        |             |          | be considered.                   |
-        +-------------+----------+----------------------------------+
+        :param schema: The schema of the Spark DatFrame
+        to be checked. It ise output of "df.schema"
+        where "df" is a Spark DatFrame.
+        :param compare_nulls: Argument for schema_is_subset()
+        It determines if nullability would be considered
+        :type schema: structtype
+        :type compare_nulls: boolean
         """
         return schema_is_subset(
             self.input_schema, schema, compare_nulls=compare_nulls
