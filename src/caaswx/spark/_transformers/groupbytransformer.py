@@ -4,7 +4,14 @@ from src.caaswx.spark.utilities.schema_utils import schema_concat
 
 
 class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
+    """
+    A transformer that GroupbyFeature operates using.
+    """
+
     def __init__(self, group_keys, features):
+        """
+        Initializes transformer, schemas are concatenated and set automatically
+        """
         super(GroupbyTransformer, self).__init__()
         self._features = features
         self._group_keys = group_keys
@@ -14,6 +21,9 @@ class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
         self.set_input_schema(schema_concat(list(feature_schemas)))
 
     def _transform(self, dataset):
+        """
+        Runs pre_op, agg_op, and post_op in order corresponding to features
+        """
         for feature in self._features:
             dataset = feature.pre_op(dataset)
         dataset = dataset.groupby(*self._group_keys).agg(
