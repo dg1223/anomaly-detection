@@ -27,6 +27,7 @@ class HasInputSchema(Transformer):
         Returns ``True`` if each :class:`StructField` of ``schema``
         is contained in this entity's schema, modulo nullability if
         ``compare_nulls`` is ``False``.
+
         :param schema: The input schema to be checked.
         :param compare_nulls: If this flag is ``False``, comparison
         of :class:`pyspark.sql.Types.StructField`'s is done
