@@ -7,7 +7,7 @@ from pyspark.ml.param import Param, Params
 
 class HasInputSchema(Transformer):
     """
-    A mixin class skeleton for verifying the Input Schema with a given schema
+    A mixin for entities which maintain an input schema.
     """
 
     input_schema = Param(
@@ -17,30 +17,23 @@ class HasInputSchema(Transformer):
     )
 
     @keyword_only
-    def __init__(self, *, input_schema=None):
-        """
-        :param input_schema: The schema to be verified
-        :type input_schema: structtype
-        """
+    def __init__(self):
         super(HasInputSchema, self).__init__()
-        self._setDefault(input_schema=None)
-        kwargs = self._input_kwargs
-        self.setParams(**kwargs)
 
     def schema_is_admissable(
         self, schema: pyspark.sql.types.StructType, compare_nulls=False
     ):
         """
-        Method for verifying if the schema specified in
-        the arugment is a subset of self's schema
+        Returns ``True`` if each :class:`StructField` of ``schema``
+        is contained in this entity's schema, modulo nullability if
+        ``compare_nulls`` is ``False``.
 
-        :param schema: The schema of the Spark DatFrame
-        to be checked. It ise output of "df.schema"
-        where "df" is a Spark DatFrame.
-        :param compare_nulls: Argument for schema_is_subset()
-        It determines if nullability would be considered
-        :type schema: structtype
-        :type compare_nulls: boolean
+        :param schema: The input schema to be checked.
+        :param compare_nulls: If this flag is ``False``, comparison
+        of :class:`pyspark.sql.Types.StructField`'s is done
+        ignoring nullability.
+        :type schema: :class:`pyspark.sql.Types.StructType`
+        :type compare_nulls: ``boolean``
         """
         return schema_is_subset(
             self.input_schema, schema, compare_nulls=compare_nulls
@@ -48,12 +41,14 @@ class HasInputSchema(Transformer):
 
     def set_input_schema(self, schema: pyspark.sql.types.StructType):
         """
-        setter method for the class
+        Sets this entity's input schema.
+        :param schema: The input schema to be set.
+        :type schema: :class:`pyspark.sql.types.StructType`
         """
-        self.input_schema = schema
+        self.set("input_schema", schema)
 
     def get_input_schema(self):
         """
-        getter method for the class
+        Gets this entity's input schema.
         """
         return self.getOrDefault("input_schema")
