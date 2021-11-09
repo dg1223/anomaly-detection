@@ -11,6 +11,10 @@ class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
     def __init__(self, group_keys, features):
         """
         Initializes transformer, schemas are concatenated and set automatically
+        :param group_keys: IDs of column to be used
+        :param features: Different features to be generated
+        :type group_keys: list
+        :type features: list
         """
         super(GroupbyTransformer, self).__init__()
         self._features = features
