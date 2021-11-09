@@ -11,6 +11,8 @@ class GroupbyFeature(HasInputSchema):
     def pre_op(self, dataset):
         """
         Setting up dataset to be aggregated, not always necessary
+        :param dataset: the data that may need preparation
+        :type dataset: dataframe
         """
         raise NotImplementedError()
 
@@ -23,6 +25,8 @@ class GroupbyFeature(HasInputSchema):
     def post_op(self, dataset):
         """
         General cleanup, not always necessary
+        :param dataset: the data that may need cleanup
+        :type dataset: dataframe
         """
         raise NotImplementedError()
 
