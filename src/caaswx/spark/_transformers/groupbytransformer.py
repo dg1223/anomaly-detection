@@ -16,7 +16,7 @@ class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
         :param features: a list of features to be calculated by
         this transformer.
         :type group_keys: list of str
-        :type features: list of :class:`Feature`
+        :type features: list of :class:`GroupbyFeature`
         """
         super(GroupbyTransformer, self).__init__()
         self._features = features
