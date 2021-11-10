@@ -22,7 +22,7 @@ class GroupbyFeature(HasInputSchema):
 
     def agg_op(self):
         """
-        This feature's aggegaring operation peformed 
+        This feature's aggegaring operation peformed
         during the groupby.
         :return: A SQL clause describing the aggregating
         function.
@@ -46,7 +46,7 @@ class GroupbyFeature(HasInputSchema):
         """
         :return: A transformer that calculates this feature.
         :rtype: :class:`caaswx.spark.transformers.GroupbyTransformer`
-        :param group_keys: strings describing the columns that the 
+        :param group_keys: strings describing the columns that the
         returned transformed aggregates on.
         :type group_keys: :class:list
         """
