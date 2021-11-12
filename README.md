@@ -210,5 +210,38 @@ IPfeaturegenerator.py
 | IP\_COUNT\_UNIQUE\_OU        | A count of distinct Entries containing “ou=” and a string ending in “,” in SM\_USERNAME during time window.        |
 
 
+# Working with Sphinx docstrings
+We have utilized the [Sphinx API](https://www.sphinx-doc.org/en/master/) for documenting every module. `Sphinx` makes sure that the parsed docstrings (written as per `Sphinx` API format ) get converted into flexible HTML documents which can be viewed on browsers in an easy-to-read fashion. The recommended way of adding documentation is appropriate utilization of `Sphinx` by formatting the comment docstrings as per `Sphinx` parser's design. This section explains the pre-requisites and steps for creating/updating the `Sphinx` web documents. 
+
+## Prerequisites
+- The system must have `Sphinx` API pre-installed. If not, open the `Terminal` and install it via: `sudo apt-get install python3-sphinx -y`
+- The required `Python` libraries utilized in the code to be documented must be installed in the system.
+
+## Steps for creating Sphinx documentation for the first time
+
+Please follow the following steps __only if there are no existing Sphinx documents in your project repository__. If there is a folder named docs in your repository, please follow the steps written in the next section (Steps for adding documents to existing ones).
+
+### Sphinx setup steps
+- Let's assume that the `Python` code to be documented lies in the relative path within the repository: *./Folder_A/Folder_B/*. Navigate the `terminal` into the project repository.
+- Write the required `Sphinx` docstrings within each `Python` file. (Refer: [Sphinx Documentation](https://pythonhosted.org/an_example_pypi_project/sphinx.html))
+- Create a documentation directory (Let's say *docs*) within the project repository and navigate the terminal inside it (`mkdir docs` and then `cd docs`).
+- Execute: `sphinx-quickstart` at this path. Fill the options like *project name*, *author name*, etc. (__Important: Select the autodoc option to "y"__). A bunch of files will be created within the docs folder.
+- Edit `conf.py`. Uncomment the `import` commands and set the root path by un-commenting and writing `sys.path.insert(0, os.path.abspath('../Folder_A/Folder_B/'))`.
+- Edit `index.rst` by writing _modules_ in the next line of _:caption: Contents:_ (__with the same indentation__).
+- Execute `sphinx-apidoc -o . ../Folder_A/Folder_B/` ("." represents the output_path which is inside docs folder and "../Folder_A/Folder_B/" represents the path to the package to document.
+- Execute `make html` and the HTML pages will be built in __build/html_.
+- View the HTML pages in a browser.
+
+## Steps for adding documents to existing ones
+Let's assume that there are some `Sphinx` documents already available in the project repository and we want to edit the existing documents or append new ones. Please follow the steps given below for achieving these goals:
+
+- Write your new docstrings as per [Sphinx](https://pythonhosted.org/an_example_pypi_project/sphinx.html) format.
+- Open a new `terminal` inside the `docs` folder.
+- Execute `sh update_documentation.sh`. 
+
+__update_documentation.sh__ is a Shell script ensuring a smooth creation of new `Sphinx` documents as per the updated Sphinx docstrings by performing the required cleaning and execution of `Sphinx` steps.
+
+
+
 # License
 [MIT](https://choosealicense.com/licenses/mit/)
