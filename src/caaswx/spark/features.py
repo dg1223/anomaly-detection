@@ -801,6 +801,13 @@ class MinUserTimestamp(MinFeature, HasTypedInputCol):
     def __init__(
         self, inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
     ):
+        """
+        :param inputCol: Name for the input Column of the feature.
+        :type inputCol: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(MinUserTimestamp, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
@@ -808,6 +815,12 @@ class MinUserTimestamp(MinFeature, HasTypedInputCol):
         self._set(inputCol="SM_TIMESTAMP", inputColType=TimestampType())
 
     def num_clause(self):
+        """
+        Implementation of the base logic of required min feature.
+
+        :return: Returns inputCol
+        :rtype: :class:`pyspark.sql.Column'
+        """
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
@@ -823,6 +836,13 @@ class MinTimeBtRecords(MinFeature, HasTypedInputCols):
         inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
         outputCol="MIN_TIME_BT_RECORDS",
     ):
+        """
+        :param inputCols: Name for the input Columns of the feature.
+        :type inputCols: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(MinTimeBtRecords, self).__init__(outputCol)
         self._setDefault(
             inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
@@ -834,9 +854,21 @@ class MinTimeBtRecords(MinFeature, HasTypedInputCols):
         )
 
     def num_clause(self):
+        """
+        Implementation of the base logic of required max feature.
+
+        :return: Returns inputCol
+        :rtype: :class:`pyspark.sql.Column'
+        """
         return col(self.getOrDefault("inputCols")[0])
 
     def pre_op(self, dataset):
+        """
+         Operations required to prepare dataset for num_clause
+
+         :return: Returns the prepared Dataframe
+         :rtype: :class:`pyspark.sql.Dataframe'
+         """
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
