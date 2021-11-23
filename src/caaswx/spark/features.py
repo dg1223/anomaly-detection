@@ -1,6 +1,10 @@
-# Module containing the feature classes of various transformers
-class CountAuthAccept(CounterFeature, HasTypedInputCol):
+from pyspark.sql.functions import col, when
+from pyspark.sql.types import IntegerType, StringType, LongType
+from utils import HasTypedInputCol, HasTypedInputCols
+from base import CounterFeature
 
+
+class CountAuthAccept(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -10,14 +14,8 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAuthAccept, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_AUTH_ACCEPT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -26,7 +24,7 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 1.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 1, True)
+        return when(col(self.getOrDefault("inputCol")) == 1, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -36,7 +34,6 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthReject(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -46,14 +43,8 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAuthReject, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_AUTH_REJECT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -62,7 +53,7 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 2.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 2, True)
+        return when(col(self.getOrDefault("inputCol")) == 2, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -72,7 +63,6 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminAttempt(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_ATTEMPT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -83,13 +73,9 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
         """
         super(CountAdminAttempt, self).__init__(outputCol)
         self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_ADMIN_ATTEMPT"
+            inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_ATTEMPT"
         )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -98,7 +84,7 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 3.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 3, True)
+        return when(col(self.getOrDefault("inputCol")) == 3, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -108,9 +94,9 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthChallenge(CounterFeature, HasTypedInputCol):
-
-    def __init__(self, inputCol="SM_EVENTID",
-                 outputCol="COUNT_AUTH_CHALLENGE"):
+    def __init__(
+        self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_CHALLENGE"
+    ):
         """
         :param inputCol: Name for the input Column of the feature.
         :type inputCol: StringType
@@ -120,13 +106,9 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
         """
         super(CountAuthChallenge, self).__init__(outputCol)
         self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_AUTH_CHALLENGE"
+            inputCol="SM_EVENTID", outputCol="COUNT_AUTH_CHALLENGE"
         )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -135,7 +117,7 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 4.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 4, True)
+        return when(col(self.getOrDefault("inputCol")) == 4, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -145,7 +127,6 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
 
 
 class CountAZAccept(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -155,14 +136,8 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAZAccept, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_AZ_ACCEPT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -171,7 +146,7 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 5.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 5, True)
+        return when(col(self.getOrDefault("inputCol")) == 5, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -181,7 +156,6 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAZReject(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -191,14 +165,8 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAZReject, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_AZ_REJECT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -207,7 +175,7 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 6.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 6, True)
+        return when(col(self.getOrDefault("inputCol")) == 6, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -217,7 +185,6 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogin(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -227,14 +194,8 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAdminLogin, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_ADMIN_LOGIN"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -243,7 +204,7 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 7.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 7, True)
+        return when(col(self.getOrDefault("inputCol")) == 7, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -253,7 +214,6 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogout(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -263,14 +223,8 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAdminLogout, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_ADMIN_LOGOUT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -279,7 +233,7 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 8.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 8, True)
+        return when(col(self.getOrDefault("inputCol")) == 8, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -289,7 +243,6 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminReject(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -299,14 +252,8 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAdminReject, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_ADMIN_REJECT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -315,7 +262,7 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 9.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 9, True)
+        return when(col(self.getOrDefault("inputCol")) == 9, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -325,7 +272,6 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthLogout(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -335,14 +281,8 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountAuthLogout, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_AUTH_LOGOUT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -351,7 +291,7 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 10.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 10, True)
+        return when(col(self.getOrDefault("inputCol")) == 10, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -361,9 +301,9 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountValidateAccept(CounterFeature, HasTypedInputCol):
-
-    def __init__(self, inputCol="SM_EVENTID",
-                 outputCol="COUNT_VALIDATE_ACCEPT"):
+    def __init__(
+        self, inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_ACCEPT"
+    ):
         """
         :param inputCol: Name for the input Column of the feature.
         :type inputCol: StringType
@@ -373,13 +313,9 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
         """
         super(CountValidateAccept, self).__init__(outputCol)
         self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_VALIDATE_ACCEPT"
+            inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_ACCEPT"
         )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -388,7 +324,7 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 11.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 11, True)
+        return when(col(self.getOrDefault("inputCol")) == 11, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -398,9 +334,9 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountValidateReject(CounterFeature, HasTypedInputCol):
-
-    def __init__(self, inputCol="SM_EVENTID",
-                 outputCol="COUNT_VALIDATE_REJECT"):
+    def __init__(
+        self, inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_REJECT"
+    ):
         """
         :param inputCol: Name for the input Column of the feature.
         :type inputCol: StringType
@@ -410,13 +346,9 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
         """
         super(CountValidateReject, self).__init__(outputCol)
         self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_VALIDATE_REJECT"
+            inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_REJECT"
         )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -425,7 +357,7 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 12.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 12, True)
+        return when(col(self.getOrDefault("inputCol")) == 12, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -435,7 +367,6 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
 
 
 class CountVisit(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_VISIT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -445,14 +376,8 @@ class CountVisit(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountVisit, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_VISIT"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_VISIT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -461,7 +386,7 @@ class CountVisit(CounterFeature, HasTypedInputCol):
         :return: Returns True if EVENTID == 13.
         :rtype: BooleanType
         """
-        return when(col(self.getOrDefault('inputCol')) == 13, True)
+        return when(col(self.getOrDefault("inputCol")) == 13, True)
 
     def pre_op(self, dataset):
         return dataset
@@ -471,7 +396,6 @@ class CountVisit(CounterFeature, HasTypedInputCol):
 
 
 class CountFailed(CounterFeature, HasTypedInputCol):
-
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_FAILED"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -481,14 +405,8 @@ class CountFailed(CounterFeature, HasTypedInputCol):
         :type outputCol: StringType
         """
         super(CountFailed, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_EVENTID",
-            outputCol="COUNT_FAILED"
-        )
-        self._set(
-            inputCol="SM_EVENTID",
-            inputColType=IntegerType()
-        )
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_FAILED")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
         """
@@ -499,11 +417,11 @@ class CountFailed(CounterFeature, HasTypedInputCol):
         """
         return when(
             (
-                    (col(self.getOrDefault('inputCol')) == 2)
-                    | (col(self.getOrDefault('inputCol')) == 6)
-                    | (col(self.getOrDefault('inputCol')) == 9)
+                (col(self.getOrDefault("inputCol")) == 2)
+                | (col(self.getOrDefault("inputCol")) == 6)
+                | (col(self.getOrDefault("inputCol")) == 9)
             ),
-            True
+            True,
         )
 
     def pre_op(self, dataset):
@@ -518,22 +436,23 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
     Counter for occurences of "ams" or "AMS" in SM_USERNAME or SM_RESOURCE
     """
 
-    def __init__(self, inputCol=["SM_USERNAME", "SM_RESOURCE"],
-                 outputCol="COUNT_OU_AMS"):
+    def __init__(
+        self, inputCol=["SM_USERNAME", "SM_RESOURCE"], outputCol="COUNT_OU_AMS"
+    ):
         """
-        :param inputCol: Columns to search through, SM_USERNAME and SM_RESOURCE by default
+        :param inputCol: Columns to search through, SM_USERNAME and SM_RESOURCE
+        by default
         :param outputCol: Column to write the count to
         :type inputCol: list of StringTypes
         :type outputCol: StringType
         """
         super(CountOUAms, self).__init__(outputCol)
         self._setDefault(
-            inputCols=["SM_USERNAME", "SM_RESOURCE"],
-            outputCol="COUNT_OU_AMS"
+            inputCols=["SM_USERNAME", "SM_RESOURCE"], outputCol="COUNT_OU_AMS"
         )
         self._set(
             inputCols=["SM_USERNAME", "SM_RESOURCE"],
-            inputColsType=[StringType(), StringType()]
+            inputColsType=[StringType(), StringType()],
         )
 
     def count_clause(self):
@@ -545,10 +464,10 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
         """
         return when(
             (
-                    (col(self.getOrDefault('inputCols')[0]).contains("ams"))
-                    | (col(self.getOrDefault('inputCols')[1]).contains("AMS"))
+                (col(self.getOrDefault("inputCols")[0]).contains("ams"))
+                | (col(self.getOrDefault("inputCols")[1]).contains("AMS"))
             ),
-            True
+            True,
         )
 
     def pre_op(self, dataset):
@@ -565,14 +484,8 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CMS"):
         super(CountOUCms, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_USERNAME",
-            outputCol="COUNT_OU_AMS"
-        )
-        self._set(
-            inputCol="SM_USERNAME",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_AMS")
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -582,10 +495,7 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            (
-                (col(self.getOrDefault('inputCol')).contains("cra-cp"))
-            ),
-            True
+            ((col(self.getOrDefault("inputCol")).contains("cra-cp"))), True
         )
 
     def pre_op(self, dataset):
@@ -602,14 +512,8 @@ class CountGet(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_GET"):
         super(CountGet, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_ACTION",
-            outputCol="COUNT_GET"
-        )
-        self._set(
-            inputCol="SM_ACTION",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_GET")
+        self._set(inputCol="SM_ACTION", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -618,11 +522,7 @@ class CountGet(CounterFeature, HasTypedInputCol):
         :return: Returns True when "GET" in SM_ACTION
         :rtype: BooleanType
         """
-        return when(
-            (col(self.getOrDefault('inputCol')).contains("GET")
-             ),
-            True
-        )
+        return when((col(self.getOrDefault("inputCol")).contains("GET")), True)
 
     def pre_op(self, dataset):
         return dataset
@@ -638,14 +538,8 @@ class CountPost(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_POST"):
         super(CountPost, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_ACTION",
-            outputCol="COUNT_POST"
-        )
-        self._set(
-            inputCol="SM_ACTION",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_POST")
+        self._set(inputCol="SM_ACTION", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -655,9 +549,7 @@ class CountPost(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            (col(self.getOrDefault('inputCol')).contains("POST")
-             ),
-            True
+            (col(self.getOrDefault("inputCol")).contains("POST")), True
         )
 
     def pre_op(self, dataset):
@@ -674,14 +566,8 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD"):
         super(CountHTTPMethod, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_ACTION",
-            outputCol="COUNT_HTTP_METHOD"
-        )
-        self._set(
-            inputCol="SM_ACTION",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD")
+        self._set(inputCol="SM_ACTION", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -691,8 +577,8 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            (col(self.getOrDefault('inputCol')).contains("GET"))
-            | (col(self.getOrDefault('inputCol')).contains("POST")),
+            (col(self.getOrDefault("inputCol")).contains("GET"))
+            | (col(self.getOrDefault("inputCol")).contains("POST")),
             True,
         )
 
@@ -710,14 +596,8 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY"):
         super(CountOUIdentity, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_USERNAME",
-            outputCol="COUNT_OU_IDENTITY"
-        )
-        self._set(
-            inputCol="SM_USERNAME",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY")
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -727,7 +607,7 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault('inputCol')).contains("ou=Identity"),
+            col(self.getOrDefault("inputCol")).contains("ou=Identity"),
             True,
         )
 
@@ -745,14 +625,8 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED"):
         super(CountOUCred, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_USERNAME",
-            outputCol="COUNT_OU_CRED"
-        )
-        self._set(
-            inputCol="SM_USERNAME",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED")
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -762,7 +636,7 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault('inputCol')).contains("ou=Credential"),
+            col(self.getOrDefault("inputCol")).contains("ou=Credential"),
             True,
         )
 
@@ -781,13 +655,9 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_SECUREKEY"):
         super(CountOUSecurekey, self).__init__(outputCol)
         self._setDefault(
-            inputCol="SM_USERNAME",
-            outputCol="COUNT_OU_SECUREKEY"
+            inputCol="SM_USERNAME", outputCol="COUNT_OU_SECUREKEY"
         )
-        self._set(
-            inputCol="SM_USERNAME",
-            inputColType=StringType()
-        )
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -797,7 +667,7 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault('inputCol')).contains("ou=SecureKey"),
+            col(self.getOrDefault("inputCol")).contains("ou=SecureKey"),
             True,
         )
 
@@ -815,14 +685,8 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA"):
         super(CountPortalMya, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_RESOURCE",
-            outputCol="COUNT_PORTAL_MYA"
-        )
-        self._set(
-            inputCol="SM_RESOURCE",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA")
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -832,7 +696,7 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault('inputCol')).contains("mima"),
+            col(self.getOrDefault("inputCol")).contains("mima"),
             True,
         )
 
@@ -850,14 +714,8 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA"):
         super(CountPortalMyba, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_RESOURCE",
-            outputCol="COUNT_PORTAL_MYBA"
-        )
-        self._set(
-            inputCol="SM_RESOURCE",
-            inputColType=StringType()
-        )
+        self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA")
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
 
     def count_clause(self):
         """
@@ -867,7 +725,7 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault('inputCol')).contains("myba"),
+            col(self.getOrDefault("inputCol")).contains("myba"),
             True,
         )
 
@@ -903,10 +761,10 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
     def count_clause(self):
         return when(
             (
-                    (col(self.getOrDefault("inputCol")) >= 1)
-                    | (col(self.getOrDefault("inputCol")) <= 6)
+                (col(self.getOrDefault("inputCol")) >= 1)
+                | (col(self.getOrDefault("inputCol")) <= 6)
             ),
-            True
+            True,
         )
 
     def pre_op(self, dataset):
@@ -917,19 +775,19 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
 
 
 class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
-    def __init__(self, inputCol="SM_RESOURCE",
-                 outputCol="UserNumOfPasswordChange"):
+    def __init__(
+        self, inputCol="SM_RESOURCE", outputCol="UserNumOfPasswordChange"
+    ):
         super(UserNumOfPasswordChange, self).__init__(outputCol)
-        self._setDefault(inputCol="SM_RESOURCE",
-                         outputCol="UserNumOfPasswordChange")
+        self._setDefault(
+            inputCol="SM_RESOURCE", outputCol="UserNumOfPasswordChange"
+        )
         self._set(inputCol="SM_RESOURCE", inputColType=StringType())
 
     def count_clause(self):
         return when(
-            (
-                (col(self.getOrDefault("inputCol")).contains("changePassword"))
-            ),
-            True
+            ((col(self.getOrDefault("inputCol")).contains("changePassword"))),
+            True,
         )
 
     def pre_op(self, dataset):

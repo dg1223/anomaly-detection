@@ -1,11 +1,11 @@
 from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
-from pyspark.sql.functions import window, count, col, when
-from pyspark.ml.param.shared import HasOutputCol
-from pyspark.sql.types import IntegerType, LongType, ArrayType, TimestampType
+from pyspark.sql.functions import window, count
+from pyspark.sql.types import IntegerType
+from utils import HasTypedOutputCol
 
 
-class GroupbyFeature():
+class GroupbyFeature:
     def pre_op(self, dataset):
         raise NotImplementedError()
 
@@ -141,10 +141,7 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :type outputCol: StringType
         """
         super(CounterFeature, self).__init__()
-        self._set(
-            outputCol=outputCol,
-            outputColType=IntegerType()
-        )
+        self._set(outputCol=outputCol, outputColType=IntegerType())
 
     def count_clause(self):
         """
