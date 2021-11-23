@@ -157,3 +157,32 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
+
+
+class MaxFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base Max feature, will be the parent class to all .max features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+        """
+        super(MaxFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def num_clause(self):
+        """
+        Extrema feature implementation.
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+
+        :return: The number
+        :rtype: IntegerType
+        """
+        return sparkmax(self.num_clause()).alias(self.getOutputCol())
