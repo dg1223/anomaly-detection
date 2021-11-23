@@ -157,3 +157,34 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
+
+
+class AvgFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base avg feature, will be the parent class to all .mean features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+        """
+        super(AvgFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def num_clause(self):
+        """
+        Avg feature implementation.
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+
+        :return: The number
+        :rtype: IntegerType
+        """
+        return sparkround(sparkmean(self.num_clause()), 5).alias(
+            self.getOutputCol()
+        )
