@@ -835,11 +835,24 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
 
 class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
+        """
+        :param inputCol: Name for the input Column of the feature.
+        :type inputCol: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(UniqueSMPortals, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
 
     def array_clause(self):
+        """
+        Implementation of the base logic of required array distinct feature.
+
+        :return: Column
+        :rtype: pyspark column
+        """
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
@@ -850,9 +863,17 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
+    
     def __init__(
         self, inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
     ):
+        """
+        :param inputCol: Name for the input Column of the feature.
+        :type inputCol: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(UniqueSMTransactions, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
@@ -862,6 +883,12 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
         )
 
     def array_clause(self):
+        """
+        Implementation of the base logic of required array distinct feature.
+
+        :return: Column
+        :rtype: pyspark column
+        """
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
@@ -880,6 +907,12 @@ class SMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
         )
 
     def array_clause(self):
+        """
+        Implementation of the base logic of required array distinct feature.
+
+        :return: Column
+        :rtype: pyspark column
+        """
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
