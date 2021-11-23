@@ -168,8 +168,9 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
-        :param outputColType: Type of column
         :type outputCol: StringType
+        
+        :param outputColType: Type of column
         :type outputColType: ArrayType(StringType())
         """
         super(ArrayDistinctFeature, self).__init__()
