@@ -1,6 +1,22 @@
 from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
-from pyspark.sql.functions import window
+from pyspark.sql.functions import window, count, col, when
+from pyspark.ml.param.shared import HasOutputCol
+from pyspark.sql.types import IntegerType, LongType, ArrayType, TimestampType
+
+
+class GroupbyFeature():
+    def pre_op(self, dataset):
+        raise NotImplementedError()
+
+    def agg_op(self):
+        raise NotImplementedError()
+
+    def post_op(self, dataset):
+        raise NotImplementedError()
+
+    def get_transformer(self, group_keys):
+        return GroupbyTransformer(group_keys=group_keys, features=[self])
 
 
 class GroupbyTransformer(Transformer):
@@ -78,7 +94,7 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
 
         self._set(window_length=window_length, window_step=window_step)
 
-    def get_window_ength(self):
+    def get_window_length(self):
         """
         Gets this entity's window_length
         """
@@ -112,3 +128,35 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
         for feature in self._features:
             dataset = feature.post_op(dataset)
         return dataset
+
+
+class CounterFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base counter feature, will be the parent class to all counting features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
+        super(CounterFeature, self).__init__()
+        self._set(
+            outputCol=outputCol,
+            outputColType=IntegerType()
+        )
+
+    def count_clause(self):
+        """
+        Counting feature implementation.
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the count defined by subclasses
+
+        :return: The Count
+        :rtype: IntegerType
+        """
+        return count(self.count_clause()).alias(self.getOutputCol())
