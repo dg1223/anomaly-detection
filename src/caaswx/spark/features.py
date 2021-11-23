@@ -1,7 +1,7 @@
 from pyspark.sql.functions import col, when
 from pyspark.sql.types import IntegerType, StringType, LongType
 from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature
+from base import CounterFeature, SumFeature
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -791,6 +791,36 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         )
 
     def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class UserNumOfAccountsLoginWithSameIPs(SumFeature, HasTypedInputCol):
+    def __init__(
+        self,
+        inputCol="distinct_usernames_for_ip",
+        outputCol="UserNumOfAccountsLoginWithSameIPs",
+    ):
+        super(UserNumOfAccountsLoginWithSameIPs, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="distinct_usernames_for_ip",
+            outputCol="UserNumOfAccountsLoginWithSameIPs",
+        )
+        self._set(
+            inputCol="distinct_usernames_for_ip", inputColType=LongType()
+        )
+
+    def num_clause(self):
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        if "distinct_usernames_for_ip" not in dataset.columns:
+            ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
+                countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+            )
+            dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
         return dataset
 
     def post_op(self, dataset):
