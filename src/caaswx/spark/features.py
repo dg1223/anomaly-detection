@@ -803,6 +803,13 @@ class UserNumOfAccountsLoginWithSameIPs(SumFeature, HasTypedInputCol):
         inputCol="distinct_usernames_for_ip",
         outputCol="UserNumOfAccountsLoginWithSameIPs",
     ):
+        """
+        :param inputCol: Name for the input Column of the feature.
+        :type inputCol: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(UserNumOfAccountsLoginWithSameIPs, self).__init__(outputCol)
         self._setDefault(
             inputCol="distinct_usernames_for_ip",
@@ -813,9 +820,21 @@ class UserNumOfAccountsLoginWithSameIPs(SumFeature, HasTypedInputCol):
         )
 
     def num_clause(self):
+        """
+        Implementation of the base logic of required sum feature.
+
+        :return: Returns inputCol
+        :rtype: :class:`pyspark.sql.Column'
+        """
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
+        """
+        Operations required to prepare dataset for num_clause
+
+        :return: Returns the prepared Dataframe
+        :rtype: :class:`pyspark.sql.Dataframe'
+        """
         if "distinct_usernames_for_ip" not in dataset.columns:
             ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
                 countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")

@@ -161,7 +161,7 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
 
 class SumFeature(GroupbyFeature, HasTypedOutputCol):
     """
-    Base avg feature, will be the parent class to all .sum features.
+    Base sum feature, will be the parent class to all .sum features.
     """
 
     def __init__(self, outputCol):
@@ -174,7 +174,7 @@ class SumFeature(GroupbyFeature, HasTypedOutputCol):
 
     def num_clause(self):
         """
-        Avg feature implementation.
+        Sum feature implementation.
         """
         raise NotImplementedError()
 
