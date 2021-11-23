@@ -169,6 +169,9 @@ class SortCollectFeature(GroupbyFeature, HasTypedOutputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
+        
+        :param outputColType: Type of output col
+        :type outputColType: IntegerType
         """
         super(SortCollectFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
