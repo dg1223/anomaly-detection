@@ -172,7 +172,10 @@ class StddevFeature(GroupbyFeature, HasTypedOutputCol):
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
-        :type outputCol: IntegerType
+        :type outputCol: StringType
+        
+        :param outputColType: Type of output col
+        :type outputColType: IntegerType
         """
         super(StddevFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=IntegerType())
