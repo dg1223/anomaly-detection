@@ -1,7 +1,7 @@
 from pyspark.sql.functions import col, when
 from pyspark.sql.types import IntegerType, StringType, LongType
 from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature
+from base import CounterFeature, ArrayDistinctFeature
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -789,6 +789,98 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
             ((col(self.getOrDefault("inputCol")).contains("changePassword"))),
             True,
         )
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
+    def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
+        super(UniqueSMActions, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
+        self._set(inputCol="SM_ACTION", inputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
+    def __init__(
+        self, inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
+    ):
+        super(UniqueSMClientIps, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
+        )
+        self._set(inputCol="SM_CLIENTIP", inputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
+    def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
+        super(UniqueSMPortals, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS")
+        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
+    def __init__(
+        self, inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
+    ):
+        super(UniqueSMTransactions, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
+        )
+        self._set(
+            inputCol="SM_TRANSACTIONID", inputColType=ArrayType(StringType())
+        )
+
+    def array_clause(self):
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class SMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
+    def __init__(self, inputCol="SM_SESSIONID", outputCol="SM_SESSION_IDS"):
+        super(SMSessionIds, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_SESSIONID", outputCol="SM_SESSION_IDS")
+        self._set(
+            inputCol="SM_SESSIONID", inputColType=ArrayType(StringType())
+        )
+
+    def array_clause(self):
+        return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
         return dataset

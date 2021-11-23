@@ -157,3 +157,35 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
+
+
+class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base array distinct feature, will be the parent class to all
+    array_distinct features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+        """
+        super(ArrayDistinctFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        """
+        array feature implementation.
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+
+        :return: The number
+        :rtype: IntegerType
+        """
+        return array_distinct(
+            collect_list(self.array_clause()).alias(self.getOutputCol())
+        )
