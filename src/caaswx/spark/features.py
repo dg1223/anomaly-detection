@@ -1,8 +1,8 @@
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.types import IntegerType, StringType, LongType
 from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature
-
+from base import CounterFeature, MinFeature
+from pyspark.sql.window import Window
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
@@ -791,6 +791,76 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         )
 
     def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class MinUserTimestamp(MinFeature, HasTypedInputCol):
+    def __init__(
+        self, inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
+    ):
+        super(MinUserTimestamp, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
+        )
+        self._set(inputCol="SM_TIMESTAMP", inputColType=TimestampType())
+
+    def num_clause(self):
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class MinTimeBtRecords(MinFeature, HasTypedInputCols):
+    def __init__(
+        self,
+        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+        outputCol="MIN_TIME_BT_RECORDS",
+    ):
+        super(MinTimeBtRecords, self).__init__(outputCol)
+        self._setDefault(
+            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+            outputCol="MIN_TIME_BT_RECORDS",
+        )
+        self._set(
+            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+            inputColsType=[LongType(), StringType()],
+        )
+
+    def num_clause(self):
+        return col(self.getOrDefault("inputCols")[0])
+
+    def pre_op(self, dataset):
+        if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
+            ts_window = Window.partitionBy(
+                self.getOrDefault("inputCols")[1]
+            ).orderBy("SM_TIMESTAMP")
+            dataset = dataset.withColumn(
+                "SM_PREV_TIMESTAMP",
+                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+            )
+
+            dataset = dataset.withColumn(
+                "SM_CONSECUTIVE_TIME_DIFFERENCE",
+                when(
+                    isnull(
+                        dataset["SM_TIMESTAMP"].cast("long")
+                        - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                    ),
+                    0,
+                ).otherwise(
+                    dataset["SM_TIMESTAMP"].cast("long")
+                    - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                ),
+            )
+
+        dataset = dataset.drop("SM_PREV_TIMESTAMP")
         return dataset
 
     def post_op(self, dataset):

@@ -1,6 +1,6 @@
 from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
-from pyspark.sql.functions import window, count
+from pyspark.sql.functions import window, count, min as sparkmin
 from pyspark.sql.types import IntegerType
 from utils import HasTypedOutputCol
 
@@ -157,3 +157,32 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
+
+
+class MinFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base Min feature, will be the parent class to all .min features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+        """
+        super(MinFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def num_clause(self):
+        """
+        Extrema feature implementation.
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+
+        :return: The number
+        :rtype: IntegerType
+        """
+        return sparkmin(self.num_clause()).alias(self.getOutputCol())
