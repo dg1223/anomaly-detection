@@ -836,6 +836,13 @@ class MaxTimeBtRecords(MaxFeature, HasTypedInputCols):
         inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
         outputCol="MAX_TIME_BT_RECORDS",
     ):
+        """
+        :param inputCols: Name for the input Columns of the feature.
+        :type inputCols: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(MaxTimeBtRecords, self).__init__(outputCol)
         self._setDefault(
             inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
@@ -847,9 +854,21 @@ class MaxTimeBtRecords(MaxFeature, HasTypedInputCols):
         )
 
     def num_clause(self):
+        """
+        Implementation of the base logic of required max feature.
+
+        :return: Returns inputCol
+        :rtype: :class:`pyspark.sql.Column'
+        """
         return col(self.getOrDefault("inputCols")[0])
 
     def pre_op(self, dataset):
+        """
+        Operations required to prepare dataset for num_clause
+
+        :return: Returns the prepared Dataframe
+        :rtype: :class:`pyspark.sql.Dataframe'
+        """
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
