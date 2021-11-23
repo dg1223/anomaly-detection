@@ -801,6 +801,13 @@ class MaxUserTimestamp(MaxFeature, HasTypedInputCol):
     def __init__(
         self, inputCol="SM_TIMESTAMP", outputCol="MAX_USER_TIMESTAMP"
     ):
+        """
+        :param inputCol: Name for the input Column of the feature.
+        :type inputCol: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(MaxUserTimestamp, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_TIMESTAMP", outputCol="MAX_USER_TIMESTAMP"
@@ -808,6 +815,12 @@ class MaxUserTimestamp(MaxFeature, HasTypedInputCol):
         self._set(inputCol="SM_TIMESTAMP", inputColType=TimestampType())
 
     def num_clause(self):
+        """
+        Implementation of the base logic of required max feature.
+
+        :return: Returns inputCol
+        :rtype: :class:`pyspark.sql.Column'
+        """
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
