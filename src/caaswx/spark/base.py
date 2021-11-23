@@ -168,14 +168,16 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
-        :type outputCol: IntegerType
+        :param outputColType: Type of column
+        :type outputCol: StringType
+        :type outputColType: ArrayType(StringType())
         """
         super(ArrayDistinctFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
 
     def array_clause(self):
         """
-        array feature implementation.
+        Distinct Array feature implementation.
         """
         raise NotImplementedError()
 
@@ -183,8 +185,8 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         """
         The aggregation operation that performs the func defined by subclasses.
 
-        :return: The number
-        :rtype: IntegerType
+        :return: The list of distinct elements 
+        :rtype: ArrayType(StringType)
         """
         return array_distinct(
             collect_list(self.array_clause()).alias(self.getOutputCol())
