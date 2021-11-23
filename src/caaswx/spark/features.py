@@ -803,6 +803,13 @@ class AvgTimeBtRecords(AvgFeature, HasTypedInputCols):
         inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
         outputCol="AVG_TIME_BT_RECORDS",
     ):
+        """
+        :param inputCol: Name for the input Column of the feature.
+        :type inputCol: StringType
+
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        """
         super(AvgTimeBtRecords, self).__init__(outputCol)
         self._setDefault(
             inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
@@ -814,9 +821,21 @@ class AvgTimeBtRecords(AvgFeature, HasTypedInputCols):
         )
 
     def num_clause(self):
+        """
+        Implementation of the base logic of required avg feature.
+
+        :return: Returns inputCol
+        :rtype: :class:`pyspark.sql.Column'
+        """
         return col(self.getOrDefault("inputCols")[0])
 
     def pre_op(self, dataset):
+        """
+        Operations required to prepare dataset for num_clause
+
+        :return: Returns the prepared Dataframe
+        :rtype: :class:`pyspark.sql.Dataframe'
+        """
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
