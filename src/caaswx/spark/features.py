@@ -804,6 +804,13 @@ class StdBtRecords(StddevFeature, HasTypedInputCols):
         inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
         outputCol="SDV_BT_RECORDS",
     ):
+        """
+        :param inputCols: Columns to generate and look through respectively
+        :type inputCols: list of StringTypes
+        
+        :param outputCol: Column to write the stddev to
+        :type outputCol: IntegerType
+        """
         super(StdBtRecords, self).__init__(outputCol)
         self._setDefault(
             inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
@@ -818,6 +825,9 @@ class StdBtRecords(StddevFeature, HasTypedInputCols):
         return col(self.getOrDefault("inputCols")[0])
 
     def pre_op(self, dataset):
+        """
+        Creates SM_CONSECUTIVE_TIME_DIFFERENCE, if it's not present
+        """
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
