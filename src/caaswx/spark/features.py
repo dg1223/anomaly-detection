@@ -805,30 +805,17 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
     """
 
     def __init__(self, inputCol = "SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP"):
-
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(MinUserTimestamp, self).__init__()
         self._setDefault(inputCol="SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP")
         self._set(inputCol = "SM_TIMESTAMP", inputColType = TimestampType(), outputCol = outputCol,
         outputColType = IntegerType())  
     
     def agg_op(self):
-        """
-        Implementation of the base logic of required min feature.
-        
-        :return: The number
-        :rtype: IntegerType
-        """
         return sparkmin(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
     
     def pre_op(self, dataset):
         return dataset
+    
     def post_op(self, dataset):
         return dataset
 
@@ -836,38 +823,19 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature used to calculate the minimum time between consecutive time entries.
+    Feature to calculate the minimum time between consecutive time entries.
     """
 
     def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "MIN_TIME_BT_RECORDS"):
-        """
-        :param inputCols: Name for the input Columns of the feature.
-        :type inputCols: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """   
         super(MinTimeBtRecords, self).__init__()
         self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], outputCol = "MIN_TIME_BT_RECORDS")
         self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], inputColsType = [LongType(), StringType()], outputCol = outputCol,
         outputColType = IntegerType())  
         
     def agg_op(self):
-        """
-        Implementation of the base logic of required max feature.
-        
-        :return: The number
-        :rtype: IntegerType
-        """
         return sparkmin(col(self.getOrDefault("inputCols")[0])).alias(self.getOutputCol())
     
     def pre_op(self, dataset):
-        """
-        Operations required to prepare dataset for num_clause
-
-        :return: Returns the prepared Dataframe
-        :rtype: :class:`pyspark.sql.Dataframe'
-        """
         if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
 
         ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
