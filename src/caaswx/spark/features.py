@@ -799,51 +799,68 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 
 class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
-  def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS"):   
-    super(StdBtRecords, self).__init__()
-    self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS")
-    self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
-      outputColType = IntegerType()
-    )  
-    
-  def agg_op(self):
     """
-    The aggregation operation that performs the func defined by subclasses.
-    
-    :return: The number
-    :rtype: IntegerType
+    Feature used to calculate the standard deviation between consecutive time entries.
     """
-    return sparkround(sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15).alias(self.getOutputCol())
-  
-  def pre_op(self, dataset):
-    
-    if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
-    
-      ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
-          "SM_TIMESTAMP"
-      )
-      dataset = dataset.withColumn(
-          "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
-      )
 
-      dataset = dataset.withColumn(
-          "SM_CONSECUTIVE_TIME_DIFFERENCE",
-          when(
-              isnull(
-                  dataset["SM_TIMESTAMP"].cast("long")
-                  - dataset["SM_PREV_TIMESTAMP"].cast("long")
-              ),
-              0,
-          ).otherwise(
-              dataset["SM_TIMESTAMP"].cast("long")
-              - dataset["SM_PREV_TIMESTAMP"].cast("long")
-          ),
-      )
-
-      dataset = dataset.drop("SM_PREV_TIMESTAMP")
+    def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS"):
+        """
+        :param inputCols: Columns to generate and look through respectively
+        :type inputCols: list of StringTypes
+        
+        :param outputCol: Column to write the stddev to
+        :type outputCol: IntegerType
+        """   
+        super(StdBtRecords, self).__init__()
+        self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS")
+        self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
+        outputColType = IntegerType()
+        )  
+        
+    def agg_op(self):
+        """
+        The aggregation operation that performs the core functionality.
+        
+        :return: The rounded standard deviation of the values
+        :rtype: IntegerType
+        """
+        return sparkround(sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15).alias(self.getOutputCol())
     
-    return dataset
-  
-  def post_op(self, dataset):
-    return dataset
-  
+    def pre_op(self, dataset):
+        """
+        Operations required to prepare dataset for num_clause
+        
+        :return: Returns the prepared Dataframe
+        :rtype: :class:`pyspark.sql.Dataframe'
+        """
+        
+        if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
+        
+        ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+            "SM_TIMESTAMP"
+        )
+        dataset = dataset.withColumn(
+            "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+        )
+
+        dataset = dataset.withColumn(
+            "SM_CONSECUTIVE_TIME_DIFFERENCE",
+            when(
+                isnull(
+                    dataset["SM_TIMESTAMP"].cast("long")
+                    - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                ),
+                0,
+            ).otherwise(
+                dataset["SM_TIMESTAMP"].cast("long")
+                - dataset["SM_PREV_TIMESTAMP"].cast("long")
+            ),
+        )
+
+        dataset = dataset.drop("SM_PREV_TIMESTAMP")
+        
+        return dataset
+    
+    def post_op(self, dataset):
+        return dataset
+    
