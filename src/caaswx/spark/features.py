@@ -799,7 +799,21 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 
 class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+
+  """
+  Feature used to identify whether or not the browser used by the user in current time window 
+  is same as that in the previous time window, or any change within the current time window has 
+  occured.
+  """
+
   def __init__(self, inputCols = ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST"):   
+    """
+    :param inputCols: Name for the input Columns of the feature.
+    :type inputCols: StringType
+    
+    :param outputCol: Name for the ouput Column of the feature.
+    :type outputCol: StringType
+    """
     super(UserIsUsingUnusualBrowser, self).__init__()
     self._setDefault(inputCols= ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST")
     self._set(inputCols = ["SM_AGENTNAME", "CN"], inputColsType = [ArrayType(StringType()), StringType()], outputCol = outputCol,
@@ -816,6 +830,7 @@ class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutpu
   
   def pre_op(self, dataset):
     return dataset
+
   def post_op(self, dataset):
     if("USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns):
       agent_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy("window")
