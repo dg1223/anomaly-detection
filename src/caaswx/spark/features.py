@@ -798,6 +798,9 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 
 class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
+    """
+    Feature for all distinct elements in SM_ACTION
+    """
     def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(UniqueSMActions, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
@@ -814,6 +817,9 @@ class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
+    """
+    Feature for all distinct elements in SM_CLIENTIP
+    """
     def __init__(
         self, inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
     ):
@@ -834,6 +840,9 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
+    """
+    Feature for all distinct elements in SM_RESOURCE
+    """
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -863,7 +872,9 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
-    
+    """
+    Feature for all distinct elements in SM_TRANSACTIONS
+    """
     def __init__(
         self, inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
     ):
@@ -898,10 +909,13 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
         return dataset
 
 
-class SMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
-    def __init__(self, inputCol="SM_SESSIONID", outputCol="SM_SESSION_IDS"):
-        super(SMSessionIds, self).__init__(outputCol)
-        self._setDefault(inputCol="SM_SESSIONID", outputCol="SM_SESSION_IDS")
+class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
+    """
+    Feature for all distinct elements in SM_SESSIONID
+    """
+    def __init__(self, inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS"):
+        super(UniqueSMSessionIds, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS")
         self._set(
             inputCol="SM_SESSIONID", inputColType=ArrayType(StringType())
         )
