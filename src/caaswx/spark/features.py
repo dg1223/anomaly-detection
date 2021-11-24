@@ -798,6 +798,12 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 
 class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+
+    """
+    Feature returns the first timestamp of the user, if used with window will return
+    first timestamp during given window.
+    """
+
     def __init__(self, inputCol = "SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP"):
 
         """
@@ -827,7 +833,12 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         return dataset
 
 
-class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
+
+    """
+    Feature used to calculate the minimum time between consecutive time entries.
+    """
+
     def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "MIN_TIME_BT_RECORDS"):
         """
         :param inputCols: Name for the input Columns of the feature.
