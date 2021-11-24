@@ -797,37 +797,35 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-class UserNumOfAccountsLoginWithSameIPs(SumFeature, HasTypedInputCol):
-    def __init__(
-        self,
-        inputCol="distinct_usernames_for_ip",
-        outputCol="UserNumOfAccountsLoginWithSameIPs",
-    ):
+  
+class UserNumOfAccountsLoginWithSameIPs(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+
+    """
+    Feature used to calculate Total number of accounts visited by the IPs used by the given user.
+    """
+    
+    def __init__(self, inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS"):
         """
         :param inputCol: Name for the input Column of the feature.
         :type inputCol: StringType
 
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
+        """   
+        super(UserNumOfAccountsLoginWithSameIPs, self).__init__()
+        self._setDefault(inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
+        self._set(inputCol = "distinct_usernames_for_ip", inputColType = LongType(),  outputCol = outputCol,
+        outputColType = IntegerType())  
+    
+    def agg_op(self):
         """
-        super(UserNumOfAccountsLoginWithSameIPs, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="distinct_usernames_for_ip",
-            outputCol="UserNumOfAccountsLoginWithSameIPs",
-        )
-        self._set(
-            inputCol="distinct_usernames_for_ip", inputColType=LongType()
-        )
-
-    def num_clause(self):
+        The aggregation operation that performs the func defined by subclasses.
+        
+        :return: The summed value.
+        :rtype: IntegerType
         """
-        Implementation of the base logic of required sum feature.
-
-        :return: Returns inputCol
-        :rtype: :class:`pyspark.sql.Column'
-        """
-        return col(self.getOrDefault("inputCol"))
-
+        return sparksum(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
+    
     def pre_op(self, dataset):
         """
         Operations required to prepare dataset for num_clause
@@ -835,12 +833,12 @@ class UserNumOfAccountsLoginWithSameIPs(SumFeature, HasTypedInputCol):
         :return: Returns the prepared Dataframe
         :rtype: :class:`pyspark.sql.Dataframe'
         """
-        if "distinct_usernames_for_ip" not in dataset.columns:
-            ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
-                countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
-            )
-            dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
+        if("distinct_usernames_for_ip" not in dataset.columns):
+        ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
+            countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+        )
+        dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
         return dataset
-
+    
     def post_op(self, dataset):
         return dataset
