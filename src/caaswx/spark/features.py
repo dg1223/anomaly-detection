@@ -2,7 +2,7 @@ from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.types import IntegerType, StringType, LongType, ArrayType
 from pyspark.sql.window import Window
 from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature, SortCollectFeature
+from base import CounterFeature
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -800,54 +800,61 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
-  """
-  Feature used to identify whether or not the browser used by the user in current time window 
-  is same as that in the previous time window, or any change within the current time window has 
-  occured.
-  """
+    """
+    Feature used to identify whether or not the browser used by the user in current time window 
+    is same as that in the previous time window, or any change within the current time window has 
+    occured.
+    """
 
-  def __init__(self, inputCols = ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST"):   
-    """
-    :param inputCols: Name for the input Columns of the feature.
-    :type inputCols: StringType
+    def __init__(self, inputCols = ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST"):   
+        """
+        :param inputCols: Name for the input Columns of the feature.
+        :type inputCols: StringType
+        
+        :param outputCol: Name for the ouput Column of the feature.
+        :type outputCol: StringType
+        """
+        super(UserIsUsingUnusualBrowser, self).__init__()
+        self._setDefault(inputCols= ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST")
+        self._set(inputCols = ["SM_AGENTNAME", "CN"], inputColsType = [ArrayType(StringType()), StringType()], outputCol = outputCol,
+        outputColType = ArrayType(StringType()))  
+        
+    def agg_op(self):
+        """
+        The aggregation operation sorts distinct browser list.
+        
+        :return: The sorted array of browsers
+        :rtype: ArrayType(StringType())
+        """
+        return sort_array(collect_set(col(self.getOrDefault("inputCols")[0]))).alias(self.getOutputCol())
     
-    :param outputCol: Name for the ouput Column of the feature.
-    :type outputCol: StringType
-    """
-    super(UserIsUsingUnusualBrowser, self).__init__()
-    self._setDefault(inputCols= ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST")
-    self._set(inputCols = ["SM_AGENTNAME", "CN"], inputColsType = [ArrayType(StringType()), StringType()], outputCol = outputCol,
-      outputColType = ArrayType(StringType()))  
-    
-  def agg_op(self):
-    """
-    The aggregation operation that performs the count defined by subclasses.
-    
-    :return: The sorted array
-    :rtype: ArrayType(StringType())
-    """
-    return sort_array(collect_set(col(self.getOrDefault("inputCols")[0]))).alias(self.getOutputCol())
-  
-  def pre_op(self, dataset):
-    return dataset
+    def pre_op(self, dataset):
+        return dataset
 
   def post_op(self, dataset):
-    if("USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns):
-      agent_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy("window")
-      dataset = dataset.withColumn(
-          "SM_PREVIOUS_AGENTNAME",
-          lag(dataset[self.getOrDefault("outputCol")]).over(agent_window),
-      )
-      dataset = dataset.withColumn(
-              "USER_IS_USING_UNUSUAL_BROWSER",
-              when(
-                  (isnull("SM_PREVIOUS_AGENTNAME"))
-                  | (
-                      dataset[self.getOrDefault("outputCol")] == dataset["SM_PREVIOUS_AGENTNAME"]
-                  ),
-                  0,
-              ).otherwise(1),
-          )
-      dataset = dataset.drop(self.getOrDefault("outputCol"))
-      dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
-    return dataset
+        """
+        Operation determines whether the users browser has changed.
+
+        :return: Returns the prepared Dataframe
+        :rtype: :class:`pyspark.sql.Dataframe'
+        """
+
+        if("USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns):
+            agent_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy("window")
+            dataset = dataset.withColumn(
+                "SM_PREVIOUS_AGENTNAME",
+                lag(dataset[self.getOrDefault("outputCol")]).over(agent_window),
+            )
+            dataset = dataset.withColumn(
+                    "USER_IS_USING_UNUSUAL_BROWSER",
+                    when(
+                        (isnull("SM_PREVIOUS_AGENTNAME"))
+                        | (
+                            dataset[self.getOrDefault("outputCol")] == dataset["SM_PREVIOUS_AGENTNAME"]
+                        ),
+                        0,
+                    ).otherwise(1),
+                )
+            dataset = dataset.drop(self.getOrDefault("outputCol"))
+            dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
+        return dataset
