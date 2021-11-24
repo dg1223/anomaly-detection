@@ -1,7 +1,7 @@
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.types import IntegerType, StringType, LongType
 from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature, MinFeature
+from base import CounterFeature 
 from pyspark.sql.window import Window
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -797,10 +797,9 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-class MinUserTimestamp(MinFeature, HasTypedInputCol):
-    def __init__(
-        self, inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
-    ):
+class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+    def __init__(self, inputCol = "SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP"):
+
         """
         :param inputCol: Name for the input Column of the feature.
         :type inputCol: StringType
@@ -808,92 +807,83 @@ class MinUserTimestamp(MinFeature, HasTypedInputCol):
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
         """
-        super(MinUserTimestamp, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
-        )
-        self._set(inputCol="SM_TIMESTAMP", inputColType=TimestampType())
-
-    def num_clause(self):
+        super(MinUserTimestamp, self).__init__()
+        self._setDefault(inputCol="SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP")
+        self._set(inputCol = "SM_TIMESTAMP", inputColType = TimestampType(), outputCol = outputCol,
+        outputColType = IntegerType())  
+    
+    def agg_op(self):
         """
         Implementation of the base logic of required min feature.
-
-        :return: Returns inputCol
-        :rtype: :class:`pyspark.sql.Column'
+        
+        :return: The number
+        :rtype: IntegerType
         """
-        return col(self.getOrDefault("inputCol"))
-
+        return sparkmin(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
+    
     def pre_op(self, dataset):
         return dataset
-
     def post_op(self, dataset):
         return dataset
 
 
-class MinTimeBtRecords(MinFeature, HasTypedInputCols):
-    def __init__(
-        self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-        outputCol="MIN_TIME_BT_RECORDS",
-    ):
+class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+    def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "MIN_TIME_BT_RECORDS"):
         """
         :param inputCols: Name for the input Columns of the feature.
         :type inputCols: StringType
 
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
-        """
-        super(MinTimeBtRecords, self).__init__(outputCol)
-        self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            outputCol="MIN_TIME_BT_RECORDS",
-        )
-        self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
-        )
-
-    def num_clause(self):
+        """   
+        super(MinTimeBtRecords, self).__init__()
+        self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], outputCol = "MIN_TIME_BT_RECORDS")
+        self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], inputColsType = [LongType(), StringType()], outputCol = outputCol,
+        outputColType = IntegerType())  
+        
+    def agg_op(self):
         """
         Implementation of the base logic of required max feature.
-
-        :return: Returns inputCol
-        :rtype: :class:`pyspark.sql.Column'
+        
+        :return: The number
+        :rtype: IntegerType
         """
-        return col(self.getOrDefault("inputCols")[0])
-
+        return sparkmin(col(self.getOrDefault("inputCols")[0])).alias(self.getOutputCol())
+    
     def pre_op(self, dataset):
         """
-         Operations required to prepare dataset for num_clause
+        Operations required to prepare dataset for num_clause
 
-         :return: Returns the prepared Dataframe
-         :rtype: :class:`pyspark.sql.Dataframe'
-         """
-        if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
-            ts_window = Window.partitionBy(
-                self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
-            dataset = dataset.withColumn(
-                "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
-            )
+        :return: Returns the prepared Dataframe
+        :rtype: :class:`pyspark.sql.Dataframe'
+        """
+        if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
 
-            dataset = dataset.withColumn(
-                "SM_CONSECUTIVE_TIME_DIFFERENCE",
-                when(
-                    isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
-                        - dataset["SM_PREV_TIMESTAMP"].cast("long")
-                    ),
-                    0,
-                ).otherwise(
+        ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+            "SM_TIMESTAMP"
+        )
+        dataset = dataset.withColumn(
+            "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+        )
+
+        dataset = dataset.withColumn(
+            "SM_CONSECUTIVE_TIME_DIFFERENCE",
+            when(
+                isnull(
                     dataset["SM_TIMESTAMP"].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
-            )
+                0,
+            ).otherwise(
+                dataset["SM_TIMESTAMP"].cast("long")
+                - dataset["SM_PREV_TIMESTAMP"].cast("long")
+            ),
+        )
 
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
         return dataset
-
+    
     def post_op(self, dataset):
         return dataset
+
+
