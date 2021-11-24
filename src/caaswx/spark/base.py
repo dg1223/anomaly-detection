@@ -162,37 +162,3 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
-
-
-class StddevFeature(GroupbyFeature, HasTypedOutputCol):
-    """
-    Base stddev feature, will be the parent class to all .stddev features.
-    """
-
-    def __init__(self, outputCol):
-        """
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        
-        :param outputColType: Type of output col
-        :type outputColType: IntegerType
-        """
-        super(StddevFeature, self).__init__()
-        self._set(outputCol=outputCol, outputColType=IntegerType())
-
-    def num_clause(self):
-        """
-        Stddev feature implementation.
-        """
-        raise NotImplementedError()
-
-    def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-
-        :return: The number after operations
-        :rtype: IntegerType
-        """
-        return sparkround(sparkstddev(self.num_clause()), 15).alias(
-            self.getOutputCol()
-        )

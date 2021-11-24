@@ -1,7 +1,7 @@
 from pyspark.sql.functions import col, when, lag, isnull
 from pyspark.sql.types import IntegerType, StringType, LongType
-from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature, StddevFeature
+from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
+from base import CounterFeature, GroupbyFeature
 from pyspark.sql.window import Window
 
 
@@ -798,62 +798,52 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-class StdBtRecords(StddevFeature, HasTypedInputCols):
-    def __init__(
-        self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-        outputCol="SDV_BT_RECORDS",
-    ):
-        """
-        :param inputCols: Columns to generate and look through respectively
-        :type inputCols: list of StringTypes
-        
-        :param outputCol: Column to write the stddev to
-        :type outputCol: IntegerType
-        """
-        super(StdBtRecords, self).__init__(outputCol)
-        self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            outputCol="SDV_BT_RECORDS",
-        )
-        self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
-        )
+class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+  def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS"):   
+    super(StdBtRecords, self).__init__()
+    self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS")
+    self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
+      outputColType = IntegerType()
+    )  
+    
+  def agg_op(self):
+    """
+    The aggregation operation that performs the func defined by subclasses.
+    
+    :return: The number
+    :rtype: IntegerType
+    """
+    return sparkround(sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15).alias(self.getOutputCol())
+  
+  def pre_op(self, dataset):
+    
+    if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
+    
+      ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+          "SM_TIMESTAMP"
+      )
+      dataset = dataset.withColumn(
+          "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+      )
 
-    def num_clause(self):
-        return col(self.getOrDefault("inputCols")[0])
+      dataset = dataset.withColumn(
+          "SM_CONSECUTIVE_TIME_DIFFERENCE",
+          when(
+              isnull(
+                  dataset["SM_TIMESTAMP"].cast("long")
+                  - dataset["SM_PREV_TIMESTAMP"].cast("long")
+              ),
+              0,
+          ).otherwise(
+              dataset["SM_TIMESTAMP"].cast("long")
+              - dataset["SM_PREV_TIMESTAMP"].cast("long")
+          ),
+      )
 
-    def pre_op(self, dataset):
-        """
-        Creates SM_CONSECUTIVE_TIME_DIFFERENCE, if it's not present
-        """
-        if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
-            ts_window = Window.partitionBy(
-                self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
-            dataset = dataset.withColumn(
-                "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
-            )
-
-            dataset = dataset.withColumn(
-                "SM_CONSECUTIVE_TIME_DIFFERENCE",
-                when(
-                    isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
-                        - dataset["SM_PREV_TIMESTAMP"].cast("long")
-                    ),
-                    0,
-                ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
-                    - dataset["SM_PREV_TIMESTAMP"].cast("long")
-                ),
-            )
-
-            dataset = dataset.drop("SM_PREV_TIMESTAMP")
-
-        return dataset
-
-    def post_op(self, dataset):
-        return dataset
+      dataset = dataset.drop("SM_PREV_TIMESTAMP")
+    
+    return dataset
+  
+  def post_op(self, dataset):
+    return dataset
+  
