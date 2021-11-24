@@ -797,71 +797,72 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-class AvgTimeBtRecords(AvgFeature, HasTypedInputCols):
-    def __init__(
-        self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-        outputCol="AVG_TIME_BT_RECORDS",
-    ):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
 
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
-        super(AvgTimeBtRecords, self).__init__(outputCol)
-        self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            outputCol="AVG_TIME_BT_RECORDS",
-        )
-        self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
-        )
+class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
-    def num_clause(self):
-        """
-        Implementation of the base logic of required avg feature.
+  """
+  Feature used to calculate the average time between consecutive time entries.
+  """
 
-        :return: Returns inputCol
-        :rtype: :class:`pyspark.sql.Column'
-        """
-        return col(self.getOrDefault("inputCols")[0])
+  def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "AVG_TIME_BT_RECORDS"):   
 
-    def pre_op(self, dataset):
-        """
-        Operations required to prepare dataset for num_clause
+    """
+    :param inputCols: Name for the input Columns of the feature.
+    :type inputCols: StringType
 
-        :return: Returns the prepared Dataframe
-        :rtype: :class:`pyspark.sql.Dataframe'
-        """
-        if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
-            ts_window = Window.partitionBy(
-                self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
-            dataset = dataset.withColumn(
-                "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
-            )
+    :param outputCol: Name for the output Column of the feature.
+    :type outputCol: StringType
+    """
 
-            dataset = dataset.withColumn(
-                "SM_CONSECUTIVE_TIME_DIFFERENCE",
-                when(
-                    isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
-                        - dataset["SM_PREV_TIMESTAMP"].cast("long")
-                    ),
-                    0,
-                ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
-                    - dataset["SM_PREV_TIMESTAMP"].cast("long")
-                ),
-            )
+    super(AvgTimeBtRecords, self).__init__()
+    self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "AVG_TIME_BT_RECORDS")
+    self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
+      outputColType = IntegerType())  
+  
+  def agg_op(self):
+    """
+    The aggregation operation that performs the func defined by subclasses.
+    
+    :return: The rounded average 
+    :rtype: IntegerType
+    """
+    return sparkround(sparkmean((col(self.getOrDefault("inputCols")[0]))), 5).alias(self.getOutputCol())
+  
+  def pre_op(self, dataset):
+    """
+    Operations required to prepare dataset for num_clause
 
-            dataset = dataset.drop("SM_PREV_TIMESTAMP")
+    :return: Returns the prepared Dataframe
+    :rtype: :class:`pyspark.sql.Dataframe'
+    """
+    if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
+    
+      ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+          "SM_TIMESTAMP"
+      )
+      dataset = dataset.withColumn(
+          "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+      )
 
-        return dataset
+      dataset = dataset.withColumn(
+          "SM_CONSECUTIVE_TIME_DIFFERENCE",
+          when(
+              isnull(
+                  dataset["SM_TIMESTAMP"].cast("long")
+                  - dataset["SM_PREV_TIMESTAMP"].cast("long")
+              ),
+              0,
+          ).otherwise(
+              dataset["SM_TIMESTAMP"].cast("long")
+              - dataset["SM_PREV_TIMESTAMP"].cast("long")
+          ),
+      )
 
-    def post_op(self, dataset):
-        return dataset
+      dataset = dataset.drop("SM_PREV_TIMESTAMP")
+    
+    return dataset
+  
+  def post_op(self, dataset):
+    return dataset
+  
+
