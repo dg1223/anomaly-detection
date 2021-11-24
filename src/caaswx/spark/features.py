@@ -798,47 +798,41 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-class UserIsUsingUnusualBrowser(SortCollectFeature, HasTypedInputCols):
-    def __init__(
-        self, inputCols=["SM_AGENTNAME", "CN"], outputCol="BROWSER_LIST"
-    ):
-        super(UserIsUsingUnusualBrowser, self).__init__(outputCol)
-        self._setDefault(
-            inputCols=["SM_AGENTNAME", "CN"], outputCol="BROWSER_LIST"
-        )
-        self._set(
-            inputCols=["SM_AGENTNAME", "CN"],
-            inputColsType=[ArrayType(StringType()), StringType()],
-        )
-
-    def array_clause(self):
-        return col(self.getOrDefault("inputCols")[0])
-
-    def pre_op(self, dataset):
-        return dataset
-
-    def post_op(self, dataset):
-        if "UserIsUsingUnusualBrowser" not in dataset.columns:
-            agent_window = Window.partitionBy(
-                self.getOrDefault("inputCols")[1]
-            ).orderBy("window")
-            dataset = dataset.withColumn(
-                "SM_PREVIOUS_AGENTNAME",
-                lag(dataset[self.getOrDefault("outputCol")]).over(
-                    agent_window
-                ),
-            )
-            dataset = dataset.withColumn(
-                "UserIsUsingUnusualBrowser",
-                when(
-                    (isnull("SM_PREVIOUS_AGENTNAME"))
-                    | (
-                        dataset[self.getOrDefault("outputCol")]
-                        == dataset["SM_PREVIOUS_AGENTNAME"]
-                    ),
-                    0,
-                ).otherwise(1),
-            )
-            dataset = dataset.drop(self.getOrDefault("outputCol"))
-            dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
-        return dataset
+class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+  def __init__(self, inputCols = ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST"):   
+    super(UserIsUsingUnusualBrowser, self).__init__()
+    self._setDefault(inputCols= ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST")
+    self._set(inputCols = ["SM_AGENTNAME", "CN"], inputColsType = [ArrayType(StringType()), StringType()], outputCol = outputCol,
+      outputColType = ArrayType(StringType()))  
+    
+  def agg_op(self):
+    """
+    The aggregation operation that performs the count defined by subclasses.
+    
+    :return: The sorted array
+    :rtype: ArrayType(StringType())
+    """
+    return sort_array(collect_set(col(self.getOrDefault("inputCols")[0]))).alias(self.getOutputCol())
+  
+  def pre_op(self, dataset):
+    return dataset
+  def post_op(self, dataset):
+    if("USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns):
+      agent_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy("window")
+      dataset = dataset.withColumn(
+          "SM_PREVIOUS_AGENTNAME",
+          lag(dataset[self.getOrDefault("outputCol")]).over(agent_window),
+      )
+      dataset = dataset.withColumn(
+              "USER_IS_USING_UNUSUAL_BROWSER",
+              when(
+                  (isnull("SM_PREVIOUS_AGENTNAME"))
+                  | (
+                      dataset[self.getOrDefault("outputCol")] == dataset["SM_PREVIOUS_AGENTNAME"]
+                  ),
+                  0,
+              ).otherwise(1),
+          )
+      dataset = dataset.drop(self.getOrDefault("outputCol"))
+      dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
+    return dataset

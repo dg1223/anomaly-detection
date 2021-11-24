@@ -157,39 +157,3 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
-
-
-class SortCollectFeature(GroupbyFeature, HasTypedOutputCol):
-    """
-    Base sort collect feature, will be the parent class to all
-    sort_array(f.collect_set()) features.
-    """
-
-    def __init__(self, outputCol):
-        """
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        
-        :param outputColType: Type of output col
-        :type outputColType: IntegerType
-        """
-        super(SortCollectFeature, self).__init__()
-        self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
-
-    def array_clause(self):
-        """
-        Array feature implementation.
-        """
-        raise NotImplementedError()
-
-    def agg_op(self):
-        """
-        The aggregation operation that performs the array defined by
-        subclasses.
-
-        :return: The sorted array
-        :rtype: ArrayType(StringType())
-        """
-        return sort_array(collect_set((self.array_clause()))).alias(
-            self.getOutputCol()
-        )
