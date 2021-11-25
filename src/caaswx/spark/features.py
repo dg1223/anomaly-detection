@@ -804,13 +804,6 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     """
 
     def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS"):
-        """
-        :param inputCols: Columns to generate and look through respectively
-        :type inputCols: list of StringTypes
-        
-        :param outputCol: Column to write the stddev to
-        :type outputCol: IntegerType
-        """   
         super(StdBtRecords, self).__init__()
         self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS")
         self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
@@ -826,14 +819,7 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         """
         return sparkround(sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15).alias(self.getOutputCol())
     
-    def pre_op(self, dataset):
-        """
-        Operations required to prepare dataset for num_clause
-        
-        :return: Returns the prepared Dataframe
-        :rtype: :class:`pyspark.sql.Dataframe'
-        """
-        
+    def pre_op(self, dataset):        
         if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
         
         ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
