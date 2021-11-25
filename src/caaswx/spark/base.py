@@ -25,7 +25,7 @@ class GroupbyFeature(HasInputSchema):
 
     def agg_op(self):
         """
-        This feature's aggegaring operation peformed
+        This feature's aggregating operation performed
         during the groupby.
         :return: A SQL clause describing the aggregating
         function.
