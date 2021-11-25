@@ -805,15 +805,6 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
   """
 
   def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "AVG_TIME_BT_RECORDS"):   
-
-    """
-    :param inputCols: Name for the input Columns of the feature.
-    :type inputCols: StringType
-
-    :param outputCol: Name for the output Column of the feature.
-    :type outputCol: StringType
-    """
-
     super(AvgTimeBtRecords, self).__init__()
     self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "AVG_TIME_BT_RECORDS")
     self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
@@ -829,12 +820,6 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     return sparkround(sparkmean((col(self.getOrDefault("inputCols")[0]))), 5).alias(self.getOutputCol())
   
   def pre_op(self, dataset):
-    """
-    Operations required to prepare dataset for num_clause
-
-    :return: Returns the prepared Dataframe
-    :rtype: :class:`pyspark.sql.Dataframe'
-    """
     if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
     
       ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
