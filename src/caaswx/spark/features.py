@@ -805,13 +805,6 @@ class UserNumOfAccountsLoginWithSameIPs(GroupbyFeature, HasTypedInputCol, HasTyp
     """
     
     def __init__(self, inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """   
         super(UserNumOfAccountsLoginWithSameIPs, self).__init__()
         self._setDefault(inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
         self._set(inputCol = "distinct_usernames_for_ip", inputColType = LongType(),  outputCol = outputCol,
@@ -827,12 +820,6 @@ class UserNumOfAccountsLoginWithSameIPs(GroupbyFeature, HasTypedInputCol, HasTyp
         return sparksum(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
     
     def pre_op(self, dataset):
-        """
-        Operations required to prepare dataset for num_clause
-
-        :return: Returns the prepared Dataframe
-        :rtype: :class:`pyspark.sql.Dataframe'
-        """
         if("distinct_usernames_for_ip" not in dataset.columns):
         ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
             countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
