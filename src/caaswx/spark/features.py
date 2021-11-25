@@ -3,7 +3,6 @@ from pyspark.sql.types import IntegerType, StringType, LongType, ArrayType
 from pyspark.sql.window import Window
 from utils import HasTypedInputCol, HasTypedInputCols
 from base import CounterFeature
-from pyspark.ml.common import inherit_doc
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -799,7 +798,6 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-@inherit_doc
 class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
     """
