@@ -760,6 +760,34 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+class UserNumOfAccountsLoginWithSameIPs(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+
+    """
+    Feature used to calculate Total number of accounts visited by the IPs used by the given user.
+    """
+    
+    def __init__(self, inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS"):
+        super(UserNumOfAccountsLoginWithSameIPs, self).__init__()
+        self._setDefault(inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
+        self._set(inputCol = "distinct_usernames_for_ip", inputColType = LongType(),  outputCol = outputCol,
+        outputColType = IntegerType())  
+    
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+        
+        :return: The summed value.
+        :rtype: IntegerType
+        """
+        return sparksum(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):
+        if("distinct_usernames_for_ip" not in dataset.columns):
+        ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
+            countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+        )
+        dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
+
 class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
     """
     Feature used to calculate the standard deviation between consecutive time entries.
@@ -806,12 +834,11 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         )
 
         dataset = dataset.drop("SM_PREV_TIMESTAMP")
-        
         return dataset
     
     def post_op(self, dataset):
         return dataset
-    
+
 class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
     """
