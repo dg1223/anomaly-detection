@@ -1,8 +1,17 @@
 from pyspark.sql.functions import col, when, lag, isnull
-from pyspark.sql.types import IntegerType, StringType, LongType, ArrayType
+from pyspark.sql.types import (
+    ArrayType,
+    IntegerType,
+    StringType,
+    LongType
+)
+from utils import (
+    HasTypedInputCol,
+    HasTypedInputCols,
+    HasTypedOutputCol
+)
+from base import CounterFeature, GroupbyFeature
 from pyspark.sql.window import Window
-from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -751,7 +760,58 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+    """
+    Feature used to calculate the standard deviation between consecutive time entries.
+    """
 
+    def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS"):
+        super(StdBtRecords, self).__init__()
+        self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS")
+        self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
+        outputColType = IntegerType()
+        )  
+        
+    def agg_op(self):
+        """
+        The aggregation operation that performs the core functionality.
+        
+        :return: The rounded standard deviation of the values
+        :rtype: IntegerType
+        """
+        return sparkround(sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):        
+        if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
+        
+        ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+            "SM_TIMESTAMP"
+        )
+        dataset = dataset.withColumn(
+            "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+        )
+
+        dataset = dataset.withColumn(
+            "SM_CONSECUTIVE_TIME_DIFFERENCE",
+            when(
+                isnull(
+                    dataset["SM_TIMESTAMP"].cast("long")
+                    - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                ),
+                0,
+            ).otherwise(
+                dataset["SM_TIMESTAMP"].cast("long")
+                - dataset["SM_PREV_TIMESTAMP"].cast("long")
+            ),
+        )
+
+        dataset = dataset.drop("SM_PREV_TIMESTAMP")
+        
+        return dataset
+    
+    def post_op(self, dataset):
+        return dataset
+    
 class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
     """
