@@ -1,18 +1,24 @@
 from pyspark.sql.functions import col, when, lag, isnull
-from pyspark.sql.types import IntegerType, StringType, LongType
-from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature 
+from pyspark.sql.types import (
+    ArrayType,
+    IntegerType,
+    StringType,
+    LongType
+)
+from utils import (
+    HasTypedInputCol,
+    HasTypedInputCols,
+    HasTypedOutputCol
+)
+from base import CounterFeature, GroupbyFeature
 from pyspark.sql.window import Window
 
-class CountAuthAccept(CounterFeature, HasTypedInputCol):
-    def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
 
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
+class CountAuthAccept(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 1 (AuthAccept)
+    """
+    def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
         super(CountAuthAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -34,6 +40,9 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthReject(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 2 (AuthReject)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT"):
         """
         :param inputCol: Name for the input Column of the feature.
@@ -63,14 +72,10 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminAttempt(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 3 (AdminAttempt)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_ATTEMPT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAdminAttempt, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_ATTEMPT"
@@ -94,16 +99,12 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthChallenge(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 4 (AuthChallenge)
+    """
     def __init__(
         self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_CHALLENGE"
     ):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAuthChallenge, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_AUTH_CHALLENGE"
@@ -127,14 +128,10 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
 
 
 class CountAZAccept(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 5 (AZAccept)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAZAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -156,14 +153,10 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAZReject(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 6 (AZReject)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAZReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -185,14 +178,10 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogin(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 7 (AdminLogin)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAdminLogin, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -214,14 +203,10 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogout(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 8 (AdminLogout)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAdminLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -243,14 +228,10 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminReject(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 9 (AdminReject)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAdminReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -272,14 +253,10 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthLogout(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 10 (AuthLogout)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountAuthLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -301,16 +278,12 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountValidateAccept(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 11 (ValidateAccept)
+    """
     def __init__(
         self, inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_ACCEPT"
     ):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountValidateAccept, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_ACCEPT"
@@ -334,16 +307,12 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountValidateReject(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 12 (ValidateReject)
+    """
     def __init__(
         self, inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_REJECT"
     ):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountValidateReject, self).__init__(outputCol)
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_REJECT"
@@ -367,14 +336,10 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
 
 
 class CountVisit(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 13 (Visit)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_VISIT"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountVisit, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_VISIT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -396,14 +361,10 @@ class CountVisit(CounterFeature, HasTypedInputCol):
 
 
 class CountFailed(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of times EventID == 2, 6, or 9 (Failed)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_FAILED"):
-        """
-        :param inputCol: Name for the input Column of the feature.
-        :type inputCol: StringType
-
-        :param outputCol: Name for the output Column of the feature.
-        :type outputCol: StringType
-        """
         super(CountFailed, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_FAILED")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
@@ -433,19 +394,12 @@ class CountFailed(CounterFeature, HasTypedInputCol):
 
 class CountOUAms(CounterFeature, HasTypedInputCols):
     """
-    Counter for occurences of "ams" or "AMS" in SM_USERNAME or SM_RESOURCE
+    Counter for occurrences of "ams" or "AMS" in SM_USERNAME or SM_RESOURCE
     """
 
     def __init__(
         self, inputCol=["SM_USERNAME", "SM_RESOURCE"], outputCol="COUNT_OU_AMS"
     ):
-        """
-        :param inputCol: Columns to search through, SM_USERNAME and SM_RESOURCE
-        by default
-        :param outputCol: Column to write the count to
-        :type inputCol: list of StringTypes
-        :type outputCol: StringType
-        """
         super(CountOUAms, self).__init__(outputCol)
         self._setDefault(
             inputCols=["SM_USERNAME", "SM_RESOURCE"], outputCol="COUNT_OU_AMS"
@@ -479,7 +433,7 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
 
 class CountOUCms(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "cra-cp" in SM_USERNAME
+    Counter for occurrences of "cra-cp" in SM_USERNAME
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CMS"):
@@ -507,7 +461,7 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
 
 class CountGet(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "GET" in SM_ACTION
+    Counter for occurrences of "GET" in SM_ACTION
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_GET"):
@@ -533,7 +487,7 @@ class CountGet(CounterFeature, HasTypedInputCol):
 
 class CountPost(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "POST" in SM_ACTION
+    Counter for occurrences of "POST" in SM_ACTION
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_POST"):
@@ -561,7 +515,7 @@ class CountPost(CounterFeature, HasTypedInputCol):
 
 class CountHTTPMethod(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "GET" or "POST" in SM_ACTION
+    Counter for occurrences of "GET" or "POST" in SM_ACTION
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD"):
@@ -591,7 +545,7 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
 
 class CountOUIdentity(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "ou=Identity" in SM_USERNAME
+    Counter for occurrences of "ou=Identity" in SM_USERNAME
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY"):
@@ -620,7 +574,7 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
 
 class CountOUCred(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "ou=Credential" in SM_USERNAME
+    Counter for occurrences of "ou=Credential" in SM_USERNAME
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED"):
@@ -649,7 +603,7 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
 
 class CountOUSecurekey(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "ou=SecureKey" in SM_USERNAME
+    Counter for occurrences of "ou=SecureKey" in SM_USERNAME
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_SECUREKEY"):
@@ -680,7 +634,7 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
 
 class CountPortalMya(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "mima" in SM_RESOURCE
+    Counter for occurrences of "mima" in SM_RESOURCE
     """
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA"):
@@ -709,7 +663,7 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
 
 class CountPortalMyba(CounterFeature, HasTypedInputCol):
     """
-    Counter for occurences of "myba" in SM_RESOURCE
+    Counter for occurrences of "myba" in SM_RESOURCE
     """
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA"):
@@ -737,6 +691,9 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
 
 
 class CountRecords(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of records
+    """
     def __init__(self, inputCol="CRA_SEQ", outputCol="COUNT_RECORDS"):
         super(CountRecords, self).__init__(outputCol)
         self._setDefault(inputCol="CRA_SEQ", outputCol="COUNT_RECORDS")
@@ -753,6 +710,9 @@ class CountRecords(CounterFeature, HasTypedInputCol):
 
 
 class UserLoginAttempts(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of login attempts (SM_EVENTID >= 1 and <=6)
+    """
     def __init__(self, inputCol="SM_EVENTID", outputCol="UserLoginAttempts"):
         super(UserLoginAttempts, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="UserLoginAttempts")
@@ -775,6 +735,10 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
 
 
 class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
+    """
+    Counter feature for number of password changes ("changePassword" found in
+    SM_RESOURCE)
+    """
     def __init__(
         self, inputCol="SM_RESOURCE", outputCol="UserNumOfPasswordChange"
     ):
@@ -838,31 +802,123 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     def pre_op(self, dataset):
         if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
 
-        ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
-            "SM_TIMESTAMP"
-        )
-        dataset = dataset.withColumn(
-            "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
-        )
+          
+class UserNumOfAccountsLoginWithSameIPs(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
 
-        dataset = dataset.withColumn(
-            "SM_CONSECUTIVE_TIME_DIFFERENCE",
-            when(
-                isnull(
+    """
+    Feature used to calculate Total number of accounts visited by the IPs used by the given user.
+    """
+    
+    def __init__(self, inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS"):
+        super(UserNumOfAccountsLoginWithSameIPs, self).__init__()
+        self._setDefault(inputCol = "distinct_usernames_for_ip", outputCol = "USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
+        self._set(inputCol = "distinct_usernames_for_ip", inputColType = LongType(),  outputCol = outputCol,
+        outputColType = IntegerType())  
+    
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+        
+        :return: The summed value.
+        :rtype: IntegerType
+        """
+        return sparksum(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):
+        if("distinct_usernames_for_ip" not in dataset.columns):
+        ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
+            countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+        )
+        dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
+
+class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+    """
+    Feature used to calculate the standard deviation between consecutive time entries.
+    """
+
+    def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS"):
+        super(StdBtRecords, self).__init__()
+        self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "SDV_BT_RECORDS")
+        self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], inputColsType = [LongType(),StringType()], outputCol = outputCol,
+        outputColType = IntegerType()
+        )  
+        
+    def agg_op(self):
+        """
+        The aggregation operation that performs the core functionality.
+        
+        :return: The rounded standard deviation of the values
+        :rtype: IntegerType
+        """
+        return sparkround(sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):        
+        if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
+            ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+                "SM_TIMESTAMP"
+            )
+            dataset = dataset.withColumn(
+                "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+            )
+
+            dataset = dataset.withColumn(
+                "SM_CONSECUTIVE_TIME_DIFFERENCE",
+                when(
+                    isnull(
+                        dataset["SM_TIMESTAMP"].cast("long")
+                        - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                    ),
+                    0,
+                ).otherwise(
                     dataset["SM_TIMESTAMP"].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
-                0,
-            ).otherwise(
-                dataset["SM_TIMESTAMP"].cast("long")
-                - dataset["SM_PREV_TIMESTAMP"].cast("long")
-            ),
-        )
+            )
 
-        dataset = dataset.drop("SM_PREV_TIMESTAMP")
+            dataset = dataset.drop("SM_PREV_TIMESTAMP")
         return dataset
     
     def post_op(self, dataset):
         return dataset
 
+      
+class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+
+    """
+    Feature calculates 1 if the users browser has changed between consecutive timestamps and 0
+    if it remains the same.
+    """
+
+    def __init__(self, inputCols = ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST"):   
+        super(UserIsUsingUnusualBrowser, self).__init__()
+        self._setDefault(inputCols= ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST")
+        self._set(inputCols = ["SM_AGENTNAME", "CN"], inputColsType = [ArrayType(StringType()), StringType()], outputCol = outputCol,
+        outputColType = ArrayType(StringType()))  
+        
+    def agg_op(self):
+        return sort_array(collect_set(col(self.getOrDefault("inputCols")[0]))).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        if("USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns):
+            agent_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy("window")
+            dataset = dataset.withColumn(
+                "SM_PREVIOUS_AGENTNAME",
+                lag(dataset[self.getOrDefault("outputCol")]).over(agent_window),
+            )
+            dataset = dataset.withColumn(
+                    "USER_IS_USING_UNUSUAL_BROWSER",
+                    when(
+                        (isnull("SM_PREVIOUS_AGENTNAME"))
+                        | (
+                            dataset[self.getOrDefault("outputCol")] == dataset["SM_PREVIOUS_AGENTNAME"]
+                        ),
+                        0,
+                    ).otherwise(1),
+                )
+            dataset = dataset.drop(self.getOrDefault("outputCol"))
+            dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
+        return dataset
 

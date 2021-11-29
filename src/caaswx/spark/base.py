@@ -1,21 +1,70 @@
 from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
-from pyspark.sql.functions import window, count, min as sparkmin
-from pyspark.sql.types import IntegerType
+from pyspark.sql.functions import (
+    window,
+    count,
+    collect_set,
+    round as sparkround,
+    stddev as sparkstddev,
+    sort_array,
+    min as sparkmin
+)
+from pyspark.sql.types import (
+    IntegerType,
+    ArrayType,
+    StringType
+)
 from utils import HasTypedOutputCol
 
 
-class GroupbyFeature:
+class GroupbyFeature(HasInputSchema):
+    """
+    A feature that maintains an Input Schema (StructField) and
+    pre/agg/post operations.
+    """
+
     def pre_op(self, dataset):
+        """
+        The pre-operation performed by this feature before
+        aggregation.
+        :param dataset: The input data frame.
+        :type dataset: :class:`pyspark.sql.DataFrame`
+        :return: The input DataFrame after applying this
+        feature's pre-operation.
+        :rtype: :class:`pyspark.sql.DataFrame`
+        """
         raise NotImplementedError()
 
     def agg_op(self):
+        """
+        This feature's aggregating operation performed
+        during the groupby.
+        :return: A SQL clause describing the aggregating
+        function.
+        :rtype: :class:`pyspark.sql.Column'
+        """
         raise NotImplementedError()
 
     def post_op(self, dataset):
+        """
+        The post-operation performed by this feature after
+        aggregation.
+        :param dataset: The input data frame.
+        :type dataset: :class:`pyspark.sql.DataFrame`
+        :return: The input DataFrame after applying this
+        feature's post-operation.
+        :rtype: :class:`pyspark.sql.DataFrame`
+        """
         raise NotImplementedError()
 
     def get_transformer(self, group_keys):
+        """
+        :return: A transformer that calculates this feature.
+        :rtype: :class:`caaswx.spark.transformers.GroupbyTransformer`
+        :param group_keys: strings describing the columns that the
+        returned transformed aggregates on.
+        :type group_keys: :class:list
+        """
         return GroupbyTransformer(group_keys=group_keys, features=[self])
 
 
