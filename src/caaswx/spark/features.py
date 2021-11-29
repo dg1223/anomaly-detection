@@ -1,5 +1,6 @@
-from pyspark.sql.functions import col, when
-from pyspark.sql.types import IntegerType, StringType, LongType
+from pyspark.sql.functions import col, when, lag, isnull
+from pyspark.sql.types import IntegerType, StringType, LongType, ArrayType
+from pyspark.sql.window import Window
 from utils import HasTypedInputCol, HasTypedInputCols
 from base import CounterFeature
 
@@ -748,4 +749,45 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         return dataset
 
     def post_op(self, dataset):
+        return dataset
+
+
+class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+
+    """
+    Feature calculates 1 if the users browser has changed between consecutive timestamps and 0
+    if it remains the same.
+    """
+
+    def __init__(self, inputCols = ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST"):   
+        super(UserIsUsingUnusualBrowser, self).__init__()
+        self._setDefault(inputCols= ["SM_AGENTNAME", "CN"], outputCol = "BROWSER_LIST")
+        self._set(inputCols = ["SM_AGENTNAME", "CN"], inputColsType = [ArrayType(StringType()), StringType()], outputCol = outputCol,
+        outputColType = ArrayType(StringType()))  
+        
+    def agg_op(self):
+        return sort_array(collect_set(col(self.getOrDefault("inputCols")[0]))).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        if("USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns):
+            agent_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy("window")
+            dataset = dataset.withColumn(
+                "SM_PREVIOUS_AGENTNAME",
+                lag(dataset[self.getOrDefault("outputCol")]).over(agent_window),
+            )
+            dataset = dataset.withColumn(
+                    "USER_IS_USING_UNUSUAL_BROWSER",
+                    when(
+                        (isnull("SM_PREVIOUS_AGENTNAME"))
+                        | (
+                            dataset[self.getOrDefault("outputCol")] == dataset["SM_PREVIOUS_AGENTNAME"]
+                        ),
+                        0,
+                    ).otherwise(1),
+                )
+            dataset = dataset.drop(self.getOrDefault("outputCol"))
+            dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
         return dataset
