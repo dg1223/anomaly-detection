@@ -760,6 +760,58 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+
+    """
+    Feature returns the last/largest timestamp of the user, if used with window will return
+    last/largest timestamp during given window.
+    """
+
+    def __init__(self, inputCol = "SM_TIMESTAMP", outputCol = "MAX_USER_TIMESTAMP"): 
+        super(MaxUserTimestamp, self).__init__()
+        self._setDefault(inputCol="SM_TIMESTAMP", outputCol = "MAX_USER_TIMESTAMP")
+        self._set(inputCol = "SM_TIMESTAMP", inputColType = TimestampType(), outputCol = outputCol,
+        outputColType = IntegerType())  
+
+    def agg_op(self):
+        """
+        Implementation of the base logic of required max feature.
+        
+        :return: The largest number
+        :rtype: IntegerType
+        """
+        return sparkmax(col(self.getOrDefault("inputCol")).alias(self.getOutputCol()))
+    
+    def pre_op(self, dataset):
+        return dataset
+    def post_op(self, dataset):
+        return dataset
+    
+
+class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
+
+    """
+    Feature used to calculate the maximum time between consecutive time entries.
+    """
+
+    def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "MAX_TIME_BT_RECORDS"):
+        super(MaxTimeBtRecords, self).__init__()
+        self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], outputCol = "MAX_TIME_BT_RECORDS")
+        self._set(inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], inputColsType = [LongType(), StringType()], outputCol = outputCol,
+        outputColType = IntegerType())  
+        
+    def agg_op(self):
+        """
+        Implementation of the base logic of required max feature.
+        
+        :return: The number
+        :rtype: IntegerType
+        """
+        return sparkmax(col(self.getOrDefault("inputCols")[0]).alias(self.getOutputCol()))
+    
+    def pre_op(self, dataset):
+        if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
+
 
 class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
@@ -812,7 +864,7 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
   
   def post_op(self, dataset):
     return dataset
-  
+
 
 class UserNumOfAccountsLoginWithSameIPs(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
 
@@ -865,33 +917,33 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     
     def pre_op(self, dataset):        
         if("SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns):
-        
-        ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
-            "SM_TIMESTAMP"
-        )
-        dataset = dataset.withColumn(
-            "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
-        )
+            ts_window = Window.partitionBy(self.getOrDefault("inputCols")[1]).orderBy(
+                "SM_TIMESTAMP"
+            )
+            dataset = dataset.withColumn(
+                "SM_PREV_TIMESTAMP", lag(dataset["SM_TIMESTAMP"]).over(ts_window)
+            )
 
-        dataset = dataset.withColumn(
-            "SM_CONSECUTIVE_TIME_DIFFERENCE",
-            when(
-                isnull(
+            dataset = dataset.withColumn(
+                "SM_CONSECUTIVE_TIME_DIFFERENCE",
+                when(
+                    isnull(
+                        dataset["SM_TIMESTAMP"].cast("long")
+                        - dataset["SM_PREV_TIMESTAMP"].cast("long")
+                    ),
+                    0,
+                ).otherwise(
                     dataset["SM_TIMESTAMP"].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
-                0,
-            ).otherwise(
-                dataset["SM_TIMESTAMP"].cast("long")
-                - dataset["SM_PREV_TIMESTAMP"].cast("long")
-            ),
-        )
+            )
 
-        dataset = dataset.drop("SM_PREV_TIMESTAMP")
+            dataset = dataset.drop("SM_PREV_TIMESTAMP")
         return dataset
     
     def post_op(self, dataset):
         return dataset
+
 
 class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol): 
 
@@ -932,3 +984,4 @@ class UserIsUsingUnusualBrowser(GroupbyFeature, HasTypedInputCols, HasTypedOutpu
             dataset = dataset.drop(self.getOrDefault("outputCol"))
             dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
         return dataset
+
