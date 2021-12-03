@@ -206,3 +206,5 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
+
+
