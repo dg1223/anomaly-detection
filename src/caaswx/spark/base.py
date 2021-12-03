@@ -7,6 +7,7 @@ from pyspark.sql.functions import (
     round as sparkround,
     stddev as sparkstddev,
     sort_array,
+    min as sparkmin
 )
 from pyspark.sql.types import (
     IntegerType,
@@ -14,7 +15,6 @@ from pyspark.sql.types import (
     StringType
 )
 from utils import HasTypedOutputCol
-
 
 
 class GroupbyFeature(HasInputSchema):

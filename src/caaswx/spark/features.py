@@ -760,6 +760,41 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+
+class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+
+    """
+    Feature returns the first timestamp of the user, if used with window will return
+    first timestamp during given window.
+    """
+
+    def __init__(self, inputCol = "SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP"):
+        super(MinUserTimestamp, self).__init__()
+        self._setDefault(inputCol="SM_TIMESTAMP", outputCol = "MIN_USER_TIMESTAMP")
+        self._set(inputCol = "SM_TIMESTAMP", inputColType = TimestampType(), outputCol = outputCol,
+        outputColType = IntegerType())  
+    
+    def agg_op(self):
+        return sparkmin(col(self.getOrDefault("inputCol"))).alias(self.getOutputCol())
+    
+    def pre_op(self, dataset):
+        return dataset
+    
+    def post_op(self, dataset):
+        return dataset
+
+
+class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
+
+    """
+    Feature to calculate the minimum time between consecutive time entries.
+    """
+
+    def __init__(self, inputCols = ["SM_CONSECUTIVE_TIME_DIFFERENCE","CN"], outputCol = "MIN_TIME_BT_RECORDS"):
+        super(MinTimeBtRecords, self).__init__()
+        self._setDefault(inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"], outputCol = "MIN_TIME_BT_RECORDS")
+
+
 class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
 
     """
