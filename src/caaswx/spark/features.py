@@ -1,12 +1,37 @@
-from utils import HasTypedInputCol, HasTypedInputCols, 
+from utils import HasTypedInputCol, HasTypedInputCols
 from base import CounterFeature, DistinctCounterFeature
 
-from pyspark.sql.functions import count, col, when, lag, isnull, regexp_extract, window, \
-countDistinct, array_remove, array_distinct, sort_array, collect_set, collect_list, \
-mean as sparkmean, stddev as sparkstddev, size as sparksize, min as sparkmin, max as sparkmax, round as sparkround, sum as sparksum
+from pyspark.sql.functions import (
+    count,
+    col,
+    when,
+    lag,
+    isnull,
+    regexp_extract,
+    window,
+    countDistinct,
+    array_remove,
+    array_distinct,
+    sort_array,
+    collect_set,
+    collect_list,
+    mean as sparkmean,
+    stddev as sparkstddev,
+    size as sparksize,
+    min as sparkmin,
+    max as sparkmax,
+    round as sparkround,
+    sum as sparksum,
+)
 
 from pyspark.ml.param.shared import HasInputCol, HasOutputCol
-from pyspark.sql.types import IntegerType, LongType, ArrayType, TimestampType, StringType
+from pyspark.sql.types import (
+    IntegerType,
+    LongType,
+    ArrayType,
+    TimestampType,
+    StringType,
+)
 from pyspark.sql.window import Window
 
 
@@ -915,6 +940,7 @@ class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
     """
     Counter for unique occurrences in SM_RESOURCE
     """
+
     def __init__(
         self, inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_RESOURCES"
     ):
@@ -943,6 +969,7 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
     """
     Counter for unique occurrences in SM_CLIENTIP
     """
+
     def __init__(self, inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS"):
         super(CountUniqueIps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS")
@@ -955,7 +982,7 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
         :rtype: pyspark.sql.Column
         """
         return col(self.getOrDefault("inputCol"))
-    
+
     def pre_op(self, dataset):
         return dataset
 

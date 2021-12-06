@@ -161,7 +161,7 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
 
 class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
     """
-    Base distinct counter feature, will be the parent class to all 
+    Base distinct counter feature, will be the parent class to all
     distinct counting features.
     """
 
@@ -186,4 +186,3 @@ class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return countDistinct(self.count_clause()).alias(self.getOutputCol())
-  
