@@ -157,3 +157,32 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return count(self.count_clause()).alias(self.getOutputCol())
+
+
+class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base distinct counter feature, will be the parent class to all
+    distinct counting features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+        """
+        super(DistinctCounterFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def count_clause(self):
+        """
+        Distinct counting feature implementation.
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the count defined by subclasses
+        :return: The count of distinct values
+        :rtype: IntegerType
+        """
+        return countDistinct(self.count_clause()).alias(self.getOutputCol())
