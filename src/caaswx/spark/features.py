@@ -5,7 +5,7 @@ from base import (
     DistinctCounterFeature,
     ArrayDistinctFeature,
     ArrayRemoveFeature,
-    SizeArrayRemoveFeature
+    SizeArrayRemoveFeature,
 )
 
 from pyspark.sql.functions import (
