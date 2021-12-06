@@ -262,3 +262,40 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
             array_distinct(self.array_clause()),
             "",
         ).alias(self.getOutputCol())
+
+
+class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base size of array remove feature, will be the parent class to all
+    array_remove features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+        """
+        super(SizeArrayRemoveFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def array_clause(self):
+        """
+        Implementation of the base logic of required size(array_remove) feature.
+        :return: Size of list of entries containing and ending in a specific char
+        in a column
+        :rtype: IntegerType
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+        :return: The number
+        :rtype: IntegerType
+        """
+        return sparksize(
+            array_remove(
+                self.array_clause(),
+                "",
+            )
+        ).alias(self.getOutputCol())

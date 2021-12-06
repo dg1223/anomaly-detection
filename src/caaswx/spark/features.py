@@ -5,6 +5,7 @@ from base import (
     DistinctCounterFeature,
     ArrayDistinctFeature,
     ArrayRemoveFeature,
+    SizeArrayRemoveFeature
 )
 
 from pyspark.sql.functions import (
@@ -1543,6 +1544,68 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
 
+        return array_distinct(
+            collect_list(
+                regexp_extract(self.getOrDefault("inputCol"), r"/(.*?)/", 0)
+            )
+        )
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
+    def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU"):
+        super(CountUniqueOU, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU")
+        self._set(inputCol="SM_USERNAME", inputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        return collect_list(
+            regexp_extract(self.getOrDefault("inputCol"), r"ou=(,*?),", 0)
+        )
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
+    def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP"):
+        super(CountUniqueRep, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP")
+        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        return array_distinct(
+            collect_list(
+                regexp_extract(self.getOrDefault("inputCol"), r"(rep.*?)/", 0)
+            )
+        )
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
+    def __init__(
+        self, inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_USER_APPS"
+    ):
+        super(CountUniqueUserApps, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_USER_APPS"
+        )
+        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+
+    def array_clause(self):
         return array_distinct(
             collect_list(
                 regexp_extract(self.getOrDefault("inputCol"), r"/(.*?)/", 0)
