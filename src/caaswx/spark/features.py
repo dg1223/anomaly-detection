@@ -1,5 +1,11 @@
 from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
-from base import GroupbyFeature, CounterFeature, DistinctCounterFeature, ArrayDistinctFeature, ArrayRemoveFeature
+from base import (
+    GroupbyFeature,
+    CounterFeature,
+    DistinctCounterFeature,
+    ArrayDistinctFeature,
+    ArrayRemoveFeature,
+)
 
 from pyspark.sql.functions import (
     count,
@@ -1475,16 +1481,17 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
 
 class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
     """
-    Feature for a list of entries containing "ou=" and ending in 
+    Feature for a list of entries containing "ou=" and ending in
     "," in SM_USERNAME
     """
+
     def __init__(self, inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU"):
         super(UniqueUserOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU")
         self._set(inputCol="SM_USERNAME", inputColType=ArrayType(StringType()))
 
     def array_clause(self):
-    
+
         return array_distinct(
             collect_list(
                 regexp_extract(self.getOrDefault("inputCol"), r"ou=(,*?),", 0)
@@ -1500,9 +1507,10 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
 
 class UniquePortalRac(ArrayRemoveFeature, HasTypedInputCol):
     """
-    Feature for a list of entries containing "rep" and ending in 
+    Feature for a list of entries containing "rep" and ending in
     "/" in SM_RESOURCE
     """
+
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_RAC"):
         super(UniquePortalRac, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_RAC")
@@ -1524,22 +1532,25 @@ class UniquePortalRac(ArrayRemoveFeature, HasTypedInputCol):
 
 class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
     """
-    Feature for a list of entries containing a "/" and ending in 
+    Feature for a list of entries containing a "/" and ending in
     "/" in SM_RESOURCE
     """
+
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS"):
         super(UniqueUserApps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
 
     def array_clause(self):
-        
+
         return array_distinct(
             collect_list(
                 regexp_extract(self.getOrDefault("inputCol"), r"/(.*?)/", 0)
             )
         )
+
     def pre_op(self, dataset):
         return dataset
+
     def post_op(self, dataset):
         return dataset
