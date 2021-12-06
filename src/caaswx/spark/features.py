@@ -1358,6 +1358,10 @@ class UserIsUsingUnusualBrowser(
 
 
 class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
+    """
+    Feature for all distinct elements in SM_ACTION
+    """
+
     def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(UniqueSMActions, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
