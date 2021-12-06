@@ -198,7 +198,7 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
-        
+
         :param outputColType: Type of column
         :type outputColType: ArrayType(StringType())
         """
@@ -216,7 +216,7 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
     def agg_op(self):
         """
         The aggregation operation that performs the func defined by subclasses.
-        :return: The list of distinct elements 
+        :return: The list of distinct elements
         :rtype: ArrayType(StringType)
         """
         return array_distinct(

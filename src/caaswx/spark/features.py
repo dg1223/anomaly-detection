@@ -1357,16 +1357,18 @@ class UserIsUsingUnusualBrowser(
         return dataset
 
 
-class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol): 
-    def __init__(self, inputCol = "SM_ACTION", outputCol = "UNIQUE_SM_ACTIONS"):   
+class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
+    def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(UniqueSMActions, self).__init__(outputCol)
-        self._setDefault(inputCol="SM_ACTION", outputCol = "UNIQUE_SM_ACTIONS")
-        self._set(inputCol = "SM_ACTION", inputColType = ArrayType(StringType()))  
+        self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
+        self._set(inputCol="SM_ACTION", inputColType=ArrayType(StringType()))
+
     def array_clause(self):
         return col(self.getOrDefault("inputCol"))
 
     def pre_op(self, dataset):
         return dataset
+
     def post_op(self, dataset):
         return dataset
 
@@ -1375,6 +1377,7 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
     """
     Feature for all distinct elements in SM_CLIENTIP
     """
+
     def __init__(
         self, inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
     ):
@@ -1398,6 +1401,7 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
     """
     Feature for all distinct elements in SM_RESOURCE
     """
+
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
         super(UniqueSMPortals, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS")
@@ -1417,6 +1421,7 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
     """
     Feature for all distinct elements in SM_TRANSACTIONS
     """
+
     def __init__(
         self, inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
     ):
@@ -1442,16 +1447,23 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
     """
     Feature for all distinct elements in SM_SESSIONID
     """
-    def __init__(self, inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS"):
+
+    def __init__(
+        self, inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS"
+    ):
         super(UniqueSMSessionIds, self).__init__(outputCol)
-        self._setDefault(inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS")
+        self._setDefault(
+            inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS"
+        )
         self._set(
             inputCol="SM_SESSIONID", inputColType=ArrayType(StringType())
         )
 
     def array_clause(self):
         return col(self.getOrDefault("inputCol"))
+
     def pre_op(self, dataset):
         return dataset
+
     def post_op(self, dataset):
         return dataset
