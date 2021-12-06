@@ -186,3 +186,39 @@ class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
         :rtype: IntegerType
         """
         return countDistinct(self.count_clause()).alias(self.getOutputCol())
+
+
+class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base array distinct feature, will be the parent class to all
+    array_distinct features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: StringType
+        
+        :param outputColType: Type of column
+        :type outputColType: ArrayType(StringType())
+        """
+        super(ArrayDistinctFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        """
+        Implementation of the base logic of required array distinct feature.
+        :return: Column
+        :rtype: pyspark column
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+        :return: The list of distinct elements 
+        :rtype: ArrayType(StringType)
+        """
+        return array_distinct(
+            collect_list(self.array_clause()).alias(self.getOutputCol())
+        )
