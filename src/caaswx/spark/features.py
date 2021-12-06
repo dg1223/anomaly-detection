@@ -1,7 +1,13 @@
-from pyspark.sql.functions import col, when
-from pyspark.sql.types import IntegerType, StringType, LongType
-from utils import HasTypedInputCol, HasTypedInputCols
-from base import CounterFeature
+from utils import HasTypedInputCol, HasTypedInputCols, 
+from base import CounterFeature, DistinctCounterFeature
+
+from pyspark.sql.functions import count, col, when, lag, isnull, regexp_extract, window, \
+countDistinct, array_remove, array_distinct, sort_array, collect_set, collect_list, \
+mean as sparkmean, stddev as sparkstddev, size as sparksize, min as sparkmin, max as sparkmax, round as sparkround, sum as sparksum
+
+from pyspark.ml.param.shared import HasInputCol, HasOutputCol
+from pyspark.sql.types import IntegerType, LongType, ArrayType, TimestampType, StringType
+from pyspark.sql.window import Window
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
@@ -790,6 +796,166 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
             True,
         )
 
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
+    """
+    Counter for unique occurrences in SM_ACTION
+    """
+
+    def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_UNIQUE_ACTIONS"):
+        super(CountUniqueActions, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_ACTION", outputCol="COUNT_UNIQUE_ACTIONS"
+        )
+        self._set(inputCol="SM_ACTION", inputColType=StringType())
+
+    def count_clause(self):
+        """
+        Implementation of the base logic of required count feature.
+        :return: Returns the column SM_ACTION
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
+    """
+    Counter for unique occurrences in SM_EVENTID
+    """
+
+    def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_UNIQUE_EVENTS"):
+        super(CountUniqueEvents, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_EVENTID", outputCol="COUNT_UNIQUE_EVENTS"
+        )
+        self._set(inputCol="SM_EVENTID", inputColType=StringType())
+
+    def count_clause(self):
+        """
+        Implementation of the base logic of required count feature.
+        :return: Returns the column SM_EVENTID
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
+    """
+    Counter for unique occurrences in SM_SESSIONID
+    """
+
+    def __init__(
+        self, inputCol="SM_SESSIONID", outputCol="COUNT_UNIQUE_SESSIONS"
+    ):
+        super(CountUniqueSessions, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_SESSIONID", outputCol="COUNT_UNIQUE_SESSIONS"
+        )
+        self._set(inputCol="SM_SESSIONID", inputColType=StringType())
+
+    def count_clause(self):
+        """
+        Implementation of the base logic of required count feature.
+        :return: Returns the column SM_SESSIONID
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
+    """
+    Counter for unique occurrences in CN
+    """
+
+    def __init__(self, inputCol="CN", outputCol="COUNT_UNIQUE_USERNAME"):
+        super(CountUniqueUsername, self).__init__(outputCol)
+        self._setDefault(inputCol="CN", outputCol="COUNT_UNIQUE_USERNAME")
+        self._set(inputCol="CN", inputColType=StringType())
+
+    def count_clause(self):
+        """
+        Implementation of the base logic of required count feature.
+        :return: Returns the column CN
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
+    """
+    Counter for unique occurrences in SM_RESOURCE
+    """
+    def __init__(
+        self, inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_RESOURCES"
+    ):
+        super(CountUniqueResources, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_RESOURCES"
+        )
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+
+    def count_clause(self):
+        """
+        Implementation of the base logic of required count feature.
+        :return: Returns column SM_RESOURCE
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
+    """
+    Counter for unique occurrences in SM_CLIENTIP
+    """
+    def __init__(self, inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS"):
+        super(CountUniqueIps, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS")
+        self._set(inputCol="SM_CLIENTIP", inputColType=StringType())
+
+    def count_clause(self):
+        """
+        Implementation of the base logic of required count feature.
+        :return: Returns column SM_RESOURCE
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+    
     def pre_op(self, dataset):
         return dataset
 
