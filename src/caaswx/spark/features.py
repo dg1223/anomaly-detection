@@ -1009,12 +1009,6 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-
-        :return: The number
-        :rtype: IntegerType
-        """
         return sparkmin(col(self.getOrDefault("inputCols")[0])).alias(
             self.getOutputCol()
         )
@@ -1073,12 +1067,6 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        """
-        Implementation of the base logic of required max feature.
-
-        :return: The largest number
-        :rtype: IntegerType
-        """
         return sparkmax(
             col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
         )
@@ -1114,12 +1102,6 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-
-        :return: The number
-        :rtype: IntegerType
-        """
         return sparkmax(
             col(self.getOrDefault("inputCols")[0]).alias(self.getOutputCol())
         )
@@ -1180,12 +1162,6 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-
-        :return: The rounded average
-        :rtype: IntegerType
-        """
         return sparkround(
             sparkmean((col(self.getOrDefault("inputCols")[0]))), 5
         ).alias(self.getOutputCol())
@@ -1249,12 +1225,6 @@ class UserNumOfAccountsLoginWithSameIPs(
         )
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-
-        :return: The summed value.
-        :rtype: IntegerType
-        """
         return sparksum(col(self.getOrDefault("inputCol"))).alias(
             self.getOutputCol()
         )
@@ -1294,12 +1264,6 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the core functionality.
-
-        :return: The rounded standard deviation of the values
-        :rtype: IntegerType
-        """
         return sparkround(
             sparkstddev((col(self.getOrDefault("inputCols")[0]))), 15
         ).alias(self.getOutputCol())
