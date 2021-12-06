@@ -1,7 +1,12 @@
 from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
-from pyspark.sql.functions import window, count
-from pyspark.sql.types import IntegerType
+from pyspark.sql.functions import count, col, when, lag, isnull, regexp_extract, window, \
+countDistinct, array_remove, array_distinct, sort_array, collect_set, collect_list, \
+mean as sparkmean, stddev as sparkstddev, size as sparksize, min as sparkmin, max as sparkmax, round as sparkround, sum as sparksum
+
+from pyspark.ml.param.shared import HasInputCol, HasOutputCol
+from pyspark.sql.types import IntegerType, LongType, ArrayType, TimestampType, StringType
+from pyspark.sql.window import Window
 from utils import HasTypedOutputCol
 
 
@@ -222,3 +227,38 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         return array_distinct(
             collect_list(self.array_clause()).alias(self.getOutputCol())
         )
+
+
+class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
+    """
+    Base array remove feature, will be the parent class to all array_remove features.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: ArrayType
+        """
+        super(ArrayRemoveFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        """
+        Implementation of the base logic of required array_remove feature.
+        :return: List of entries containing and ending in a specific char
+        in a column
+        :rtype: ArrayType(StringType)
+        """
+        raise NotImplementedError()
+
+    def agg_op(self):
+        """
+        The aggregation operation that performs the func defined by subclasses.
+
+        :return: The number
+        :rtype: IntegerType
+        """
+        return array_remove(
+            array_distinct(self.array_clause()),
+            "",
+        ).alias(self.getOutputCol())
