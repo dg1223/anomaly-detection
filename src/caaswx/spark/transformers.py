@@ -31,6 +31,7 @@ from pyspark.sql.types import (
 
 from .sparknativetransformer import SparkNativeTransformer
 
+
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
      A transformer that parses a target Flanttened_SM_AGENTNAME column of a
@@ -91,8 +92,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
 
         return base
 
-    sch_dict = {
-    }
+    sch_dict = {}
 
     def _transform(self, dataset):
         """

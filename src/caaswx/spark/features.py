@@ -1619,21 +1619,21 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
         return dataset
 
 
-class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol): 
+class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 
     """
-    Feature used to calculate a set of Strings from inputCol, where number 
+    Feature used to calculate a set of Strings from inputCol, where number
     of items in the set is limited by max_list_count.
     """
 
     max_list_count = Param(
-    Params._dummy(),
-    "max_list_count",
-    "Maximum count of Strings allowed in the set.",
-    typeConverter=TypeConverters.toInt,
+        Params._dummy(),
+        "max_list_count",
+        "Maximum count of Strings allowed in the set.",
+        typeConverter=TypeConverters.toInt,
     )
 
-    def __init__(self, inputCol, outputCol , max_list_count = 3):
+    def __init__(self, inputCol, outputCol, max_list_count=3):
         """
         :param inputCol: Name for the input Column of the feature.
         :type inputCol: StringType
@@ -1643,12 +1643,21 @@ class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         :type max_list_count: IntegerType
         """
         super(FlattenerFeature, self).__init__()
-        self._set(inputCol = inputCol, inputColType = StringType(), outputCol = outputCol,
-            outputColType = IntegerType(), max_list_count = max_list_count)  
+        self._set(
+            inputCol=inputCol,
+            inputColType=StringType(),
+            outputCol=outputCol,
+            outputColType=IntegerType(),
+            max_list_count=max_list_count,
+        )
 
     def agg_op(self):
-        return sparkSlice(collect_set(self.getOrDefault("inputCol")), 1,
-                        self.getOrDefault("max_list_count")).alias(self.getOutputCol())
+        return sparkSlice(
+            collect_set(self.getOrDefault("inputCol")),
+            1,
+            self.getOrDefault("max_list_count"),
+        ).alias(self.getOutputCol())
+
     def pre_op(self, dataset):
         return dataset
 
