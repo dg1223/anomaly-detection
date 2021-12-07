@@ -1,20 +1,3 @@
-from ._transformers.agentstringflattener import (  # noqa: F401
-    AgentStringFlattener,
-)
-from ._transformers.cnextractor import CnExtractor  # noqa: F401
-from ._transformers.ipfeaturegenerator import IPFeatureGenerator  # noqa: F401
-from ._transformers.resourcesflattener import ResourcesFlattener  # noqa: F401
-from ._transformers.sessionfeaturegenerator import (  # noqa: F401,E501
-    SessionFeatureGenerator,
-)
-from ._transformers.serverfeaturegenerator import (  # noqa: F401,E501
-    ServerFeatureGenerator,
-)
-from ._transformers.smresourcecleaner import SMResourceCleaner  # noqa: F401
-from ._transformers.userfeaturegenerator import (  # noqa: F401
-    UserFeatureGenerator,
-)
-
 import httpagentparser
 import pyspark.sql.functions as f
 from pyspark import keyword_only
@@ -29,8 +12,83 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from .sparknativetransformer import SparkNativeTransformer
 
+class SparkNativeTransformer(Transformer):
+    """
+    This class inherits from the Transformer class and overrides Transform to
+    add input schema checking. For correct operation it is imperative that
+    _transform be implemented in the child class and a dictionary "sch_dict" be
+    implemented as a class attribute in the child class. The sch_dict is to be
+    formatted as follows: sch_dict = { "Column_1": ["Column_1", __Type()],
+    "Column_2": ["Column_2", __Type()], }
+        where:
+            "Column_X" is the actual Name of the Column
+            __Type() are pyspark.sql.types.
+        Example:
+            sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
+    """
+    
+    def test_schema(self, incoming_schema, schema):
+        def null_swap(st1, st2):
+            """
+            Function to swap datatype null parameter within a nested
+            dataframe schema
+            """
+            if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
+                raise ValueError(
+                    "Keys for first schema aren't a subset of " "the second."
+                )
+            for sf in st1:
+                sf.nullable = st2[sf.name].nullable
+                if isinstance(sf.dataType, StructType):
+                    if not {sf.name for sf in st1}.issubset(
+                        {sf.name for sf in st2}
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the "
+                            "second. "
+                        )
+                    null_swap(sf.dataType, st2[sf.name].dataType)
+                if isinstance(sf.dataType, ArrayType):
+                    sf.dataType.containsNull = st2[
+                        sf.name
+                    ].dataType.containsNull
+
+        null_swap(schema, incoming_schema)
+        if any([x not in incoming_schema for x in schema]):
+            raise ValueError(
+                "Keys for first schema aren't a subset of the " "second."
+            )
+
+    def transform(self, dataset, params=None):
+        """
+        Transforms the input dataset with optional parameters.
+        .. versionadded:: 1.3.0
+        Parameters
+        ----------
+        dataset : :py:class:`pyspark.sql.DataFrame`
+            input dataset
+        params : dict, optional
+            an optional param map that overrides embedded params.
+        Returns
+        -------
+        :py:class:`pyspark.sql.DataFrame`
+            transformed dataset
+        """
+
+        self.test_schema(dataset.schema, self.get_input_schema())
+
+        if params is None:
+            params = {}
+        if isinstance(params, dict):
+            if params:
+                return self.copy(params)._transform(dataset)
+            else:
+                return self._transform(dataset)
+        else:
+            raise ValueError(
+                "Params must be a param map but got %s." % type(params)
+            )
 
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
