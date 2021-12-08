@@ -46,7 +46,7 @@ class GroupbyFeature(HasInputSchema):
         """
         The pre-operation performed by this feature before
         aggregation.
-        :param dataset: The input data frame.
+        :param dataset: The input dataframe.
         :type dataset: :class:`pyspark.sql.DataFrame`
         :return: The input DataFrame after applying this
         feature's pre-operation.
@@ -56,7 +56,7 @@ class GroupbyFeature(HasInputSchema):
 
     def agg_op(self):
         """
-        This feature's aggegaring operation peformed
+        This feature's aggregating operation performed
         during the groupby.
         :return: A SQL clause describing the aggregating
         function.
@@ -68,7 +68,7 @@ class GroupbyFeature(HasInputSchema):
         """
         The post-operation performed by this feature after
         aggregation.
-        :param dataset: The input data frame.
+        :param dataset: The input dataframe.
         :type dataset: :class:`pyspark.sql.DataFrame`
         :return: The input DataFrame after applying this
         feature's post-operation.
@@ -286,7 +286,7 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 
     Example
 
-    Designed to handle excess blank spces("") created by regex operations.
+    Designed to handle excess blank spaces("") created by regex operations.
     """
 
     def __init__(self, outputCol):
