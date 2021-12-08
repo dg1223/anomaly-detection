@@ -1,7 +1,11 @@
 # Module containing the utility files and mixins
 
-from pyspark.ml.param.shared import HasInputCol, HasInputCols, HasOutputCol, \
-    HasOutputCols
+from pyspark.ml.param.shared import (
+    HasInputCol,
+    HasInputCols,
+    HasOutputCol,
+    HasOutputCols,
+)
 from pyspark.ml.param import Param, Params
 
 import os
@@ -15,7 +19,6 @@ from pyspark.sql.types import (
     TimestampType,
 )
 from pyspark.sql.functions import col
-
 
 
 class HasTypedInputCol(HasInputCol):
@@ -43,8 +46,9 @@ class HasTypedInputCols(HasInputCols):
     A mixin for entities that maintain multiple columns and their types
     """
 
-    inputColsType = Param(Params._dummy(), "inputColsType",
-                          "input column type")
+    inputColsType = Param(
+        Params._dummy(), "inputColsType", "input column type"
+    )
 
     def __init__(self):
         super(HasTypedInputCols, self).__init__()
@@ -64,8 +68,9 @@ class HasTypedOutputCol(HasOutputCol):
     A mixin for entities that maintain an output column type
     """
 
-    outputColType = Param(Params._dummy(), "outputColType",
-                          "output column type")  # <- this is a string
+    outputColType = Param(
+        Params._dummy(), "outputColType", "output column type"
+    )  # <- this is a string
 
     def __init__(self):
         super(HasTypedOutputCol, self).__init__()
@@ -85,8 +90,9 @@ class HasTypedOutputCols(HasOutputCols):
     A mixin for entities that maintain multiple output columns and their types
     """
 
-    outputColsType = Param(Params._dummy(), "outputColsType",
-                           "output column type")
+    outputColsType = Param(
+        Params._dummy(), "outputColsType", "output column type"
+    )
 
     def __init__(self):
         super(HasTypedOutputCols, self).__init__()
@@ -101,7 +107,7 @@ class HasTypedOutputCols(HasOutputCols):
         return self.getOrDefault("outputColsType")
 
 
-#From Utils Folder
+# From Utils Folder
 sc = SparkContext("local")
 spark = SparkSession(sc)
 
@@ -112,6 +118,7 @@ PATH_FLATTENER = (
 
 
 spark = SparkSession.builder.getOrCreate()
+
 
 def load_test_data(*args):
     """load test parquet_data from parquet_data by passing file name"""
