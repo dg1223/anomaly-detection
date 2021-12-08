@@ -377,7 +377,9 @@ class UserFeatureGenerator(GroupbyTransformer):
     """
     Base Implementation of the UserFeatureGenerator.
 
-    To add a feature implement the feature as subclass of GroupbyFeature and include feature in features variable in the constructor and in super constructor.
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
     """
 
     def __init__(self):
@@ -438,6 +440,113 @@ class UserFeatureGenerator(GroupbyTransformer):
             ft.UserIsUsingUnusualBrowser(),
         ]
         super(UserFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
+
+
+class SessionFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the SessionFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            ft.UniqueUserApps(),
+            ft.CountUniqueUserApps(),
+            # ft.UniqueCN(),  #SESSION_USER
+            ft.CountAuthReject(),
+            ft.CountAdminAttempt(),
+            ft.CountAdminLogin(),
+            ft.CountAdminLogout(),
+            ft.CountVisit(),
+            ft.CountFailed(),
+            ft.CountGet(),
+            ft.CountPost(),
+            ft.CountHTTPMethod(),
+            ft.CountRecords(),
+            ft.CountUniqueActions(),
+            ft.CountUniqueEvents(),
+            ft.CountUniqueIps(),
+            ft.CountUniqueResources(),
+            ft.CountUniqueRep(),
+            ft.UniqueSMActions(),
+            ft.UniqueSMPortals(),
+            ft.UniquePortalRac(),
+            ft.MinUserTimestamp(),
+            ft.MaxUserTimestamp(),
+            ft.StdBtRecords(),
+        ]
+        super(SessionFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
+
+
+class IPFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the IPFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            ft.UniqueUserApps(),
+            ft.AvgTimeBtRecords(),
+            ft.MaxTimeBtRecords(),
+            ft.MinTimeBtRecords(),
+            ft.CountAuthAccept(),
+            ft.CountAuthReject(),
+            ft.CountAdminAttempt(),
+            ft.CountAuthChallenge(),
+            ft.CountAZAccept(),
+            ft.CountAZReject(),
+            ft.CountAdminLogin(),
+            ft.CountAdminLogout(),
+            ft.CountAdminReject(),
+            ft.CountAuthLogout(),
+            ft.CountFailed(),
+            ft.CountGet(),
+            ft.CountPost(),
+            ft.CountHTTPMethod(),
+            ft.CountOUAms(),
+            ft.CountOUCms(),
+            ft.CountOUIdentity(),
+            ft.CountOUCred(),
+            ft.CountOUSecurekey(),
+            ft.CountPortalMya(),
+            ft.CountPortalMyba(),
+            ft.CountUniqueActions(),
+            ft.CountUniqueEvents(),
+            ft.CountUniqueUsername(),
+            ft.CountUniqueResources(),
+            ft.CountUniqueSessions(),
+            ft.CountUniqueRep(),
+            ft.CountRecords(),
+            ft.CountVisit(),
+            ft.CountValidateAccept(),
+            ft.CountValidateReject(),
+            ft.UniqueSMActions(),
+            ft.CountUniqueUsername(),
+            ft.UniqueSMSessionIds(),
+            ft.UniqueSMPortals(),
+            ft.UniqueSMTransactions(),
+            ft.UniqueUserOU(),
+            ft.UniquePortalRac(),
+            ft.MinUserTimestamp(),
+            ft.CountUniqueOU(),
+
+        ]
+        super(IPFeatureGenerator, self).__init__(
             group_keys=["CN"],
             features=features,
         )
