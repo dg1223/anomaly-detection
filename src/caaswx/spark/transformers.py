@@ -79,7 +79,7 @@ class SparkNativeTransformer(Transformer):
     def transform(self, dataset, params=None):
         """
         Transforms the input dataset with optional parameters.
-        .. versionadded:: 1.3.0
+        .. version added:: 1.3.0
         Parameters
         ----------
         dataset : :py:class:`pyspark.sql.DataFrame`
@@ -109,10 +109,10 @@ class SparkNativeTransformer(Transformer):
 
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
-     A transformer that parses a target Flanttened_SM_AGENTNAME column of a
+     A transformer that parses a target Flattened_SM_AGENTNAME column of a
      spark dataframe.
-    Input: A Spark dataframe containing Flanttened_SM_AGENTNAMESM_AGENTNAME,
-    Output: A Spark Dataframe with the following feature appeneded to it.
+    Input: A Spark dataframe containing Flattened_SM_AGENTNAMESM_AGENTNAME,
+    Output: A Spark Dataframe with the following feature appended to it.
      +-------------+----------+----------------------------------+
      | Column_Name | Datatype | Description                      |
      +=============+==========+==================================+
@@ -290,7 +290,7 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
       To cleanup these long URLs, replace the entire string with
       '/cmsws/public/saml2sso'.
     5) Other strings
-      Suggested Categorization: Take whatever's left over from the previous
+      Suggested Categorization: Take whatever is left over from the previous
       two categories that isn't null.
       Action: Do nothing.
     Input: A Spark dataframe containing the following column:
@@ -427,7 +427,7 @@ class UserFeatureGenerator(GroupbyTransformer):
             ft.AvgTimeBtRecords(),
             ft.StdBtRecords(),
             ft.UserNumOfAccountsLoginWithSameIPs(),
-            ft.MinUserTimestamp(),
+            # ft.MinUserTimestamp(),
             ft.MaxUserTimestamp(),
             ft.MinTimeBtRecords(),
             ft.MaxTimeBtRecords(),
@@ -478,7 +478,7 @@ class SessionFeatureGenerator(GroupbyTransformer):
             ft.UniqueSMActions(),
             ft.UniqueSMPortals(),
             ft.UniquePortalRac(),
-            ft.MinUserTimestamp(),
+            # ft.MinUserTimestamp(),
             ft.MaxUserTimestamp(),
             ft.StdBtRecords(),
         ]
@@ -542,7 +542,7 @@ class IPFeatureGenerator(GroupbyTransformer):
             ft.UniqueSMTransactions(),
             ft.UniqueUserOU(),
             ft.UniquePortalRac(),
-            ft.MinUserTimestamp(),
+            # ft.MinUserTimestamp(),
             ft.CountUniqueOU(),
 
         ]
