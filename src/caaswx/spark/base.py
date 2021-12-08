@@ -202,7 +202,7 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
 class CounterFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base counter feature, calculates total number of items in the given
+    Base class for counter feature, calculates total number of elements in the given
     group. 
     """
 
@@ -227,7 +227,7 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
 class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base distinct counter feature, calculates distinct number of items 
+    Base class for distinct counter feature, calculates distinct number of elements 
     in the given group. 
     """
 
@@ -252,8 +252,10 @@ class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
 class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base array distinct feature, calculates a distinct list of objects from
+    Base class for array distinct feature, calculates a distinct list of objects from
     the grouped data.
+
+    Removes Duplicates from grouped data.
     """
 
     def __init__(self, outputCol):
@@ -279,10 +281,12 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
 class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base array remove feature, calculates a distinct list of objects from
-    the grouped data with empty spaces removed.
+    Base class for array remove feature, calculates a distinct list of objects from
+    the grouped data with objects of 0 length removed.
 
-    Designed to handle excess blank sapces("") created by regex operations.
+    Example
+
+    Designed to handle excess blank spces("") created by regex operations.
     """
 
     def __init__(self, outputCol):
@@ -310,9 +314,11 @@ class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
     Base size of array remove feature, calculates the size of a distinct list 
-    of objects from the grouped data with empty spaces removed.
+    of objects from the grouped data with empty Strings removed.
 
-    Designed to handle excess blank sapces("") created by regex operations.
+    Example
+
+    Designed to handle excess blank spaces("") created by regex operations.
     """
 
     def __init__(self, outputCol):
