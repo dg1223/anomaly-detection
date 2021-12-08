@@ -11,6 +11,8 @@ from pyspark.sql.types import (
     StringType,
     TimestampType,
 )
+import features
+from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
 
 
 class SparkNativeTransformer(Transformer):
@@ -354,3 +356,20 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
         )
 
         return dataset
+
+class UserFeatureGenerator(GroupbyTransformer):
+  """
+  Base Implementation of the UserFeatureGenerator.
+  
+  To add a feature implement the feature as subclass of GroupbyFeature and include feauture in features variable in the constructor and in super constructor.
+  """
+  
+  def __init__(self):
+    group_keys = ['CN']
+    features = [
+      features.CountAuthAccept()
+    ]
+    super(UserFeatureGenerator, self).__init__(
+      group_keys = ['CN'],
+      features = features
+    )
