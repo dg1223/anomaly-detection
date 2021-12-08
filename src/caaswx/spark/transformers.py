@@ -1,18 +1,27 @@
 import httpagentparser
 import pyspark.sql.functions as f
 from pyspark import keyword_only
-from pyspark.ml.param.shared import TypeConverters, Param, Params, HasOutputCol
+from pyspark.ml.param.shared import TypeConverters, Param, Params, HasInputCol, \
+    HasOutputCol
 from pyspark.sql.functions import (
     window,
     col,
     udf,
+    regexp_replace,
+    regexp_extract,
 )
 from pyspark.sql.types import (
-    StringType,
+    IntegerType,
+    LongType,
+    ArrayType,
     TimestampType,
+    StringType,
+    StructType,
 )
-import features
+import features as ft
+from base import GroupbyTransformer
 from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
+from pyspark.ml import Transformer
 
 
 class SparkNativeTransformer(Transformer):
@@ -29,7 +38,7 @@ class SparkNativeTransformer(Transformer):
         Example:
             sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
     """
-    
+
     def test_schema(self, incoming_schema, schema):
         def null_swap(st1, st2):
             """
@@ -44,7 +53,7 @@ class SparkNativeTransformer(Transformer):
                 sf.nullable = st2[sf.name].nullable
                 if isinstance(sf.dataType, StructType):
                     if not {sf.name for sf in st1}.issubset(
-                        {sf.name for sf in st2}
+                            {sf.name for sf in st2}
                     ):
                         raise ValueError(
                             "Keys for first schema aren't a subset of the "
@@ -92,6 +101,7 @@ class SparkNativeTransformer(Transformer):
                 "Params must be a param map but got %s." % type(params)
             )
 
+
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
      A transformer that parses a target Flanttened_SM_AGENTNAME column of a
@@ -109,7 +119,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
 
     @keyword_only
     def __init__(
-        self,
+            self,
     ):
         """
         :param outputCol: Name of parsed agent string column
@@ -127,7 +137,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
 
     @keyword_only
     def set_params(
-        self,
+            self,
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None,
@@ -357,19 +367,81 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
 
         return dataset
 
+
 class UserFeatureGenerator(GroupbyTransformer):
-  """
-  Base Implementation of the UserFeatureGenerator.
-  
-  To add a feature implement the feature as subclass of GroupbyFeature and include feauture in features variable in the constructor and in super constructor.
-  """
-  
-  def __init__(self):
-    group_keys = ['CN']
-    features = [
-      features.CountAuthAccept()
-    ]
-    super(UserFeatureGenerator, self).__init__(
-      group_keys = ['CN'],
-      features = features
-    )
+    """
+    Base Implementation of the UserFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and include feauture in features variable in the constructor and in super constructor.
+    """
+
+    def __init__(self):
+        group_keys = ['CN']
+        features = [
+            ft.CountAuthAccept(),
+            #       CountAuthReject(),
+            #       CountAdminAttempt(),
+            #       CountAuthChallenge(),
+            #       CountAZAccept(),
+            #       CountAZReject(),
+            #       CountAdminLogin(),
+            #       CountAdminLogout(),
+            #       CountAdminReject(),
+            #       CountAuthLogout(),
+            #       CountValidateAccept(),
+            #       CountValidateReject(),
+            #       CountVisit(),
+            #       CountFailed(),
+            #       CountOUAms(),
+            #       CountOUCms(),
+            #       CountGet(),
+            #       CountPost(),
+            #       CountHTTPMethod(),
+            #       CountUniqueActions(),
+            #       CountUniqueUsername(),
+            #       CountUniqueUserApps(),
+            #       CountUniqueEvents(),
+            #       CountUniqueSessions(),
+            #       CountOUIdentity(),
+            #       CountOUCred(),
+            #       CountOUSecurekey(),
+            #       CountPortalMya(),
+            #       CountPortalMyba(),
+
+            #       CountUniqueOU(),
+            #       UniqueUserOU(),
+            #       UniquePortalRac(),
+            #       CountUniqueRep(),
+            #       UniqueUserApps(),
+            #       CountUniqueUserApps(),
+
+            #       UniqueSMActions(),
+            #       UniqueSMPortals(),
+            #       UniqueSMTransactions(),
+
+            #       SMSessionIds(),
+            #       AvgTimeBtRecords(),
+            #       StdBtRecords(),
+            #       UserNumOfAccountsLoginWithSameIPs(),
+
+            #       MinUserTimestamp(),
+            #       MaxUserTimestamp(),
+
+            #       MinTimeBtRecords(),
+            #       MaxTimeBtRecords(),
+
+            #       CountUniqueResources(),
+            #       CountUniqueIps(),
+
+            #       CountUniqueUsername(),
+            #       CountRecords(),
+            #       UserLoginAttempts(),
+            #       UserNumOfPasswordChange(),
+
+            #       UserIsUsingUnusualBrowser()
+
+        ]
+        super(UserFeatureGenerator, self).__init__(
+            group_keys=['CN'],
+            features=features,
+        )
