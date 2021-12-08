@@ -1,4 +1,5 @@
 from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
+
 from base import (
     GroupbyFeature,
     CounterFeature,
@@ -29,8 +30,9 @@ from pyspark.sql.functions import (
     max as sparkmax,
     round as sparkround,
     sum as sparksum,
+    slice as sparkslice,
 )
-
+from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.ml.param.shared import HasInputCol, HasOutputCol
 from pyspark.sql.types import (
     IntegerType,
@@ -997,6 +999,39 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
         return dataset
 
 
+class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
+
+    """
+    Feature returns the first/smallest timestamp of the user, if used with
+    window will return last/largest timestamp during given window.
+    """
+
+    def __init__(
+        self, inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
+    ):
+        super(MinUserTimestamp, self).__init__()
+        self._setDefault(
+            inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
+        )
+        self._set(
+            inputCol="SM_TIMESTAMP",
+            inputColType=TimestampType(),
+            outputCol=outputCol,
+            outputColType=IntegerType(),
+        )
+
+    def agg_op(self):
+        return sparkmin(
+            col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
+        )
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
 class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     def __init__(
         self,
@@ -1055,8 +1090,8 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 
     """
-    Feature returns the last/largest timestamp of the user, if used with window will return
-    last/largest timestamp during given window.
+    Feature returns the last/largest timestamp of the user, if used with window
+    will return last/largest timestamp during given window.
     """
 
     def __init__(
@@ -1088,7 +1123,8 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature used to calculate the maximum time between consecutive time entries.
+    Feature used to calculate the maximum time between consecutive time
+    entries.
     """
 
     def __init__(
@@ -1148,7 +1184,8 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature used to calculate the average time between consecutive time entries.
+    Feature used to calculate the average time between consecutive time
+    entries.
     """
 
     def __init__(
@@ -1211,7 +1248,8 @@ class UserNumOfAccountsLoginWithSameIPs(
 ):
 
     """
-    Feature used to calculate Total number of accounts visited by the IPs used by the given user.
+    Feature used to calculate Total number of accounts visited by the IPs used
+    by the given user.
     """
 
     def __init__(
@@ -1250,7 +1288,8 @@ class UserNumOfAccountsLoginWithSameIPs(
 
 class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     """
-    Feature used to calculate the standard deviation between consecutive time entries.
+    Feature used to calculate the standard deviation between consecutive time
+    entries.
     """
 
     def __init__(
@@ -1311,8 +1350,8 @@ class UserIsUsingUnusualBrowser(
 ):
 
     """
-    Feature calculates 1 if the users browser has changed between consecutive timestamps and 0
-    if it remains the same.
+    Feature calculates 1 if the users browser has changed between consecutive
+    timestamps and 0 if it remains the same.
     """
 
     def __init__(
@@ -1652,7 +1691,7 @@ class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        return sparkSlice(
+        return sparkslice(
             collect_set(self.getOrDefault("inputCol")),
             1,
             self.getOrDefault("max_list_count"),

@@ -1,8 +1,13 @@
 import httpagentparser
 import pyspark.sql.functions as f
 from pyspark import keyword_only
-from pyspark.ml.param.shared import TypeConverters, Param, Params, HasInputCol, \
-    HasOutputCol
+from pyspark.ml.param.shared import (
+    TypeConverters,
+    Param,
+    Params,
+    HasInputCol,
+    HasOutputCol,
+)
 from pyspark.sql.functions import (
     window,
     col,
@@ -53,7 +58,7 @@ class SparkNativeTransformer(Transformer):
                 sf.nullable = st2[sf.name].nullable
                 if isinstance(sf.dataType, StructType):
                     if not {sf.name for sf in st1}.issubset(
-                            {sf.name for sf in st2}
+                        {sf.name for sf in st2}
                     ):
                         raise ValueError(
                             "Keys for first schema aren't a subset of the "
@@ -119,7 +124,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
 
     @keyword_only
     def __init__(
-            self,
+        self,
     ):
         """
         :param outputCol: Name of parsed agent string column
@@ -137,7 +142,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
 
     @keyword_only
     def set_params(
-            self,
+        self,
     ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None,
@@ -372,76 +377,67 @@ class UserFeatureGenerator(GroupbyTransformer):
     """
     Base Implementation of the UserFeatureGenerator.
 
-    To add a feature implement the feature as subclass of GroupbyFeature and include feauture in features variable in the constructor and in super constructor.
+    To add a feature implement the feature as subclass of GroupbyFeature and include feature in features variable in the constructor and in super constructor.
     """
 
     def __init__(self):
-        group_keys = ['CN']
+        group_keys = ["CN"]
         features = [
             ft.CountAuthAccept(),
-            #       CountAuthReject(),
-            #       CountAdminAttempt(),
-            #       CountAuthChallenge(),
-            #       CountAZAccept(),
-            #       CountAZReject(),
-            #       CountAdminLogin(),
-            #       CountAdminLogout(),
-            #       CountAdminReject(),
-            #       CountAuthLogout(),
-            #       CountValidateAccept(),
-            #       CountValidateReject(),
-            #       CountVisit(),
-            #       CountFailed(),
-            #       CountOUAms(),
-            #       CountOUCms(),
-            #       CountGet(),
-            #       CountPost(),
-            #       CountHTTPMethod(),
-            #       CountUniqueActions(),
-            #       CountUniqueUsername(),
-            #       CountUniqueUserApps(),
-            #       CountUniqueEvents(),
-            #       CountUniqueSessions(),
-            #       CountOUIdentity(),
-            #       CountOUCred(),
-            #       CountOUSecurekey(),
-            #       CountPortalMya(),
-            #       CountPortalMyba(),
-
-            #       CountUniqueOU(),
-            #       UniqueUserOU(),
-            #       UniquePortalRac(),
-            #       CountUniqueRep(),
-            #       UniqueUserApps(),
-            #       CountUniqueUserApps(),
-
-            #       UniqueSMActions(),
-            #       UniqueSMPortals(),
-            #       UniqueSMTransactions(),
-
-            #       SMSessionIds(),
-            #       AvgTimeBtRecords(),
-            #       StdBtRecords(),
-            #       UserNumOfAccountsLoginWithSameIPs(),
-
-            #       MinUserTimestamp(),
-            #       MaxUserTimestamp(),
-
-            #       MinTimeBtRecords(),
-            #       MaxTimeBtRecords(),
-
-            #       CountUniqueResources(),
-            #       CountUniqueIps(),
-
-            #       CountUniqueUsername(),
-            #       CountRecords(),
-            #       UserLoginAttempts(),
-            #       UserNumOfPasswordChange(),
-
-            #       UserIsUsingUnusualBrowser()
-
+            ft.CountAuthReject(),
+            ft.CountAdminAttempt(),
+            ft.CountAuthChallenge(),
+            ft.CountAZAccept(),
+            ft.CountAZReject(),
+            ft.CountAdminLogin(),
+            ft.CountAdminLogout(),
+            ft.CountAdminReject(),
+            ft.CountAuthLogout(),
+            ft.CountValidateAccept(),
+            ft.CountValidateReject(),
+            ft.CountVisit(),
+            ft.CountFailed(),
+            ft.CountOUAms(),
+            ft.CountOUCms(),
+            ft.CountGet(),
+            ft.CountPost(),
+            ft.CountHTTPMethod(),
+            ft.CountUniqueActions(),
+            ft.CountUniqueUsername(),
+            ft.CountUniqueUserApps(),
+            ft.CountUniqueEvents(),
+            ft.CountUniqueSessions(),
+            ft.CountOUIdentity(),
+            ft.CountOUCred(),
+            ft.CountOUSecurekey(),
+            ft.CountPortalMya(),
+            ft.CountPortalMyba(),
+            ft.CountUniqueOU(),
+            ft.UniqueUserOU(),
+            ft.UniquePortalRac(),
+            ft.CountUniqueRep(),
+            ft.UniqueUserApps(),
+            ft.CountUniqueUserApps(),
+            ft.UniqueSMSessionIds(),
+            ft.UniqueSMActions(),
+            ft.UniqueSMPortals(),
+            ft.UniqueSMTransactions(),
+            ft.AvgTimeBtRecords(),
+            ft.StdBtRecords(),
+            ft.UserNumOfAccountsLoginWithSameIPs(),
+            ft.MinUserTimestamp(),
+            ft.MaxUserTimestamp(),
+            ft.MinTimeBtRecords(),
+            ft.MaxTimeBtRecords(),
+            ft.CountUniqueResources(),
+            ft.CountUniqueIps(),
+            ft.CountUniqueUsername(),
+            ft.CountRecords(),
+            ft.UserLoginAttempts(),
+            ft.UserNumOfPasswordChange(),
+            ft.UserIsUsingUnusualBrowser(),
         ]
         super(UserFeatureGenerator, self).__init__(
-            group_keys=['CN'],
+            group_keys=["CN"],
             features=features,
         )
