@@ -1416,45 +1416,30 @@ class UserIsUsingUnusualBrowser(
 class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
 
     """
-
     Feature calculates a distinct list of users in inputCol(default=CN).
-
     """
 
 
-    def __init__(
-
-        self, inputCol="CN", outputCol="UNIQUE_CN"
-
-    ):
-
+    def __init__(self, inputCol="CN", outputCol="UNIQUE_CN"):
         super(UniqueCN, self).__init__(outputCol)
-
         self._setDefault(
-
             inputCol="CN", outputCol="UNIQUE_CN"
-
         )
-
         self._set(
-
             inputCol="CN", inputColType=ArrayType(StringType())
-
         )
-
 
     def array_clause(self):
-
+        """
+        :return: Returns column CN
+        :rtype: pyspark.sql.Column
+        """
         return col(self.getOrDefault("inputCol"))
 
-
     def pre_op(self, dataset):
-
         return dataset
 
-
     def post_op(self, dataset):
-
         return dataset
 
 
