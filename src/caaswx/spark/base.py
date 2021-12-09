@@ -33,21 +33,59 @@ from pyspark.sql.types import (
 )
 from pyspark.sql.window import Window
 from utils import HasTypedOutputCol
+from src.caaswx.spark._transformers.refactoring import HasInputSchema
 
 
-class GroupbyFeature:
+class GroupbyFeature(HasInputSchema):
+    """
+    A feature that maintains an Input Schema (StructField) and
+    pre/agg/post operations.
+    """
+
     def pre_op(self, dataset):
+        """
+        The pre-operation performed by this feature before
+        aggregation.
+        :param dataset: The input dataframe.
+        :type dataset: :class:`pyspark.sql.DataFrame`
+        :return: The input DataFrame after applying this
+        feature's pre-operation.
+        :rtype: :class:`pyspark.sql.DataFrame`
+        """
         raise NotImplementedError()
 
     def agg_op(self):
+        """
+        This feature's aggregating operation performed
+        during the groupby.
+        :return: A SQL clause describing the aggregating
+        function.
+        :rtype: :class:`pyspark.sql.Column'
+        """
         raise NotImplementedError()
 
     def post_op(self, dataset):
+        """
+        The post-operation performed by this feature after
+        aggregation.
+        :param dataset: The input dataframe.
+        :type dataset: :class:`pyspark.sql.DataFrame`
+        :return: The input DataFrame after applying this
+        feature's post-operation.
+        :rtype: :class:`pyspark.sql.DataFrame`
+        """
         raise NotImplementedError()
 
     def get_transformer(self, group_keys):
+        """
+        :return: A transformer that calculates this feature.
+        :rtype: :class:`caaswx.spark.transformers.GroupbyTransformer`
+        :param group_keys: strings describing the columns that the
+        returned transformed aggregates on.
+        :type group_keys: :class:list
+        """
         return GroupbyTransformer(group_keys=group_keys, features=[self])
-
+        
 
 class GroupbyTransformer(Transformer):
     """
@@ -87,8 +125,9 @@ class GroupbyTransformer(Transformer):
 class WindowedGroupbyTransformer(GroupbyTransformer):
 
     """
-    Inherited version of GroupbyTransformer for incorporating window
-    slices between feature rows.
+    A transformer that computes a list of features during a single
+    groupby operation, where the input has Bucketized rows into one
+    or more time windows given window length and step.
     """
 
     window_length = Param(
@@ -161,67 +200,62 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
 
 
 class CounterFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base counter feature, will be the parent class to all counting features.
+    Base class for counter feature, calculates total number of elements in the given
+    group. 
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
+        
+        :param outputColType: Type of column
+        :type outputColType: IntegerType()
         """
         super(CounterFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=IntegerType())
 
     def count_clause(self):
-        """
-        Counting feature implementation.
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the count defined by subclasses
-
-        :return: The Count
-        :rtype: IntegerType
-        """
         return count(self.count_clause()).alias(self.getOutputCol())
 
 
 class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base distinct counter feature, will be the parent class to all
-    distinct counting features.
+    Base class for distinct counter feature, calculates distinct number of elements 
+    in the given group. 
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: IntegerType
+
+        :param outputColType: Type of column
+        :type outputColType: IntegerType()
         """
         super(DistinctCounterFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=IntegerType())
 
     def count_clause(self):
-        """
-        Distinct counting feature implementation.
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the count defined by subclasses
-        :return: The count of distinct values
-        :rtype: IntegerType
-        """
         return countDistinct(self.count_clause()).alias(self.getOutputCol())
 
 
 class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base array distinct feature, will be the parent class to all
-    array_distinct features.
+    Base class for array distinct feature, calculates a distinct list of objects from
+    the grouped data.
+
+    Removes Duplicates from grouped data.
     """
 
     def __init__(self, outputCol):
@@ -236,53 +270,38 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
 
     def array_clause(self):
-        """
-        Implementation of the base logic of required array distinct feature.
-        :return: Column
-        :rtype: pyspark column
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-        :return: The list of distinct elements
-        :rtype: ArrayType(StringType)
-        """
         return array_distinct(
             collect_list(self.array_clause()).alias(self.getOutputCol())
         )
 
 
 class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base array remove feature, will be the parent class to all array_remove features.
+    Base class for array remove feature, calculates a distinct list of objects from
+    the grouped data with objects of 0 length removed.
+
+    Designed to handle excess blank spaces("") created by regex operations.
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: ArrayType
+
+        :param outputColType: Type of column
+        :type outputColType: ArrayType(StringType())
         """
         super(ArrayRemoveFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
 
     def array_clause(self):
-        """
-        Implementation of the base logic of required array_remove feature.
-        :return: List of entries containing and ending in a specific char
-        in a column
-        :rtype: ArrayType(StringType)
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-
-        :return: The number
-        :rtype: IntegerType
-        """
         return array_remove(
             array_distinct(self.array_clause()),
             "",
@@ -290,37 +309,37 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 
 
 class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base size of array remove feature, will be the parent class to all
-    array_remove features.
+    Base size of array remove feature, calculates the size of a distinct list 
+    of objects from the grouped data with empty Strings removed.
+
+    Designed to handle excess blank spaces("") created by regex operations.
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: IntegerType
+
+        :param outputColType: Type of column
+        :type outputColType: IntegerType()
         """
         super(SizeArrayRemoveFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=IntegerType())
 
     def array_clause(self):
-        """
-        Implementation of the base logic of required size(array_remove) feature.
-        :return: Size of list of entries containing and ending in a specific char
-        in a column
-        :rtype: IntegerType
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
-        :return: The number
-        :rtype: IntegerType
-        """
         return sparksize(
             array_remove(
                 self.array_clause(),
                 "",
             )
         ).alias(self.getOutputCol())
+
+
+
+
+
