@@ -1,4 +1,5 @@
 from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
+
 from base import (
     GroupbyFeature,
     CounterFeature,
@@ -29,8 +30,9 @@ from pyspark.sql.functions import (
     max as sparkmax,
     round as sparkround,
     sum as sparksum,
+    slice as sparkslice,
 )
-
+from pyspark.ml.param.shared import TypeConverters, Param, Params
 from pyspark.ml.param.shared import HasInputCol, HasOutputCol
 from pyspark.sql.types import (
     IntegerType,
@@ -1652,7 +1654,7 @@ class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         )
 
     def agg_op(self):
-        return sparkSlice(
+        return sparkslice(
             collect_set(self.getOrDefault("inputCol")),
             1,
             self.getOrDefault("max_list_count"),

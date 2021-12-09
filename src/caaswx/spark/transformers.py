@@ -1,16 +1,32 @@
 import httpagentparser
 import pyspark.sql.functions as f
 from pyspark import keyword_only
-from pyspark.ml.param.shared import TypeConverters, Param, Params, HasOutputCol
+from pyspark.ml.param.shared import (
+    TypeConverters,
+    Param,
+    Params,
+    HasInputCol,
+    HasOutputCol,
+)
 from pyspark.sql.functions import (
     window,
     col,
     udf,
+    regexp_replace,
+    regexp_extract,
 )
 from pyspark.sql.types import (
-    StringType,
+    IntegerType,
+    LongType,
+    ArrayType,
     TimestampType,
+    StringType,
+    StructType,
 )
+import features as ft
+from base import GroupbyTransformer
+from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
+from pyspark.ml import Transformer
 
 
 class SparkNativeTransformer(Transformer):
@@ -27,7 +43,7 @@ class SparkNativeTransformer(Transformer):
         Example:
             sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
     """
-    
+
     def test_schema(self, incoming_schema, schema):
         def null_swap(st1, st2):
             """
@@ -63,7 +79,7 @@ class SparkNativeTransformer(Transformer):
     def transform(self, dataset, params=None):
         """
         Transforms the input dataset with optional parameters.
-        .. versionadded:: 1.3.0
+        .. version added:: 1.3.0
         Parameters
         ----------
         dataset : :py:class:`pyspark.sql.DataFrame`
@@ -90,12 +106,13 @@ class SparkNativeTransformer(Transformer):
                 "Params must be a param map but got %s." % type(params)
             )
 
+
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
-     A transformer that parses a target Flanttened_SM_AGENTNAME column of a
+     A transformer that parses a target Flattened_SM_AGENTNAME column of a
      spark dataframe.
-    Input: A Spark dataframe containing Flanttened_SM_AGENTNAMESM_AGENTNAME,
-    Output: A Spark Dataframe with the following feature appeneded to it.
+    Input: A Spark dataframe containing Flattened_SM_AGENTNAMESM_AGENTNAME,
+    Output: A Spark Dataframe with the following feature appended to it.
      +-------------+----------+----------------------------------+
      | Column_Name | Datatype | Description                      |
      +=============+==========+==================================+
@@ -273,7 +290,7 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
       To cleanup these long URLs, replace the entire string with
       '/cmsws/public/saml2sso'.
     5) Other strings
-      Suggested Categorization: Take whatever's left over from the previous
+      Suggested Categorization: Take whatever is left over from the previous
       two categories that isn't null.
       Action: Do nothing.
     Input: A Spark dataframe containing the following column:
@@ -354,3 +371,182 @@ class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
         )
 
         return dataset
+
+
+class UserFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the UserFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            ft.CountAuthAccept(),
+            ft.CountAuthReject(),
+            ft.CountAdminAttempt(),
+            ft.CountAuthChallenge(),
+            ft.CountAZAccept(),
+            ft.CountAZReject(),
+            ft.CountAdminLogin(),
+            ft.CountAdminLogout(),
+            ft.CountAdminReject(),
+            ft.CountAuthLogout(),
+            ft.CountValidateAccept(),
+            ft.CountValidateReject(),
+            ft.CountVisit(),
+            ft.CountFailed(),
+            ft.CountOUAms(),
+            ft.CountOUCms(),
+            ft.CountGet(),
+            ft.CountPost(),
+            ft.CountHTTPMethod(),
+            ft.CountUniqueActions(),
+            ft.CountUniqueUsername(),
+            ft.CountUniqueUserApps(),
+            ft.CountUniqueEvents(),
+            ft.CountUniqueSessions(),
+            ft.CountOUIdentity(),
+            ft.CountOUCred(),
+            ft.CountOUSecurekey(),
+            ft.CountPortalMya(),
+            ft.CountPortalMyba(),
+            ft.CountUniqueOU(),
+            ft.UniqueUserOU(),
+            ft.UniquePortalRac(),
+            ft.CountUniqueRep(),
+            ft.UniqueUserApps(),
+            ft.CountUniqueUserApps(),
+            ft.UniqueSMSessionIds(),
+            ft.UniqueSMActions(),
+            ft.UniqueSMPortals(),
+            ft.UniqueSMTransactions(),
+            ft.AvgTimeBtRecords(),
+            ft.StdBtRecords(),
+            ft.UserNumOfAccountsLoginWithSameIPs(),
+            # ft.MinUserTimestamp(),
+            ft.MaxUserTimestamp(),
+            ft.MinTimeBtRecords(),
+            ft.MaxTimeBtRecords(),
+            ft.CountUniqueResources(),
+            ft.CountUniqueIps(),
+            ft.CountUniqueUsername(),
+            ft.CountRecords(),
+            ft.UserLoginAttempts(),
+            ft.UserNumOfPasswordChange(),
+            ft.UserIsUsingUnusualBrowser(),
+        ]
+        super(UserFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
+
+
+class SessionFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the SessionFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            ft.UniqueUserApps(),
+            ft.CountUniqueUserApps(),
+            # ft.UniqueCN(),  #SESSION_USER
+            ft.CountAuthReject(),
+            ft.CountAdminAttempt(),
+            ft.CountAdminLogin(),
+            ft.CountAdminLogout(),
+            ft.CountVisit(),
+            ft.CountFailed(),
+            ft.CountGet(),
+            ft.CountPost(),
+            ft.CountHTTPMethod(),
+            ft.CountRecords(),
+            ft.CountUniqueActions(),
+            ft.CountUniqueEvents(),
+            ft.CountUniqueIps(),
+            ft.CountUniqueResources(),
+            ft.CountUniqueRep(),
+            ft.UniqueSMActions(),
+            ft.UniqueSMPortals(),
+            ft.UniquePortalRac(),
+            # ft.MinUserTimestamp(),
+            ft.MaxUserTimestamp(),
+            ft.StdBtRecords(),
+        ]
+        super(SessionFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
+
+
+class IPFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the IPFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            ft.UniqueUserApps(),
+            ft.AvgTimeBtRecords(),
+            ft.MaxTimeBtRecords(),
+            ft.MinTimeBtRecords(),
+            ft.CountAuthAccept(),
+            ft.CountAuthReject(),
+            ft.CountAdminAttempt(),
+            ft.CountAuthChallenge(),
+            ft.CountAZAccept(),
+            ft.CountAZReject(),
+            ft.CountAdminLogin(),
+            ft.CountAdminLogout(),
+            ft.CountAdminReject(),
+            ft.CountAuthLogout(),
+            ft.CountFailed(),
+            ft.CountGet(),
+            ft.CountPost(),
+            ft.CountHTTPMethod(),
+            ft.CountOUAms(),
+            ft.CountOUCms(),
+            ft.CountOUIdentity(),
+            ft.CountOUCred(),
+            ft.CountOUSecurekey(),
+            ft.CountPortalMya(),
+            ft.CountPortalMyba(),
+            ft.CountUniqueActions(),
+            ft.CountUniqueEvents(),
+            ft.CountUniqueUsername(),
+            ft.CountUniqueResources(),
+            ft.CountUniqueSessions(),
+            ft.CountUniqueRep(),
+            ft.CountRecords(),
+            ft.CountVisit(),
+            ft.CountValidateAccept(),
+            ft.CountValidateReject(),
+            ft.UniqueSMActions(),
+            ft.CountUniqueUsername(),
+            ft.UniqueSMSessionIds(),
+            ft.UniqueSMPortals(),
+            ft.UniqueSMTransactions(),
+            ft.UniqueUserOU(),
+            ft.UniquePortalRac(),
+            # ft.MinUserTimestamp(),
+            ft.CountUniqueOU(),
+
+        ]
+        super(IPFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
