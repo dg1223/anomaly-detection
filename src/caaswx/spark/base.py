@@ -284,8 +284,6 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
     Base class for array remove feature, calculates a distinct list of objects from
     the grouped data with objects of 0 length removed.
 
-    Example
-
     Designed to handle excess blank spaces("") created by regex operations.
     """
 
@@ -315,8 +313,6 @@ class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
     """
     Base size of array remove feature, calculates the size of a distinct list 
     of objects from the grouped data with empty Strings removed.
-
-    Example
 
     Designed to handle excess blank spaces("") created by regex operations.
     """
