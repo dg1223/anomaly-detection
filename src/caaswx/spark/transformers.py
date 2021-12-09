@@ -427,7 +427,7 @@ class UserFeatureGenerator(GroupbyTransformer):
             ft.AvgTimeBtRecords(),
             ft.StdBtRecords(),
             ft.UserNumOfAccountsLoginWithSameIPs(),
-            # ft.MinUserTimestamp(),
+            ft.MinUserTimestamp(),
             ft.MaxUserTimestamp(),
             ft.MinTimeBtRecords(),
             ft.MaxTimeBtRecords(),
@@ -459,7 +459,7 @@ class SessionFeatureGenerator(GroupbyTransformer):
         features = [
             ft.UniqueUserApps(),
             ft.CountUniqueUserApps(),
-            # ft.UniqueCN(),  #SESSION_USER
+            ft.UniqueCN(),  
             ft.CountAuthReject(),
             ft.CountAdminAttempt(),
             ft.CountAdminLogin(),
@@ -478,7 +478,7 @@ class SessionFeatureGenerator(GroupbyTransformer):
             ft.UniqueSMActions(),
             ft.UniqueSMPortals(),
             ft.UniquePortalRac(),
-            # ft.MinUserTimestamp(),
+            ft.MinUserTimestamp(),
             ft.MaxUserTimestamp(),
             ft.StdBtRecords(),
         ]
@@ -542,7 +542,7 @@ class IPFeatureGenerator(GroupbyTransformer):
             ft.UniqueSMTransactions(),
             ft.UniqueUserOU(),
             ft.UniquePortalRac(),
-            # ft.MinUserTimestamp(),
+            ft.MinUserTimestamp(),
             ft.CountUniqueOU(),
 
         ]

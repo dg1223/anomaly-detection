@@ -954,6 +954,33 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
+    """
+    Feature calculates the first timestamp in the given group.
+    """
+    def __init__(
+        self, inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
+    ):
+        super(MinUserTimestamp, self).__init__()
+        self._setDefault(
+            inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
+        )
+        self._set(
+            inputCol="SM_TIMESTAMP",
+            inputColType=TimestampType(),
+            outputCol=outputCol,
+            outputColType=IntegerType(),
+        )
+
+    def agg_op(self):
+        return sparkmin(
+            col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
+        )
+    def pre_op(self, dataset):
+        return dataset
+    def post_op(self, dataset):
+        return dataset
+
 
 class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
@@ -1383,6 +1410,36 @@ class UserIsUsingUnusualBrowser(
             )
             dataset = dataset.drop(self.getOrDefault("outputCol"))
             dataset = dataset.drop("SM_PREVIOUS_AGENTNAME")
+        return dataset
+
+
+class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
+
+    """
+    Feature calculates a distinct list of users in inputCol(default=CN).
+    """
+
+
+    def __init__(self, inputCol="CN", outputCol="UNIQUE_CN"):
+        super(UniqueCN, self).__init__(outputCol)
+        self._setDefault(
+            inputCol="CN", outputCol="UNIQUE_CN"
+        )
+        self._set(
+            inputCol="CN", inputColType=ArrayType(StringType())
+        )
+
+    def array_clause(self):
+        """
+        :return: Returns column CN
+        :rtype: pyspark.sql.Column
+        """
+        return col(self.getOrDefault("inputCol"))
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
         return dataset
 
 
