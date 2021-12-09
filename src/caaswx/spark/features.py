@@ -10,22 +10,18 @@ from base import (
 )
 
 from pyspark.sql.functions import (
-    count,
     col,
     when,
     lag,
     isnull,
     regexp_extract,
-    window,
     countDistinct,
-    array_remove,
     array_distinct,
     sort_array,
     collect_set,
     collect_list,
     mean as sparkmean,
     stddev as sparkstddev,
-    size as sparksize,
     min as sparkmin,
     max as sparkmax,
     round as sparkround,
@@ -33,7 +29,6 @@ from pyspark.sql.functions import (
     slice as sparkslice,
 )
 from pyspark.ml.param.shared import TypeConverters, Param, Params
-from pyspark.ml.param.shared import HasInputCol, HasOutputCol
 from pyspark.sql.types import (
     IntegerType,
     LongType,
@@ -49,7 +44,6 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
     """
     Feature calculates count of Authentication Accept events(sm_eventid == 1).
     """
-
 
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
         super(CountAuthAccept, self).__init__(outputCol)
@@ -71,11 +65,11 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthReject(CounterFeature, HasTypedInputCol):
-    
+
     """
     Feature calculates count of Authentication Reject events(sm_eventid == 2).
     """
-  
+
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT"):
         super(CountAuthReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT")
@@ -125,7 +119,8 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
 class CountAuthChallenge(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of Authentication Challenge events(sm_eventid == 4).
+    Feature calculates count of Authentication Challenge events
+    (sm_eventid == 4).
     """
 
     def __init__(
@@ -177,7 +172,7 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAZReject(CounterFeature, HasTypedInputCol):
-    
+
     """
     Feature calculates count of Authentication Reject events(sm_eventid == 6).
     """
@@ -202,11 +197,11 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogin(CounterFeature, HasTypedInputCol):
-    
+
     """
     Feature calculates count of Admin Login events(sm_eventid == 7).
     """
-    
+
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN"):
         super(CountAdminLogin, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN")
@@ -231,7 +226,7 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
     """
     Feature calculates count of Admin Logout events(sm_eventid == 8).
     """
-    
+
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT"):
         super(CountAdminLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT")
@@ -252,7 +247,7 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminReject(CounterFeature, HasTypedInputCol):
-    
+
     """
     Feature calculates count of Admin Reject events(sm_eventid == 9).
     """
@@ -346,7 +341,7 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
 
     def count_clause(self):
-        """ 
+        """
         :return: Returns True if EVENTID == 12.
         :rtype: BooleanType
         """
@@ -360,7 +355,7 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
 
 
 class CountVisit(CounterFeature, HasTypedInputCol):
-    
+
     """
     Feature calculates count of Visit events(sm_eventid == 13).
     """
@@ -421,12 +416,14 @@ class CountFailed(CounterFeature, HasTypedInputCol):
 class CountOUAms(CounterFeature, HasTypedInputCols):
 
     """
-    Feature calculates count of "ams", "AMS" occurrences in inputCols 
+    Feature calculates count of "ams", "AMS" occurrences in inputCols
     (default=(SM_USERNAME, SM_RESOURCE)).
     """
 
     def __init__(
-        self, inputCols=["SM_USERNAME", "SM_RESOURCE"], outputCol="COUNT_OU_AMS"
+        self,
+        inputCols=["SM_USERNAME", "SM_RESOURCE"],
+        outputCol="COUNT_OU_AMS",
     ):
         super(CountOUAms, self).__init__(outputCol)
         self._setDefault(
@@ -460,7 +457,8 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
 class CountOUCms(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of occurrences of "cra-cp" in inputCol (default=SM_USERNAME).
+    Feature calculates count of occurrences of "cra-cp" in inputCol
+    (default=SM_USERNAME).
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CMS"):
@@ -486,7 +484,8 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
 
 class CountGet(CounterFeature, HasTypedInputCol):
     """
-    Feature calculates count of occurrences of "GET" in inputCol (default=SM_ACTION).
+    Feature calculates count of occurrences of "GET" in inputCol
+    (default=SM_ACTION).
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_GET"):
@@ -511,7 +510,8 @@ class CountGet(CounterFeature, HasTypedInputCol):
 class CountPost(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of occurrences of "POST" in inputCol (default=SM_ACTION).
+    Feature calculates count of occurrences of "POST" in inputCol
+    (default=SM_ACTION).
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_POST"):
@@ -537,7 +537,8 @@ class CountPost(CounterFeature, HasTypedInputCol):
 
 class CountHTTPMethod(CounterFeature, HasTypedInputCol):
     """
-    Feature calculates count of occurrences of "GET" or "POST" in inputCol (default=SM_ACTION).
+    Feature calculates count of occurrences of "GET" or "POST" in inputCol
+    (default=SM_ACTION).
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD"):
@@ -565,7 +566,8 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
 
 class CountOUIdentity(CounterFeature, HasTypedInputCol):
     """
-    Feature calculates count of occurrences of "ou=Identity" in inputCol (default=SM_USERNAME).
+    Feature calculates count of occurrences of "ou=Identity" in inputCol
+    (default=SM_USERNAME).
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY"):
@@ -593,7 +595,8 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
 class CountOUCred(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of occurrences of "ou=Credential" in inputCol (default=SM_USERNAME).
+    Feature calculates count of occurrences of "ou=Credential" in inputCol
+    (default=SM_USERNAME).
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED"):
@@ -619,9 +622,10 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
 
 
 class CountOUSecurekey(CounterFeature, HasTypedInputCol):
-    
+
     """
-    Feature calculates count of occurrences of "ou=SecureKey" in inputCol (default=SM_USERNAME).
+    Feature calculates count of occurrences of "ou=SecureKey" in inputCol
+    (default=SM_USERNAME).
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_SECUREKEY"):
@@ -651,7 +655,8 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
 class CountPortalMya(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of occurrences of "mima" in inputCol (default=SM_RESOURCE).
+    Feature calculates count of occurrences of "mima" in inputCol
+    (default=SM_RESOURCE).
     """
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA"):
@@ -679,7 +684,8 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
 class CountPortalMyba(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of occurrences of "myba" in inputCol (default=SM_RESOURCE).
+    Feature calculates count of occurrences of "myba" in inputCol
+    (default=SM_RESOURCE).
     """
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA"):
@@ -707,9 +713,10 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
 class CountRecords(CounterFeature, HasTypedInputCol):
 
     """
-    Feature passes inputCol(default=CRA_SEQ) column to base feature to count number of elements.
+    Feature passes inputCol(default=CRA_SEQ) column to base feature to count
+    number of elements.
     """
-    
+
     def __init__(self, inputCol="CRA_SEQ", outputCol="COUNT_RECORDS"):
         super(CountRecords, self).__init__(outputCol)
         self._setDefault(inputCol="CRA_SEQ", outputCol="COUNT_RECORDS")
@@ -732,7 +739,7 @@ class CountRecords(CounterFeature, HasTypedInputCol):
 class UserLoginAttempts(CounterFeature, HasTypedInputCol):
 
     """
-    Feature passes True when a User Login Attempt event occurs defined by 
+    Feature passes True when a User Login Attempt event occurs defined by
     1 >= sm_eventid <= 6, otherwise returns None.
     """
 
@@ -764,7 +771,8 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
 class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of occurrences of "changePassword" in inputCol (default=SM_RESOURCE).
+    Feature calculates count of occurrences of "changePassword" in inputCol
+    (default=SM_RESOURCE).
     """
 
     def __init__(
@@ -794,9 +802,10 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 
 class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
-    
+
     """
-    Feature calculates count of distinct Actions in inputCol(default=SM_ACTION),
+    Feature calculates count of distinct Actions in
+    inputCol (default=SM_ACTION).
     """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_UNIQUE_ACTIONS"):
@@ -821,9 +830,10 @@ class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
-    
+
     """
-    Feature calculates count of distinct Events in inputCol(default=SM_EVENTID).
+    Feature calculates count of distinct Events in inputCol
+    (default=SM_EVENTID).
     """
 
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_UNIQUE_EVENTS"):
@@ -848,9 +858,10 @@ class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
-    
+
     """
-    Feature calculates count of distinct Sessions in inputCol(default=SM_SESSIONID).
+    Feature calculates count of distinct Sessions in inputCol
+    (default=SM_SESSIONID).
     """
 
     def __init__(
@@ -904,7 +915,8 @@ class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
 class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
 
     """
-    Feature calculates count of distinct Resources in inputCol(default=SM_RESOURCE).
+    Feature calculates count of distinct Resources in inputCol
+    (default=SM_RESOURCE).
     """
 
     def __init__(
@@ -954,10 +966,12 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+
 class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
     """
     Feature calculates the first timestamp in the given group.
     """
+
     def __init__(
         self, inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
     ):
@@ -976,8 +990,10 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         return sparkmin(
             col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
         )
+
     def pre_op(self, dataset):
         return dataset
+
     def post_op(self, dataset):
         return dataset
 
@@ -985,7 +1001,8 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature calculates the smallest time gap between two consecutive records in the group.
+    Feature calculates the smallest time gap between two consecutive records
+    in the group.
 
     Example:
     +--------+------------------------------+
@@ -994,12 +1011,14 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     | User A | 2018-01-01T00:00:04.100+0000 |
     |        | 2018-01-01T00:00:04.200+0000 |
     |        | 2018-01-01T00:00:04.250+0000 |
-    |        | 2018-01-01T00:00:04.600+0000 |    
+    |        | 2018-01-01T00:00:04.600+0000 |
     +--------+------------------------------+
 
-    2018-01-01T00:00:04.200+0000 -> 2018-01-01T00:00:04.250+0000 is the smalleset gap.
+    2018-01-01T00:00:04.200+0000 -> 2018-01-01T00:00:04.250+0000 is the
+    smallest gap.
 
-    MinTimeBtRecords = 2018-01-01T00:00:04.200+0000 - 2018-01-01T00:00:04.250+0000
+    MinTimeBtRecords = 2018-01-01T00:00:04.200+0000
+                        - 2018-01-01T00:00:04.250+0000
                      = 0.05
 
     """
@@ -1093,7 +1112,8 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature calculates the largest time gap between consecutive time entries in the group.
+    Feature calculates the largest time gap between consecutive time entries
+    in the group.
 
     Example:
     +--------+------------------------------+
@@ -1102,12 +1122,14 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     | User A | 2018-01-01T00:00:04.100+0000 |
     |        | 2018-01-01T00:00:04.200+0000 |
     |        | 2018-01-01T00:00:04.250+0000 |
-    |        | 2018-01-01T00:00:04.600+0000 |    
+    |        | 2018-01-01T00:00:04.600+0000 |
     +--------+------------------------------+
 
-    2018-01-01T00:00:04.250+0000 -> 2018-01-01T00:00:04.600+0000 is the lasrgest time gap.
+    2018-01-01T00:00:04.250+0000 -> 2018-01-01T00:00:04.600+0000 is the
+    largest time gap.
 
-    MaxTimeBtRecords = 2018-01-01T00:00:04.250+0000 - 2018-01-01T00:00:04.600+0000
+    MaxTimeBtRecords = 2018-01-01T00:00:04.250+0000
+                        - 2018-01-01T00:00:04.600+0000
                      = 0.35
     """
 
@@ -1168,8 +1190,9 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature calculates the average time gap between all consecutive time entries in the group.
-    
+    Feature calculates the average time gap between all consecutive time
+    entries in the group.
+
     Example:
     +--------+------------------------------+
     | User   | Timestamp                    |
@@ -1177,10 +1200,11 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     | User A | 2018-01-01T00:00:04.100+0000 |
     |        | 2018-01-01T00:00:04.200+0000 |
     |        | 2018-01-01T00:00:04.250+0000 |
-    |        | 2018-01-01T00:00:04.600+0000 |    
+    |        | 2018-01-01T00:00:04.600+0000 |
     +--------+------------------------------+
 
-    AvgTimeBtRecords = Average(Calculate difference between each consecutive pair)
+    AvgTimeBtRecords = Average(Calculate difference between each consecutive
+                        pair)
                      = (0.1 + 0.05 + 0.35)/3
                      = 0.16667
     """
@@ -1287,7 +1311,8 @@ class UserNumOfAccountsLoginWithSameIPs(
 class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature calculates the standard deviation between consecutive time entries in the group.
+    Feature calculates the standard deviation between consecutive time entries
+    in the group.
 
     Example:
     +--------+------------------------------+
@@ -1296,7 +1321,7 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     | User A | 2018-01-01T00:00:04.100+0000 |
     |        | 2018-01-01T00:00:04.200+0000 |
     |        | 2018-01-01T00:00:04.250+0000 |
-    |        | 2018-01-01T00:00:04.600+0000 |    
+    |        | 2018-01-01T00:00:04.600+0000 |
     +--------+------------------------------+
 
     StdBtRecords = Std_Dev(Calculate difference between each consecutive pair)
@@ -1362,8 +1387,8 @@ class UserIsUsingUnusualBrowser(
 ):
 
     """
-    Feature calculates 1 if the user's browser has changed between consecutive entries, and 0
-    if it remains the same in the given group.
+    Feature calculates 1 if the user's browser has changed between consecutive
+    entries, and 0 if it remains the same in the given group.
     """
 
     def __init__(
@@ -1421,15 +1446,10 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
     Feature calculates a distinct list of users in inputCol(default=CN).
     """
 
-
     def __init__(self, inputCol="CN", outputCol="UNIQUE_CN"):
         super(UniqueCN, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="CN", outputCol="UNIQUE_CN"
-        )
-        self._set(
-            inputCol="CN", inputColType=ArrayType(StringType())
-        )
+        self._setDefault(inputCol="CN", outputCol="UNIQUE_CN")
+        self._set(inputCol="CN", inputColType=ArrayType(StringType()))
 
     def array_clause(self):
         """
@@ -1446,11 +1466,11 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
-    
-    """
-    Feature calculates a distinct list of Actions in inputCol(default=SM_ACTION).
-    """
 
+    """
+    Feature calculates a distinct list of Actions in inputCol
+    (default=SM_ACTION).
+    """
 
     def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(UniqueSMActions, self).__init__(outputCol)
@@ -1503,7 +1523,8 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
 class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
 
     """
-    Feature calculates a distinct list of Resources in inputCol(default=SM_RESOURCE).
+    Feature calculates a distinct list of Resources in inputCol
+    (default=SM_RESOURCE).
     """
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
@@ -1526,10 +1547,11 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
-    
+
     """
-    Feature calculates a distinct list of Transactions in inputCol(default=SM_TRANSACTIONID).
-    """    
+    Feature calculates a distinct list of Transactions in inputCol
+    (default=SM_TRANSACTIONID).
+    """
 
     def __init__(
         self, inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
@@ -1559,7 +1581,8 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
 class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
 
     """
-    Feature calculates a distinct list of Session IDs in inputCol(default=SM_SESSIONID).
+    Feature calculates a distinct list of Session IDs in inputCol
+    (default=SM_SESSIONID).
     """
 
     def __init__(
@@ -1591,7 +1614,8 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
 
     """
     Feature calculates a distinct list of User OUs defined by
-    entries containing "rep" and ending in "/" in inputCol(default=SM_USERNAME).
+    entries containing "rep" and ending in "/" in inputCol
+    (default=SM_USERNAME).
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU"):
@@ -1605,8 +1629,8 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
         :rtype: ArrayType(StringType())
         """
         return collect_list(
-                regexp_extract(self.getOrDefault("inputCol"), r"ou=(,*?),", 0)
-            )
+            regexp_extract(self.getOrDefault("inputCol"), r"ou=(,*?),", 0)
+        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1633,8 +1657,8 @@ class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
         :rtype: ArrayType(StringType())
         """
         return collect_list(
-                regexp_extract(self.getOrDefault("inputCol"), r"(rep.*?)/", 0)
-            )
+            regexp_extract(self.getOrDefault("inputCol"), r"(rep.*?)/", 0)
+        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1647,7 +1671,8 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
 
     """
     Feature calculates a distinct list of Apps visited by the user
-    defined by entries containing "/" and ending in "/" in inputCol(default=SM_RESOURCE)
+    defined by entries containing "/" and ending in "/" in inputCol
+    (default=SM_RESOURCE)
     """
 
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS"):
@@ -1661,8 +1686,8 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
         :rtype: ArrayType(StringType())
         """
         return collect_list(
-                regexp_extract(self.getOrDefault("inputCol"), r"/(.*?)/", 0)
-            )
+            regexp_extract(self.getOrDefault("inputCol"), r"/(.*?)/", 0)
+        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1672,12 +1697,12 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
 
 
 class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
-    
+
     """
     Feature calculates number of distinct User OUs defined by
     entries containing "ou=" and ending in "," in inputCol(default=SM_USERNAME)
     """
-    
+
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU"):
         super(CountUniqueOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU")
@@ -1733,7 +1758,8 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
 
     """
     Feature calculates number of distinct Apps visited by the user
-    defined by entries containing "/" and ending in "/" in inputCol(default=SM_RESOURCE).
+    defined by entries containing "/" and ending in "/" in inputCol
+    (default=SM_RESOURCE).
     """
 
     def __init__(
