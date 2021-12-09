@@ -1299,9 +1299,9 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     |        | 2018-01-01T00:00:04.600+0000 |    
     +--------+------------------------------+
 
-    AvgTimeBtRecords = Std_Dev(Calculate difference between each consecutive pair)
-                     = Std_Dev(0.1, 0.05, 0.35)
-                     = 0.13123
+    StdBtRecords = Std_Dev(Calculate difference between each consecutive pair)
+                 = Std_Dev(0.1, 0.05, 0.35)
+                 = 0.13123
     """
 
     def __init__(
