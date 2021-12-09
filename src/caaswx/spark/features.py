@@ -956,7 +956,7 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
 class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     """
-    Feature calculatess the smallest time gap between two consecutive records in the group.
+    Feature calculates the smallest time gap between two consecutive records in the group.
 
     Example:
     +--------+------------------------------+
@@ -1540,7 +1540,7 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns regex-modified list of strings from SM_USERNAME
         :rtype: ArrayType(StringType())
         """
         return array_distinct(
@@ -1570,7 +1570,7 @@ class UniquePortalRac(ArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns regex-modified list of strings from SM_RESOURCE
         :rtype: ArrayType(StringType())
         """
         return array_distinct(
@@ -1600,7 +1600,7 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns regex-modified list of strings from SM_RESOURCE
         :rtype: ArrayType(StringType())
         """
         return array_distinct(
@@ -1630,7 +1630,7 @@ class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns regex-modified list of strings from SM_USERNAME
         :rtype: ArrayType(StringType())
         """
         return collect_list(
@@ -1658,7 +1658,7 @@ class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns regex-modified list of strings from SM_RESOURCE
         :rtype: ArrayType(StringType())
         """
         return array_distinct(
@@ -1692,7 +1692,7 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns regex-modified list of strings from SM_RESOURCE
         :rtype: ArrayType(StringType())
         """
         return array_distinct(
