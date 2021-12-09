@@ -1417,7 +1417,7 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
 
     """
 
-    Feature for all distinct elements in CN
+    Feature calculates a distinct list of users in inputCol(default=CN).
 
     """
 
