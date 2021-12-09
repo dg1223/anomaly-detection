@@ -1279,6 +1279,8 @@ class UserNumOfAccountsLoginWithSameIPs(
         return dataset
 
     def post_op(self, dataset):
+        if "distinct_usernames_for_ip" in dataset.columns:
+            dataset = dataset.drop("distinct_usernames_for_ip")
         return dataset
 
 
@@ -1602,11 +1604,9 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
         :return: Returns regex-modified list of strings from SM_USERNAME
         :rtype: ArrayType(StringType())
         """
-        return array_distinct(
-            collect_list(
+        return collect_list(
                 regexp_extract(self.getOrDefault("inputCol"), r"ou=(,*?),", 0)
             )
-        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1615,16 +1615,16 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
         return dataset
 
 
-class UniquePortalRac(ArrayRemoveFeature, HasTypedInputCol):
+class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
 
     """
     Feature calculates a distinct list of Reps defined by
     entries containing "rep" and ending in "/" in inputCol(default=SM_RESOURCE)
     """
 
-    def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_RAC"):
-        super(UniquePortalRac, self).__init__(outputCol)
-        self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_RAC")
+    def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP"):
+        super(UniquePortalRep, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
 
     def array_clause(self):
@@ -1632,11 +1632,9 @@ class UniquePortalRac(ArrayRemoveFeature, HasTypedInputCol):
         :return: Returns regex-modified list of strings from SM_RESOURCE
         :rtype: ArrayType(StringType())
         """
-        return array_distinct(
-            collect_list(
+        return collect_list(
                 regexp_extract(self.getOrDefault("inputCol"), r"(rep.*?)/", 0)
             )
-        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1662,11 +1660,9 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
         :return: Returns regex-modified list of strings from SM_RESOURCE
         :rtype: ArrayType(StringType())
         """
-        return array_distinct(
-            collect_list(
+        return collect_list(
                 regexp_extract(self.getOrDefault("inputCol"), r"/(.*?)/", 0)
             )
-        )
 
     def pre_op(self, dataset):
         return dataset
