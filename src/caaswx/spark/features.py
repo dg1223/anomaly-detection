@@ -1398,7 +1398,7 @@ class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns column SM_ACTION
         :rtype: pyspark.sql.Column
         """
         return col(self.getOrDefault("inputCol"))
@@ -1427,7 +1427,7 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns column SM_CLIENTIP
         :rtype: pyspark.sql.Column
         """
         return col(self.getOrDefault("inputCol"))
@@ -1483,7 +1483,7 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns column SM_TRANSACTIONID
         :rtype: pyspark.sql.Column
         """
         return col(self.getOrDefault("inputCol"))
@@ -1514,7 +1514,7 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
 
     def array_clause(self):
         """
-        :return: Returns column SM_RESOURCE
+        :return: Returns column SM_SESSIONID
         :rtype: pyspark.sql.Column
         """
         return col(self.getOrDefault("inputCol"))
