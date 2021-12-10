@@ -49,6 +49,10 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
         super(CountAuthAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -74,6 +78,10 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
         super(CountAuthReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -101,6 +109,10 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
             inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_ATTEMPT"
         )
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -131,6 +143,10 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
             inputCol="SM_EVENTID", outputCol="COUNT_AUTH_CHALLENGE"
         )
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -156,6 +172,10 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
         super(CountAZAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -181,6 +201,10 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
         super(CountAZReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -206,6 +230,10 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
         super(CountAdminLogin, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -231,6 +259,10 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
         super(CountAdminLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -256,6 +288,10 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
         super(CountAdminReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -281,6 +317,10 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
         super(CountAuthLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -310,6 +350,10 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
             inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_ACCEPT"
         )
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -339,6 +383,10 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
             inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_REJECT"
         )
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -364,6 +412,10 @@ class CountVisit(CounterFeature, HasTypedInputCol):
         super(CountVisit, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_VISIT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -389,6 +441,10 @@ class CountFailed(CounterFeature, HasTypedInputCol):
         super(CountFailed, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_FAILED")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -433,6 +489,11 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
             inputCols=["SM_USERNAME", "SM_RESOURCE"],
             inputColsType=[StringType(), StringType()],
         )
+        sch_list = []
+        for x, y in zip(self.getOrDefault("inputCols"), self.getOrDefault("inputColsType")):
+          sch_list.append(StructField(x, y))
+        schema = StructType(sch_list)
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -465,6 +526,10 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
         super(CountOUCms, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_AMS")
         self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -492,6 +557,10 @@ class CountGet(CounterFeature, HasTypedInputCol):
         super(CountGet, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_GET")
         self._set(inputCol="SM_ACTION", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -518,6 +587,10 @@ class CountPost(CounterFeature, HasTypedInputCol):
         super(CountPost, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_POST")
         self._set(inputCol="SM_ACTION", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -545,6 +618,10 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
         super(CountHTTPMethod, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD")
         self._set(inputCol="SM_ACTION", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -574,6 +651,10 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
         super(CountOUIdentity, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY")
         self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -603,6 +684,10 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
         super(CountOUCred, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED")
         self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -634,6 +719,10 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
             inputCol="SM_USERNAME", outputCol="COUNT_OU_SECUREKEY"
         )
         self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -663,6 +752,10 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
         super(CountPortalMya, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA")
         self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -692,6 +785,10 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
         super(CountPortalMyba, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA")
         self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -721,6 +818,10 @@ class CountRecords(CounterFeature, HasTypedInputCol):
         super(CountRecords, self).__init__(outputCol)
         self._setDefault(inputCol="CRA_SEQ", outputCol="COUNT_RECORDS")
         self._set(inputCol="CRA_SEQ", inputColType=LongType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -747,6 +848,10 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
         super(UserLoginAttempts, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="UserLoginAttempts")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -783,6 +888,10 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
             inputCol="SM_RESOURCE", outputCol="UserNumOfPasswordChange"
         )
         self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -814,6 +923,10 @@ class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
             inputCol="SM_ACTION", outputCol="COUNT_UNIQUE_ACTIONS"
         )
         self._set(inputCol="SM_ACTION", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -842,6 +955,10 @@ class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
             inputCol="SM_EVENTID", outputCol="COUNT_UNIQUE_EVENTS"
         )
         self._set(inputCol="SM_EVENTID", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -872,6 +989,10 @@ class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
             inputCol="SM_SESSIONID", outputCol="COUNT_UNIQUE_SESSIONS"
         )
         self._set(inputCol="SM_SESSIONID", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -897,6 +1018,10 @@ class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
         super(CountUniqueUsername, self).__init__(outputCol)
         self._setDefault(inputCol="CN", outputCol="COUNT_UNIQUE_USERNAME")
         self._set(inputCol="CN", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -927,6 +1052,10 @@ class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
             inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_RESOURCES"
         )
         self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -952,6 +1081,10 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
         super(CountUniqueIps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS")
         self._set(inputCol="SM_CLIENTIP", inputColType=StringType())
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def count_clause(self):
         """
@@ -985,6 +1118,10 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkmin(
@@ -1039,6 +1176,11 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        sch_list = []
+        for x, y in zip(self.getOrDefault("inputCols"), self.getOrDefault("inputColsType")):
+          sch_list.append(StructField(x, y))
+        schema = StructType(sch_list)
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkmin(col(self.getOrDefault("inputCols")[0])).alias(
@@ -1096,6 +1238,10 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkmax(
@@ -1149,6 +1295,11 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        sch_list = []
+        for x, y in zip(self.getOrDefault("inputCols"), self.getOrDefault("inputColsType")):
+          sch_list.append(StructField(x, y))
+        schema = StructType(sch_list)
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkmax(
@@ -1225,6 +1376,11 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        sch_list = []
+        for x, y in zip(self.getOrDefault("inputCols"), self.getOrDefault("inputColsType")):
+          sch_list.append(StructField(x, y))
+        schema = StructType(sch_list)
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkround(
@@ -1288,6 +1444,10 @@ class UserNumOfAccountsLoginWithSameIPs(
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparksum(col(self.getOrDefault("inputCol"))).alias(
@@ -1345,6 +1505,11 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
+        sch_list = []
+        for x, y in zip(self.getOrDefault("inputCols"), self.getOrDefault("inputColsType")):
+          sch_list.append(StructField(x, y))
+        schema = StructType(sch_list)
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkround(
@@ -1404,6 +1569,11 @@ class UserIsUsingUnusualBrowser(
             outputCol=outputCol,
             outputColType=ArrayType(StringType()),
         )
+        sch_list = []
+        for x, y in zip(self.getOrDefault("inputCols"), self.getOrDefault("inputColsType")):
+          sch_list.append(StructField(x, y))
+        schema = StructType(sch_list)
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sort_array(
@@ -1450,6 +1620,10 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
         super(UniqueCN, self).__init__(outputCol)
         self._setDefault(inputCol="CN", outputCol="UNIQUE_CN")
         self._set(inputCol="CN", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1476,6 +1650,10 @@ class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
         super(UniqueSMActions, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
         self._set(inputCol="SM_ACTION", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1505,6 +1683,10 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
             inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
         )
         self._set(inputCol="SM_CLIENTIP", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1531,6 +1713,10 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
         super(UniqueSMPortals, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1563,6 +1749,10 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
         self._set(
             inputCol="SM_TRANSACTIONID", inputColType=ArrayType(StringType())
         )
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1595,6 +1785,10 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
         self._set(
             inputCol="SM_SESSIONID", inputColType=ArrayType(StringType())
         )
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1622,6 +1816,10 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
         super(UniqueUserOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU")
         self._set(inputCol="SM_USERNAME", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1650,6 +1848,10 @@ class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
         super(UniquePortalRep, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1679,6 +1881,10 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
         super(UniqueUserApps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1707,6 +1913,10 @@ class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
         super(CountUniqueOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU")
         self._set(inputCol="SM_USERNAME", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1735,6 +1945,10 @@ class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
         super(CountUniqueRep, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP")
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1770,6 +1984,10 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
             inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_USER_APPS"
         )
         self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def array_clause(self):
         """
@@ -1820,6 +2038,10 @@ class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
             outputColType=IntegerType(),
             max_list_count=max_list_count,
         )
+        schema = StructType([
+            StructField(self.getOrDefault('inputCol'),self.getOrDefault('inputColType'),False)
+        ])
+        self.set_input_schema(schema)
 
     def agg_op(self):
         return sparkslice(
