@@ -2,36 +2,19 @@ from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
 from pyspark.sql.functions import (
     count,
-    col,
-    when,
-    lag,
-    isnull,
-    regexp_extract,
     window,
     countDistinct,
     array_remove,
     array_distinct,
-    sort_array,
-    collect_set,
     collect_list,
-    mean as sparkmean,
-    stddev as sparkstddev,
     size as sparksize,
-    min as sparkmin,
-    max as sparkmax,
-    round as sparkround,
-    sum as sparksum,
 )
 
-from pyspark.ml.param.shared import HasInputCol, HasOutputCol
 from pyspark.sql.types import (
     IntegerType,
-    LongType,
     ArrayType,
-    TimestampType,
     StringType,
 )
-from pyspark.sql.window import Window
 from utils import HasTypedOutputCol
 from src.caaswx.spark._transformers.refactoring import HasInputSchema
 
@@ -85,7 +68,7 @@ class GroupbyFeature(HasInputSchema):
         :type group_keys: :class:list
         """
         return GroupbyTransformer(group_keys=group_keys, features=[self])
-        
+
 
 class GroupbyTransformer(Transformer):
     """
@@ -202,15 +185,15 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
 class CounterFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base class for counter feature, calculates total number of elements in the given
-    group. 
+    Base class for counter feature, calculates total number of elements in the
+    given group.
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
-        
+
         :param outputColType: Type of column
         :type outputColType: IntegerType()
         """
@@ -227,8 +210,8 @@ class CounterFeature(GroupbyFeature, HasTypedOutputCol):
 class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base class for distinct counter feature, calculates distinct number of elements 
-    in the given group. 
+    Base class for distinct counter feature, calculates distinct number of
+    elements in the given group.
     """
 
     def __init__(self, outputCol):
@@ -252,8 +235,8 @@ class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
 class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base class for array distinct feature, calculates a distinct list of objects from
-    the grouped data.
+    Base class for array distinct feature, calculates a distinct list of
+    objects from the grouped data.
 
     Removes Duplicates from grouped data.
     """
@@ -281,8 +264,8 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
 class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base class for array remove feature, calculates a distinct list of objects from
-    the grouped data with objects of 0 length removed.
+    Base class for array remove feature, calculates a distinct list of objects
+    from the grouped data with objects of 0 length removed.
 
     Designed to handle excess blank spaces("") created by regex operations.
     """
@@ -311,7 +294,7 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
 
     """
-    Base size of array remove feature, calculates the size of a distinct list 
+    Base size of array remove feature, calculates the size of a distinct list
     of objects from the grouped data with empty Strings removed.
 
     Designed to handle excess blank spaces("") created by regex operations.
@@ -338,8 +321,3 @@ class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
                 "",
             )
         ).alias(self.getOutputCol())
-
-
-
-
-

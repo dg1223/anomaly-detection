@@ -1,31 +1,21 @@
 import httpagentparser
-import pyspark.sql.functions as f
 from pyspark import keyword_only
 from pyspark.ml.param.shared import (
-    TypeConverters,
-    Param,
-    Params,
     HasInputCol,
     HasOutputCol,
 )
 from pyspark.sql.functions import (
-    window,
     col,
     udf,
     regexp_replace,
-    regexp_extract,
 )
 from pyspark.sql.types import (
-    IntegerType,
-    LongType,
     ArrayType,
-    TimestampType,
     StringType,
     StructType,
 )
 import features as ft
 from base import GroupbyTransformer
-from utils import HasTypedInputCol, HasTypedInputCols, HasTypedOutputCol
 from pyspark.ml import Transformer
 
 
@@ -459,7 +449,7 @@ class SessionFeatureGenerator(GroupbyTransformer):
         features = [
             ft.UniqueUserApps(),
             ft.CountUniqueUserApps(),
-            ft.UniqueCN(),  
+            ft.UniqueCN(),
             ft.CountAuthReject(),
             ft.CountAdminAttempt(),
             ft.CountAdminLogin(),
@@ -544,7 +534,6 @@ class IPFeatureGenerator(GroupbyTransformer):
             ft.UniquePortalRac(),
             ft.MinUserTimestamp(),
             ft.CountUniqueOU(),
-
         ]
         super(IPFeatureGenerator, self).__init__(
             group_keys=["CN"],
