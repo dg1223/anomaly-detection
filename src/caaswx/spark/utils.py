@@ -286,10 +286,8 @@ def schema_concat(schema_list):
     Returns a Schema, without any duplicates. If their is a duplicate name
     amongst the structfields with differing datatype an Exception will be
     thrown.
-
     :param schema_list: The StructType that will be processed.
     :type schema_list: StructType
-
     ...
     :raises Exception: Duplicate Name, Type Mismatch ERROR.
     ...
@@ -297,8 +295,9 @@ def schema_concat(schema_list):
     :rtype: StructType
     """
     duplicate_rem = set()
-    for sf in schema_list:
-        duplicate_rem.add(sf)
+    for st in schema_list:
+      for sf in st:
+          duplicate_rem.add(sf)
 
     schema_name_list = [sf.name for sf in duplicate_rem]
     if len(schema_name_list) != len(set(schema_name_list)):
@@ -398,3 +397,51 @@ class WriteDataToParquet:
         )
         expected_result_df.write.parquet(expected_df_file_path)
         return test_df, expected_result_df
+
+
+class HasInputSchema():
+    """
+    A mixin for entities which maintain an input schema.
+    """
+
+    input_schema = Param(
+        Params._dummy(),
+        "input_schema",
+        "Param specifying the required schema of the input dataframe.",
+    )
+
+    @keyword_only
+    def __init__(self):
+        super(HasInputSchema, self).__init__()
+
+    def schema_is_admissable(
+        self, schema: pyspark.sql.types.StructType, compare_nulls=False
+    ):
+        """
+        Returns ``True`` if each :class:`StructField` of ``schema``
+        is contained in this entity's schema, modulo nullability if
+        ``compare_nulls`` is ``False``.
+        :param schema: The input schema to be checked.
+        :param compare_nulls: If this flag is ``False``, comparison
+        of :class:`pyspark.sql.Types.StructField`'s is done
+        ignoring nullability.
+        :type schema: :class:`pyspark.sql.Types.StructType`
+        :type compare_nulls: ``boolean``
+        """
+        return schema_is_subset(
+            self.input_schema, schema, compare_nulls=compare_nulls
+        )
+
+    def set_input_schema(self, schema: pyspark.sql.types.StructType):
+        """
+        Sets this entity's input schema.
+        :param schema: The input schema to be set.
+        :type schema: :class:`pyspark.sql.types.StructType`
+        """
+        self.set(self.input_schema, schema)
+
+    def get_input_schema(self):
+        """
+        Gets this entity's input schema.
+        """
+        return self.getOrDefault("input_schema")
