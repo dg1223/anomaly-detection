@@ -1,4 +1,3 @@
-from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
 from pyspark.sql.functions import (
     count,
@@ -15,8 +14,8 @@ from pyspark.sql.types import (
     ArrayType,
     StringType,
 )
-from utils import HasTypedOutputCol
-from src.caaswx.spark._transformers.refactoring import HasInputSchema
+from utils import HasTypedOutputCol, HasInputSchema, schema_concat
+from transformers import SparkNativeTransformer
 
 
 class GroupbyFeature(HasInputSchema):
@@ -70,7 +69,8 @@ class GroupbyFeature(HasInputSchema):
         return GroupbyTransformer(group_keys=group_keys, features=[self])
 
 
-class GroupbyTransformer(Transformer):
+class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
+
     """
     A transformer that computes a list of features during a single
     groupby operation.
@@ -83,12 +83,15 @@ class GroupbyTransformer(Transformer):
         :param features: a list of features to be calculated by
         this transformer.
         :type group_keys: list of str
-        :type features: list of :class:`Feature`
         :type features: list of :class:`GroupbyFeature`
         """
         super(GroupbyTransformer, self).__init__()
         self._features = features
         self._group_keys = group_keys
+        feature_schemas = [
+            feature.get_input_schema() for feature in self._features
+        ]
+        self.set_input_schema(schema_concat(list(feature_schemas)))
 
     def _transform(self, dataset):
         for feature in self._features:
@@ -105,12 +108,11 @@ class GroupbyTransformer(Transformer):
         return dataset
 
 
-class WindowedGroupbyTransformer(GroupbyTransformer):
+class WindowedGroupbyTransformer(SparkNativeTransformer, HasInputSchema):
 
     """
-    A transformer that computes a list of features during a single
-    groupby operation, where the input has Bucketized rows into one
-    or more time windows given window length and step.
+    Inherited version of GroupbyTransformer for incorporating window
+    slices between feature rows.
     """
 
     window_length = Param(
@@ -138,13 +140,16 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
         :type window_length: int
         :type window_step: int
         """
-        super(WindowedGroupbyTransformer, self).__init__(
-            group_keys=group_keys, features=features
-        )
-
+        super(WindowedGroupbyTransformer, self).__init__()
+        self._features = features
+        self._group_keys = group_keys
         self._setDefault(window_length=900, window_step=900)
 
         self._set(window_length=window_length, window_step=window_step)
+        feature_schemas = [
+            feature.get_input_schema() for feature in self._features
+        ]
+        self.set_input_schema(schema_concat(list(feature_schemas)))
 
     def get_window_length(self):
         """
