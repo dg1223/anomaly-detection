@@ -9,6 +9,7 @@ from pyspark.ml.param.shared import (
 from pyspark.ml.param import Param, Params
 
 import os
+from pyspark import keyword_only
 from pyspark.sql.session import SparkSession
 from pyspark.context import SparkContext
 from pyspark.sql.types import (
@@ -296,8 +297,8 @@ def schema_concat(schema_list):
     """
     duplicate_rem = set()
     for st in schema_list:
-      for sf in st:
-          duplicate_rem.add(sf)
+        for sf in st:
+            duplicate_rem.add(sf)
 
     schema_name_list = [sf.name for sf in duplicate_rem]
     if len(schema_name_list) != len(set(schema_name_list)):
@@ -399,7 +400,7 @@ class WriteDataToParquet:
         return test_df, expected_result_df
 
 
-class HasInputSchema():
+class HasInputSchema:
     """
     A mixin for entities which maintain an input schema.
     """
@@ -415,7 +416,7 @@ class HasInputSchema():
         super(HasInputSchema, self).__init__()
 
     def schema_is_admissable(
-        self, schema: pyspark.sql.types.StructType, compare_nulls=False
+        self, schema: StructType, compare_nulls=False
     ):
         """
         Returns ``True`` if each :class:`StructField` of ``schema``
@@ -432,7 +433,7 @@ class HasInputSchema():
             self.input_schema, schema, compare_nulls=compare_nulls
         )
 
-    def set_input_schema(self, schema: pyspark.sql.types.StructType):
+    def set_input_schema(self, schema: StructType):
         """
         Sets this entity's input schema.
         :param schema: The input schema to be set.

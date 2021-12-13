@@ -1,4 +1,3 @@
-from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
 from pyspark.sql.functions import (
     count,
@@ -16,6 +15,7 @@ from pyspark.sql.types import (
     StringType,
 )
 from utils import HasTypedOutputCol, HasInputSchema, schema_concat
+from transformers import SparkNativeTransformer
 
 
 class GroupbyFeature(HasInputSchema):
@@ -70,7 +70,7 @@ class GroupbyFeature(HasInputSchema):
 
 
 class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
-    
+
     """
     A transformer that computes a list of features during a single
     groupby operation.
