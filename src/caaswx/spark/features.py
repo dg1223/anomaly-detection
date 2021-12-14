@@ -1439,8 +1439,8 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         self.set_input_schema(schema)
 
     def agg_op(self):
-        return sparkmax(
-            col(self.getOrDefault("inputCols")[0]).alias(self.getOutputCol())
+        return sparkmax(col(self.getOrDefault("inputCols")[0])).alias(
+            self.getOutputCol()
         )
 
     def pre_op(self, dataset):
