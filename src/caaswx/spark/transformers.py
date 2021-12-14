@@ -9,92 +9,9 @@ from pyspark.sql.functions import (
     udf,
     regexp_replace,
 )
-from pyspark.sql.types import (
-    ArrayType,
-    StringType,
-    StructType,
-)
-import features as ft
-from base import GroupbyTransformer
-from pyspark.ml import Transformer
-
-
-class SparkNativeTransformer(Transformer):
-    """
-    This class inherits from the Transformer class and overrides Transform to
-    add input schema checking. For correct operation it is imperative that
-    _transform be implemented in the child class and a dictionary "sch_dict" be
-    implemented as a class attribute in the child class. The sch_dict is to be
-    formatted as follows: sch_dict = { "Column_1": ["Column_1", __Type()],
-    "Column_2": ["Column_2", __Type()], }
-        where:
-            "Column_X" is the actual Name of the Column
-            __Type() are pyspark.sql.types.
-        Example:
-            sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
-    """
-
-    def test_schema(self, incoming_schema, schema):
-        def null_swap(st1, st2):
-            """
-            Function to swap datatype null parameter within a nested
-            dataframe schema
-            """
-            if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
-                raise ValueError(
-                    "Keys for first schema aren't a subset of " "the second."
-                )
-            for sf in st1:
-                sf.nullable = st2[sf.name].nullable
-                if isinstance(sf.dataType, StructType):
-                    if not {sf.name for sf in st1}.issubset(
-                        {sf.name for sf in st2}
-                    ):
-                        raise ValueError(
-                            "Keys for first schema aren't a subset of the "
-                            "second. "
-                        )
-                    null_swap(sf.dataType, st2[sf.name].dataType)
-                if isinstance(sf.dataType, ArrayType):
-                    sf.dataType.containsNull = st2[
-                        sf.name
-                    ].dataType.containsNull
-
-        null_swap(schema, incoming_schema)
-        if any([x not in incoming_schema for x in schema]):
-            raise ValueError(
-                "Keys for first schema aren't a subset of the " "second."
-            )
-
-    def transform(self, dataset, params=None):
-        """
-        Transforms the input dataset with optional parameters.
-        .. version added:: 1.3.0
-        Parameters
-        ----------
-        dataset : :py:class:`pyspark.sql.DataFrame`
-            input dataset
-        params : dict, optional
-            an optional param map that overrides embedded params.
-        Returns
-        -------
-        :py:class:`pyspark.sql.DataFrame`
-            transformed dataset
-        """
-
-        self.test_schema(dataset.schema, self.get_input_schema())
-
-        if params is None:
-            params = {}
-        if isinstance(params, dict):
-            if params:
-                return self.copy(params)._transform(dataset)
-            else:
-                return self._transform(dataset)
-        else:
-            raise ValueError(
-                "Params must be a param map but got %s." % type(params)
-            )
+from pyspark.sql.types import StringType
+import src.caaswx.spark.features as ft
+from src.caaswx.spark.base import GroupbyTransformer, SparkNativeTransformer
 
 
 class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
@@ -113,9 +30,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
 
     @keyword_only
-    def __init__(
-        self,
-    ):
+    def __init__(self,):
         """
         :param outputCol: Name of parsed agent string column
         :Example:
@@ -124,16 +39,12 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         >>> features = flattener.transform(input_dataset)
         """
         super(AgentStringFlattener, self).__init__()
-        self._setDefault(
-            outputCol="Parsed_Agent_String",
-        )
+        self._setDefault(outputCol="Parsed_Agent_String",)
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
     @keyword_only
-    def set_params(
-        self,
-    ):
+    def set_params(self,):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None,
         outputCol=None,
@@ -396,7 +307,6 @@ class UserFeatureGenerator(GroupbyTransformer):
             ft.CountHTTPMethod(),
             ft.CountUniqueActions(),
             ft.CountUniqueUsername(),
-            ft.CountUniqueUserApps(),
             ft.CountUniqueEvents(),
             ft.CountUniqueSessions(),
             ft.CountOUIdentity(),
@@ -406,7 +316,7 @@ class UserFeatureGenerator(GroupbyTransformer):
             ft.CountPortalMyba(),
             ft.CountUniqueOU(),
             ft.UniqueUserOU(),
-            ft.UniquePortalRac(),
+            ft.UniquePortalRep(),
             ft.CountUniqueRep(),
             ft.UniqueUserApps(),
             ft.CountUniqueUserApps(),
@@ -423,15 +333,13 @@ class UserFeatureGenerator(GroupbyTransformer):
             ft.MaxTimeBtRecords(),
             ft.CountUniqueResources(),
             ft.CountUniqueIps(),
-            ft.CountUniqueUsername(),
             ft.CountRecords(),
             ft.UserLoginAttempts(),
             ft.UserNumOfPasswordChange(),
-            ft.UserIsUsingUnusualBrowser(),
+            # ft.UserIsUsingUnusualBrowser(),
         ]
         super(UserFeatureGenerator, self).__init__(
-            group_keys=["CN"],
-            features=features,
+            group_keys=["CN"], features=features,
         )
 
 
@@ -467,14 +375,13 @@ class SessionFeatureGenerator(GroupbyTransformer):
             ft.CountUniqueRep(),
             ft.UniqueSMActions(),
             ft.UniqueSMPortals(),
-            ft.UniquePortalRac(),
+            ft.UniquePortalRep(),
             ft.MinUserTimestamp(),
             ft.MaxUserTimestamp(),
             ft.StdBtRecords(),
         ]
         super(SessionFeatureGenerator, self).__init__(
-            group_keys=["CN"],
-            features=features,
+            group_keys=["CN"], features=features,
         )
 
 
@@ -531,11 +438,10 @@ class IPFeatureGenerator(GroupbyTransformer):
             ft.UniqueSMPortals(),
             ft.UniqueSMTransactions(),
             ft.UniqueUserOU(),
-            ft.UniquePortalRac(),
+            ft.UniquePortalRep(),
             ft.MinUserTimestamp(),
             ft.CountUniqueOU(),
         ]
         super(IPFeatureGenerator, self).__init__(
-            group_keys=["CN"],
-            features=features,
+            group_keys=["CN"], features=features,
         )

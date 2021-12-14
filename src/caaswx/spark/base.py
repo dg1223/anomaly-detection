@@ -9,13 +9,92 @@ from pyspark.sql.functions import (
     size as sparksize,
 )
 
-from pyspark.sql.types import (
-    IntegerType,
-    ArrayType,
-    StringType,
+from pyspark.sql.types import IntegerType, ArrayType, StringType, StructType
+from src.caaswx.spark.utils import (
+    HasTypedOutputCol,
+    HasInputSchema,
+    schema_concat,
 )
-from utils import HasTypedOutputCol, HasInputSchema, schema_concat
-from transformers import SparkNativeTransformer
+
+from pyspark.ml import Transformer
+
+
+class SparkNativeTransformer(Transformer):
+    """
+    This class inherits from the Transformer class and overrides Transform to
+    add input schema checking. For correct operation it is imperative that
+    _transform be implemented in the child class and a dictionary "sch_dict" be
+    implemented as a class attribute in the child class. The sch_dict is to be
+    formatted as follows: sch_dict = { "Column_1": ["Column_1", __Type()],
+    "Column_2": ["Column_2", __Type()], }
+        where:
+            "Column_X" is the actual Name of the Column
+            __Type() are pyspark.sql.types.
+        Example:
+            sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
+    """
+
+    def test_schema(self, incoming_schema, schema):
+        def null_swap(st1, st2):
+            """
+            Function to swap datatype null parameter within a nested
+            dataframe schema
+            """
+            if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
+                raise ValueError(
+                    "Keys for first schema aren't a subset of " "the second."
+                )
+            for sf in st1:
+                sf.nullable = st2[sf.name].nullable
+                if isinstance(sf.dataType, StructType):
+                    if not {sf.name for sf in st1}.issubset(
+                        {sf.name for sf in st2}
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the "
+                            "second. "
+                        )
+                    null_swap(sf.dataType, st2[sf.name].dataType)
+                if isinstance(sf.dataType, ArrayType):
+                    sf.dataType.containsNull = st2[
+                        sf.name
+                    ].dataType.containsNull
+
+        null_swap(schema, incoming_schema)
+        if any([x not in incoming_schema for x in schema]):
+            raise ValueError(
+                "Keys for first schema aren't a subset of the " "second."
+            )
+
+    def transform(self, dataset, params=None):
+        """
+        Transforms the input dataset with optional parameters.
+        .. version added:: 1.3.0
+        Parameters
+        ----------
+        dataset : :py:class:`pyspark.sql.DataFrame`
+            input dataset
+        params : dict, optional
+            an optional param map that overrides embedded params.
+        Returns
+        -------
+        :py:class:`pyspark.sql.DataFrame`
+            transformed dataset
+        """
+
+        self.test_schema(dataset.schema, self.get_input_schema())
+
+        if params is None:
+            params = {}
+        if isinstance(params, dict):
+            if params:
+                return self.copy(params)._transform(dataset)
+            else:
+                return self._transform(dataset)
+        else:
+            raise ValueError(
+                "Params must be a param map but got %s." % type(params)
+            )
 
 
 class GroupbyFeature(HasInputSchema):
@@ -261,8 +340,8 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return array_distinct(
-            collect_list(self.array_clause()).alias(self.getOutputCol())
+        return array_distinct(collect_list(self.array_clause())).alias(
+            self.getOutputCol()
         )
 
 
@@ -290,10 +369,9 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return array_remove(
-            array_distinct(self.array_clause()),
-            "",
-        ).alias(self.getOutputCol())
+        return array_remove(array_distinct(self.array_clause()), "",).alias(
+            self.getOutputCol()
+        )
 
 
 class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
@@ -320,9 +398,6 @@ class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return sparksize(
-            array_remove(
-                self.array_clause(),
-                "",
-            )
-        ).alias(self.getOutputCol())
+        return sparksize(array_remove(self.array_clause(), "",)).alias(
+            self.getOutputCol()
+        )
