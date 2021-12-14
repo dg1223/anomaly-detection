@@ -369,10 +369,9 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return array_remove(
-            array_distinct(self.array_clause()),
-            "",
-        ).alias(self.getOutputCol())
+        return array_remove(array_distinct(self.array_clause()), "",).alias(
+            self.getOutputCol()
+        )
 
 
 class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
@@ -399,9 +398,6 @@ class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return sparksize(
-            array_remove(
-                self.array_clause(),
-                "",
-            )
-        ).alias(self.getOutputCol())
+        return sparksize(array_remove(self.array_clause(), "",)).alias(
+            self.getOutputCol()
+        )
