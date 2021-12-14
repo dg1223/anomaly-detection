@@ -1,5 +1,6 @@
 import httpagentparser
 from pyspark import keyword_only
+from pyspark.ml import Transformer
 from pyspark.ml.param.shared import (
     HasInputCol,
     HasOutputCol,
@@ -14,7 +15,7 @@ import src.caaswx.spark.features as ft
 from src.caaswx.spark.base import GroupbyTransformer, SparkNativeTransformer
 
 
-class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
+class AgentStringParser(Transformer, HasOutputCol):
     """
      A transformer that parses a target Flattened_SM_AGENTNAME column of a
      spark dataframe.
@@ -36,11 +37,11 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         """
         :param outputCol: Name of parsed agent string column
         :Example:
-        >>> from agentstringflattener import AgentStringFlattener
-        >>> flattener = AgentStringFlattener()
+        >>> from transformers import AgentStringParser
+        >>> flattener = AgentStringParser()
         >>> features = flattener.transform(input_dataset)
         """
-        super(AgentStringFlattener, self).__init__()
+        super(AgentStringParser, self).__init__()
         self._setDefault(
             outputCol="Parsed_Agent_String",
         )
@@ -55,7 +56,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         set_params(self, \\*, threshold=0.0, inputCol=None,
         outputCol=None,
         thresholds=None, inputCols=None, outputCols=None)
-        Sets params for this AgentStringFlattener.
+        Sets params for this AgentStringParser.
         """
         kwargs = self._input_kwargs
         return self._set(**kwargs)
@@ -91,7 +92,7 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         return df
 
 
-class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
+class CnExtractor(Transformer, HasInputCol, HasOutputCol):
     """
     Creates an Output Column (Default="CN") using the Input Column
     (Default="SM_USERNAME) by:
@@ -178,7 +179,7 @@ class CnExtractor(SparkNativeTransformer, HasInputCol, HasOutputCol):
         return dataset
 
 
-class SMResourceCleaner(SparkNativeTransformer, HasInputCol, HasOutputCol):
+class SMResourceCleaner(Transformer, HasInputCol, HasOutputCol):
     """
     Consolidates SM_RESOURCE elements to simplify redundant data, based
     off of the following criteria:
