@@ -9,14 +9,12 @@ from pyspark.sql.functions import (
     size as sparksize,
 )
 
-from pyspark.sql.types import (
-    IntegerType,
-    ArrayType,
-    StringType,
-    StructType
+from pyspark.sql.types import IntegerType, ArrayType, StringType, StructType
+from src.caaswx.spark.utils import (
+    HasTypedOutputCol,
+    HasInputSchema,
+    schema_concat,
 )
-from src.caaswx.spark.utils import HasTypedOutputCol, HasInputSchema, \
-    schema_concat
 
 from pyspark.ml import Transformer
 
@@ -97,6 +95,7 @@ class SparkNativeTransformer(Transformer):
             raise ValueError(
                 "Params must be a param map but got %s." % type(params)
             )
+
 
 class GroupbyFeature(HasInputSchema):
     """
@@ -341,8 +340,8 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return array_distinct(
-            collect_list(self.array_clause()).alias(self.getOutputCol())
+        return array_distinct(collect_list(self.array_clause())).alias(
+            self.getOutputCol()
         )
 
 
@@ -370,10 +369,9 @@ class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return array_remove(
-            array_distinct(self.array_clause()),
-            "",
-        ).alias(self.getOutputCol())
+        return array_remove(array_distinct(self.array_clause()), "",).alias(
+            self.getOutputCol()
+        )
 
 
 class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
@@ -400,9 +398,6 @@ class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
         raise NotImplementedError()
 
     def agg_op(self):
-        return sparksize(
-            array_remove(
-                self.array_clause(),
-                "",
-            )
-        ).alias(self.getOutputCol())
+        return sparksize(array_remove(self.array_clause(), "",)).alias(
+            self.getOutputCol()
+        )

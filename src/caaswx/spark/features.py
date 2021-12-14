@@ -748,8 +748,7 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault("inputCol")).contains("ou=Identity"),
-            True,
+            col(self.getOrDefault("inputCol")).contains("ou=Identity"), True,
         )
 
     def pre_op(self, dataset):
@@ -785,8 +784,7 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault("inputCol")).contains("ou=Credential"),
-            True,
+            col(self.getOrDefault("inputCol")).contains("ou=Credential"), True,
         )
 
     def pre_op(self, dataset):
@@ -824,8 +822,7 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
         :rtype: BooleanType
         """
         return when(
-            col(self.getOrDefault("inputCol")).contains("ou=SecureKey"),
-            True,
+            col(self.getOrDefault("inputCol")).contains("ou=SecureKey"), True,
         )
 
     def pre_op(self, dataset):
@@ -860,10 +857,7 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
         :return: Returns True when "mima" in SM_RESOURCE
         :rtype: BooleanType
         """
-        return when(
-            col(self.getOrDefault("inputCol")).contains("mima"),
-            True,
-        )
+        return when(col(self.getOrDefault("inputCol")).contains("mima"), True,)
 
     def pre_op(self, dataset):
         return dataset
@@ -897,10 +891,7 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
         :return: Returns True when "myba" in SM_RESOURCE
         :rtype: BooleanType
         """
-        return when(
-            col(self.getOrDefault("inputCol")).contains("myba"),
-            True,
-        )
+        return when(col(self.getOrDefault("inputCol")).contains("myba"), True,)
 
     def pre_op(self, dataset):
         return dataset
@@ -1267,8 +1258,8 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         self.set_input_schema(schema)
 
     def agg_op(self):
-        return sparkmin(
-            col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
+        return sparkmin(col(self.getOrDefault("inputCol"))).alias(
+            self.getOutputCol()
         )
 
     def pre_op(self, dataset):
@@ -1309,8 +1300,7 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     ):
         super(MinTimeBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_TIMESTAMP", "CN"],
-            outputCol="MIN_TIME_BT_RECORDS",
+            inputCols=["SM_TIMESTAMP", "CN"], outputCol="MIN_TIME_BT_RECORDS",
         )
         self._set(
             inputCols=["SM_TIMESTAMP", "CN"],
@@ -1391,8 +1381,8 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         self.set_input_schema(schema)
 
     def agg_op(self):
-        return sparkmax(
-            col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
+        return sparkmax(col(self.getOrDefault("inputCol"))).alias(
+            self.getOutputCol()
         )
 
     def pre_op(self, dataset):
@@ -1432,8 +1422,7 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     ):
         super(MaxTimeBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_TIMESTAMP", "CN"],
-            outputCol="MAX_TIME_BT_RECORDS",
+            inputCols=["SM_TIMESTAMP", "CN"], outputCol="MAX_TIME_BT_RECORDS",
         )
         self._set(
             inputCols=["SM_TIMESTAMP", "CN"],
@@ -1513,8 +1502,7 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     ):
         super(AvgTimeBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_TIMESTAMP", "CN"],
-            outputCol="AVG_TIME_BT_RECORDS",
+            inputCols=["SM_TIMESTAMP", "CN"], outputCol="AVG_TIME_BT_RECORDS",
         )
         self._set(
             inputCols=["SM_TIMESTAMP", "CN"],
@@ -1640,14 +1628,11 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
     """
 
     def __init__(
-        self,
-        inputCols=["SM_TIMESTAMP", "CN"],
-        outputCol="SDV_BT_RECORDS",
+        self, inputCols=["SM_TIMESTAMP", "CN"], outputCol="SDV_BT_RECORDS",
     ):
         super(StdBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_TIMESTAMP", "CN"],
-            outputCol="SDV_BT_RECORDS",
+            inputCols=["SM_TIMESTAMP", "CN"], outputCol="SDV_BT_RECORDS",
         )
         self._set(
             inputCols=["SM_TIMESTAMP", "CN"],
@@ -1734,9 +1719,11 @@ class UserIsUsingUnusualBrowser(
         ).alias(self.getOutputCol())
 
     def pre_op(self, dataset):
+        dataset = dataset.withColumn("window", col("SM_TIMESTAMP"))
         return dataset
 
     def post_op(self, dataset):
+        dataset.printSchema()
         if "USER_IS_USING_UNUSUAL_BROWSER" not in dataset.columns:
             agent_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
