@@ -1,5 +1,5 @@
-from src.caaswx.spark._transformers.cnextractor import CnExtractor
-from src.caaswx.spark.utilities.loadWriteParquet import load_parquet
+from src.caaswx.spark.transformers import CnExtractor
+from src.caaswx.spark.utils import load_parquet
 
 
 def test_cnextractor():
@@ -21,9 +21,13 @@ def test_cnextractor():
         "expected_SM_USERNAME_2_examples.parquet",
     )
     result = obj.transform(test_df)
+
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
+    # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
 

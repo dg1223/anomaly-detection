@@ -46,10 +46,12 @@ def test_no_of_users():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
     # row test
@@ -92,10 +94,12 @@ def test_failed_logins():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
     # row test
@@ -138,10 +142,12 @@ def test_mulitple_ip_fails():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
     # row test
@@ -184,10 +190,12 @@ def test_two_windows():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
     # row test
@@ -230,10 +238,12 @@ def test_two_windows_multiple_logins():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
     # row test
@@ -276,10 +286,12 @@ def test_two_windows_multiple_ips():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
     assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
+        result_assert == 0 and ans_assert == 0
     )
 
     # row test

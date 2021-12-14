@@ -415,9 +415,7 @@ class HasInputSchema:
     def __init__(self):
         super(HasInputSchema, self).__init__()
 
-    def schema_is_admissable(
-        self, schema: StructType, compare_nulls=False
-    ):
+    def schema_is_admissable(self, schema: StructType, compare_nulls=False):
         """
         Returns ``True`` if each :class:`StructField` of ``schema``
         is contained in this entity's schema, modulo nullability if
