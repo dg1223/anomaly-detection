@@ -1267,9 +1267,9 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         self.set_input_schema(schema)
 
     def agg_op(self):
-        return sparkmin(
-            col(self.getOrDefault("inputCol"))
-        ).alias(self.getOutputCol())
+        return sparkmin(col(self.getOrDefault("inputCol"))).alias(
+            self.getOutputCol()
+        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1391,9 +1391,9 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
         self.set_input_schema(schema)
 
     def agg_op(self):
-        return sparkmax(
-            col(self.getOrDefault("inputCol"))
-        ).alias(self.getOutputCol())
+        return sparkmax(col(self.getOrDefault("inputCol"))).alias(
+            self.getOutputCol()
+        )
 
     def pre_op(self, dataset):
         return dataset
@@ -1450,9 +1450,9 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         self.set_input_schema(schema)
 
     def agg_op(self):
-        return sparkmax(
-            col(self.getOrDefault("inputCols")[0])
-        ).alias(self.getOutputCol())
+        return sparkmax(col(self.getOrDefault("inputCols")[0])).alias(
+            self.getOutputCol()
+        )
 
     def pre_op(self, dataset):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
