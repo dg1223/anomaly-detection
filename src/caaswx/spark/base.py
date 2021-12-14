@@ -342,8 +342,8 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
 
     def agg_op(self):
         return array_distinct(
-            collect_list(self.array_clause()).alias(self.getOutputCol())
-        )
+            collect_list(self.array_clause())
+        ).alias(self.getOutputCol())
 
 
 class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):

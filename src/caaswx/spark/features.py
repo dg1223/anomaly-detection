@@ -1,5 +1,8 @@
-from src.caaswx.spark.utils import HasTypedInputCol, HasTypedInputCols, \
-    HasTypedOutputCol
+from src.caaswx.spark.utils import (
+    HasTypedInputCol,
+    HasTypedInputCols,
+    HasTypedOutputCol,
+)
 
 from src.caaswx.spark.base import (
     GroupbyFeature,
@@ -43,7 +46,6 @@ from pyspark.sql.window import Window
 
 
 class CountAuthAccept(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Authentication Accept events(sm_eventid == 1).
     """
@@ -57,7 +59,6 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -78,7 +79,6 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthReject(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Authentication Reject events(sm_eventid == 2).
     """
@@ -92,7 +92,6 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -113,7 +112,6 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminAttempt(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Admin Attempt events(sm_eventid == 3).
     """
@@ -129,7 +127,6 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -150,7 +147,6 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthChallenge(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Authentication Challenge events
     (sm_eventid == 4).
@@ -169,7 +165,6 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -190,7 +185,6 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
 
 
 class CountAZAccept(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of AZ Accept events(sm_eventid == 5).
     """
@@ -204,7 +198,6 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -225,7 +218,6 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountAZReject(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Authentication Reject events(sm_eventid == 6).
     """
@@ -239,7 +231,6 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -260,7 +251,6 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogin(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Admin Login events(sm_eventid == 7).
     """
@@ -274,7 +264,6 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -295,7 +284,6 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminLogout(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Admin Logout events(sm_eventid == 8).
     """
@@ -309,7 +297,6 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -330,7 +317,6 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountAdminReject(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Admin Reject events(sm_eventid == 9).
     """
@@ -344,7 +330,6 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -365,7 +350,6 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
 
 
 class CountAuthLogout(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Authentication Logout events(sm_eventid == 10).
     """
@@ -379,7 +363,6 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -400,7 +383,6 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
 
 
 class CountValidateAccept(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Validate Accept events(sm_eventid == 11).
     """
@@ -418,7 +400,6 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -439,7 +420,6 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
 
 
 class CountValidateReject(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Validate Reject events(sm_eventid == 12).
     """
@@ -457,7 +437,6 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -478,7 +457,6 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
 
 
 class CountVisit(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Visit events(sm_eventid == 13).
     """
@@ -492,7 +470,6 @@ class CountVisit(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -513,7 +490,6 @@ class CountVisit(CounterFeature, HasTypedInputCol):
 
 
 class CountFailed(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of Failed events(sm_eventid == 2 or 6 or 9).
     """
@@ -527,7 +503,6 @@ class CountFailed(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -557,7 +532,6 @@ class CountFailed(CounterFeature, HasTypedInputCol):
 
 
 class CountOUAms(CounterFeature, HasTypedInputCols):
-
     """
     Feature calculates count of "ams", "AMS" occurrences in inputCols
     (default=(SM_USERNAME, SM_RESOURCE)).
@@ -605,7 +579,6 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
 
 
 class CountOUCms(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "cra-cp" in inputCol
     (default=SM_USERNAME).
@@ -620,7 +593,6 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -657,7 +629,6 @@ class CountGet(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -678,7 +649,6 @@ class CountGet(CounterFeature, HasTypedInputCol):
 
 
 class CountPost(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "POST" in inputCol
     (default=SM_ACTION).
@@ -693,7 +663,6 @@ class CountPost(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -730,7 +699,6 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -769,7 +737,6 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -793,7 +760,6 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
 
 
 class CountOUCred(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "ou=Credential" in inputCol
     (default=SM_USERNAME).
@@ -808,7 +774,6 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -832,7 +797,6 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
 
 
 class CountOUSecurekey(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "ou=SecureKey" in inputCol
     (default=SM_USERNAME).
@@ -849,7 +813,6 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -873,7 +836,6 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
 
 
 class CountPortalMya(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "mima" in inputCol
     (default=SM_RESOURCE).
@@ -888,7 +850,6 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -912,7 +873,6 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
 
 
 class CountPortalMyba(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "myba" in inputCol
     (default=SM_RESOURCE).
@@ -927,7 +887,6 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -951,7 +910,6 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
 
 
 class CountRecords(CounterFeature, HasTypedInputCol):
-
     """
     Feature passes inputCol(default=CRA_SEQ) column to base feature to count
     number of elements.
@@ -966,7 +924,6 @@ class CountRecords(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -987,7 +944,6 @@ class CountRecords(CounterFeature, HasTypedInputCol):
 
 
 class UserLoginAttempts(CounterFeature, HasTypedInputCol):
-
     """
     Feature passes True when a User Login Attempt event occurs defined by
     1 >= sm_eventid <= 6, otherwise returns None.
@@ -1002,7 +958,6 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1029,7 +984,6 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
 
 
 class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of occurrences of "changePassword" in inputCol
     (default=SM_RESOURCE).
@@ -1048,7 +1002,6 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1072,7 +1025,6 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
 
 
 class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of distinct Actions in
     inputCol (default=SM_ACTION).
@@ -1089,7 +1041,6 @@ class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1110,7 +1061,6 @@ class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of distinct Events in inputCol
     (default=SM_EVENTID).
@@ -1121,13 +1071,12 @@ class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_UNIQUE_EVENTS"
         )
-        self._set(inputCol="SM_EVENTID", inputColType=StringType())
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1148,7 +1097,6 @@ class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of distinct Sessions in inputCol
     (default=SM_SESSIONID).
@@ -1167,7 +1115,6 @@ class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1188,7 +1135,6 @@ class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of distinct Usernames in inputCol(default=CN).
     """
@@ -1202,7 +1148,6 @@ class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1223,7 +1168,6 @@ class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of distinct Resources in inputCol
     (default=SM_RESOURCE).
@@ -1242,7 +1186,6 @@ class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1263,7 +1206,6 @@ class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
 
 
 class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
-
     """
     Feature calculates count of distinct IPs in inputCol(default=SM_CLIENTIP).
     """
@@ -1277,7 +1219,6 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1320,7 +1261,6 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1328,8 +1268,8 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 
     def agg_op(self):
         return sparkmin(
-            col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
-        )
+            col(self.getOrDefault("inputCol"))
+        ).alias(self.getOutputCol())
 
     def pre_op(self, dataset):
         return dataset
@@ -1339,7 +1279,6 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 
 
 class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
-
     """
     Feature calculates the smallest time gap between two consecutive records
     in the group.
@@ -1365,17 +1304,17 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def __init__(
         self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+        inputCols=["SM_TIMESTAMP", "CN"],
         outputCol="MIN_TIME_BT_RECORDS",
     ):
         super(MinTimeBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+            inputCols=["SM_TIMESTAMP", "CN"],
             outputCol="MIN_TIME_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
+            inputCols=["SM_TIMESTAMP", "CN"],
+            inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
@@ -1394,7 +1333,6 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def pre_op(self, dataset):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
-
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
             ).orderBy("SM_TIMESTAMP")
@@ -1425,7 +1363,6 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
 
 class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
-
     """
     Feature calculates the last timestamp in the given group.
     """
@@ -1448,7 +1385,6 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1456,8 +1392,8 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 
     def agg_op(self):
         return sparkmax(
-            col(self.getOrDefault("inputCol")).alias(self.getOutputCol())
-        )
+            col(self.getOrDefault("inputCol"))
+        ).alias(self.getOutputCol())
 
     def pre_op(self, dataset):
         return dataset
@@ -1467,7 +1403,6 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
 
 
 class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
-
     """
     Feature calculates the largest time gap between consecutive time entries
     in the group.
@@ -1492,17 +1427,17 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def __init__(
         self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+        inputCols=["SM_TIMESTAMP", "CN"],
         outputCol="MAX_TIME_BT_RECORDS",
     ):
         super(MaxTimeBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+            inputCols=["SM_TIMESTAMP", "CN"],
             outputCol="MAX_TIME_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
+            inputCols=["SM_TIMESTAMP", "CN"],
+            inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
@@ -1516,12 +1451,11 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def agg_op(self):
         return sparkmax(
-            col(self.getOrDefault("inputCols")[0]).alias(self.getOutputCol())
-        )
+            col(self.getOrDefault("inputCols")[0])
+        ).alias(self.getOutputCol())
 
     def pre_op(self, dataset):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
-
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
             ).orderBy("SM_TIMESTAMP")
@@ -1552,7 +1486,6 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
 
 class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
-
     """
     Feature calculates the average time gap between all consecutive time
     entries in the group.
@@ -1575,17 +1508,17 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def __init__(
         self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+        inputCols=["SM_TIMESTAMP", "CN"],
         outputCol="AVG_TIME_BT_RECORDS",
     ):
         super(AvgTimeBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+            inputCols=["SM_TIMESTAMP", "CN"],
             outputCol="AVG_TIME_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
+            inputCols=["SM_TIMESTAMP", "CN"],
+            inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
@@ -1604,7 +1537,6 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def pre_op(self, dataset):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
-
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
             ).orderBy("SM_TIMESTAMP")
@@ -1638,24 +1570,23 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 class UserNumOfAccountsLoginWithSameIPs(
     GroupbyFeature, HasTypedInputCol, HasTypedOutputCol
 ):
-
     """
     Feature calculates number of Usernames visited by the given IP.
     """
 
     def __init__(
         self,
-        inputCol="distinct_usernames_for_ip",
+        inputCol="SM_USERNAME",
         outputCol="USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS",
     ):
         super(UserNumOfAccountsLoginWithSameIPs, self).__init__()
         self._setDefault(
-            inputCol="distinct_usernames_for_ip",
+            inputCol="SM_USERNAME",
             outputCol="USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS",
         )
         self._set(
-            inputCol="distinct_usernames_for_ip",
-            inputColType=LongType(),
+            inputCol="SM_USERNAME",
+            inputColType=StringType(),
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
@@ -1664,7 +1595,6 @@ class UserNumOfAccountsLoginWithSameIPs(
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1690,7 +1620,6 @@ class UserNumOfAccountsLoginWithSameIPs(
 
 
 class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
-
     """
     Feature calculates the standard deviation between consecutive time entries
     in the group.
@@ -1712,17 +1641,17 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def __init__(
         self,
-        inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+        inputCols=["SM_TIMESTAMP", "CN"],
         outputCol="SDV_BT_RECORDS",
     ):
         super(StdBtRecords, self).__init__()
         self._setDefault(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
+            inputCols=["SM_TIMESTAMP", "CN"],
             outputCol="SDV_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_CONSECUTIVE_TIME_DIFFERENCE", "CN"],
-            inputColsType=[LongType(), StringType()],
+            inputCols=["SM_TIMESTAMP", "CN"],
+            inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
         )
@@ -1736,7 +1665,7 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 
     def agg_op(self):
         return sparkround(
-            sparkstddev((col(self.getOrDefault("inputCols")[0]))), 5
+            sparkstddev((col("SM_CONSECUTIVE_TIME_DIFFERENCE"))), 5
         ).alias(self.getOutputCol())
 
     def pre_op(self, dataset):
@@ -1773,7 +1702,6 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
 class UserIsUsingUnusualBrowser(
     GroupbyFeature, HasTypedInputCols, HasTypedOutputCol
 ):
-
     """
     Feature calculates 1 if the user's browser has changed between consecutive
     entries, and 0 if it remains the same in the given group.
@@ -1788,7 +1716,7 @@ class UserIsUsingUnusualBrowser(
         )
         self._set(
             inputCols=["SM_AGENTNAME", "CN"],
-            inputColsType=[ArrayType(StringType()), StringType()],
+            inputColsType=[StringType(), StringType()],
             outputCol=outputCol,
             outputColType=ArrayType(StringType()),
         )
@@ -1836,7 +1764,6 @@ class UserIsUsingUnusualBrowser(
 
 
 class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of users in inputCol(default=CN).
     """
@@ -1844,13 +1771,12 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="CN", outputCol="UNIQUE_CN"):
         super(UniqueCN, self).__init__(outputCol)
         self._setDefault(inputCol="CN", outputCol="UNIQUE_CN")
-        self._set(inputCol="CN", inputColType=ArrayType(StringType()))
+        self._set(inputCol="CN", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1871,7 +1797,6 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of Actions in inputCol
     (default=SM_ACTION).
@@ -1880,13 +1805,12 @@ class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(UniqueSMActions, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
-        self._set(inputCol="SM_ACTION", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_ACTION", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1907,7 +1831,6 @@ class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of IPs in inputCol(default=SM_CLIENTIP).
     """
@@ -1919,13 +1842,12 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
         )
-        self._set(inputCol="SM_CLIENTIP", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_CLIENTIP", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1946,7 +1868,6 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of Resources in inputCol
     (default=SM_RESOURCE).
@@ -1955,13 +1876,12 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
         super(UniqueSMPortals, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS")
-        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -1982,7 +1902,6 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of Transactions in inputCol
     (default=SM_TRANSACTIONID).
@@ -1995,15 +1914,12 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
         )
-        self._set(
-            inputCol="SM_TRANSACTIONID", inputColType=ArrayType(StringType())
-        )
+        self._set(inputCol="SM_TRANSACTIONID", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2024,7 +1940,6 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of Session IDs in inputCol
     (default=SM_SESSIONID).
@@ -2037,15 +1952,12 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS"
         )
-        self._set(
-            inputCol="SM_SESSIONID", inputColType=ArrayType(StringType())
-        )
+        self._set(inputCol="SM_SESSIONID", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2066,7 +1978,6 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
 
 
 class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of User OUs defined by
     entries containing "rep" and ending in "/" in inputCol
@@ -2076,13 +1987,12 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU"):
         super(UniqueUserOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU")
-        self._set(inputCol="SM_USERNAME", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2105,7 +2015,6 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
 
 
 class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of Reps defined by
     entries containing "rep" and ending in "/" in inputCol(default=SM_RESOURCE)
@@ -2114,13 +2023,12 @@ class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP"):
         super(UniquePortalRep, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP")
-        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2143,7 +2051,6 @@ class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
 
 
 class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
-
     """
     Feature calculates a distinct list of Apps visited by the user
     defined by entries containing "/" and ending in "/" in inputCol
@@ -2153,13 +2060,12 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS"):
         super(UniqueUserApps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS")
-        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2182,7 +2088,6 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
 
 
 class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
-
     """
     Feature calculates number of distinct User OUs defined by
     entries containing "ou=" and ending in "," in inputCol(default=SM_USERNAME)
@@ -2191,13 +2096,12 @@ class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU"):
         super(CountUniqueOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU")
-        self._set(inputCol="SM_USERNAME", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2220,7 +2124,6 @@ class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
 
 
 class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
-
     """
     Feature calculates number of distinct Reps defined by
     entries containing "rep" and ending in "/" in inputCol(default=SM_RESOURCE)
@@ -2229,13 +2132,12 @@ class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP"):
         super(CountUniqueRep, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP")
-        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2260,7 +2162,6 @@ class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
 
 
 class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
-
     """
     Feature calculates number of distinct Apps visited by the user
     defined by entries containing "/" and ending in "/" in inputCol
@@ -2274,13 +2175,12 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_USER_APPS"
         )
-        self._set(inputCol="SM_RESOURCE", inputColType=ArrayType(StringType()))
+        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
         schema = StructType(
             [
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
@@ -2305,7 +2205,6 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
 
 
 class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
-
     """
     Feature used to calculate a set of Strings from inputCol, where number
     of items in the set is limited by max_list_count.
@@ -2340,7 +2239,6 @@ class FlattenerFeature(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
                 StructField(
                     self.getOrDefault("inputCol"),
                     self.getOrDefault("inputColType"),
-                    False,
                 )
             ]
         )
