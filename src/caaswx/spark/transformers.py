@@ -30,7 +30,9 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
     """
 
     @keyword_only
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         """
         :param outputCol: Name of parsed agent string column
         :Example:
@@ -39,12 +41,16 @@ class AgentStringFlattener(SparkNativeTransformer, HasOutputCol):
         >>> features = flattener.transform(input_dataset)
         """
         super(AgentStringFlattener, self).__init__()
-        self._setDefault(outputCol="Parsed_Agent_String",)
+        self._setDefault(
+            outputCol="Parsed_Agent_String",
+        )
         kwargs = self._input_kwargs
         self.set_params(**kwargs)
 
     @keyword_only
-    def set_params(self,):
+    def set_params(
+        self,
+    ):
         """
         set_params(self, \\*, threshold=0.0, inputCol=None,
         outputCol=None,
@@ -339,7 +345,8 @@ class UserFeatureGenerator(GroupbyTransformer):
             # ft.UserIsUsingUnusualBrowser(),
         ]
         super(UserFeatureGenerator, self).__init__(
-            group_keys=["CN"], features=features,
+            group_keys=["CN"],
+            features=features,
         )
 
 
@@ -381,7 +388,8 @@ class SessionFeatureGenerator(GroupbyTransformer):
             ft.StdBtRecords(),
         ]
         super(SessionFeatureGenerator, self).__init__(
-            group_keys=["CN"], features=features,
+            group_keys=["CN"],
+            features=features,
         )
 
 
@@ -433,7 +441,6 @@ class IPFeatureGenerator(GroupbyTransformer):
             ft.CountValidateAccept(),
             ft.CountValidateReject(),
             ft.UniqueSMActions(),
-            ft.CountUniqueUsername(),
             ft.UniqueSMSessionIds(),
             ft.UniqueSMPortals(),
             ft.UniqueSMTransactions(),
@@ -443,5 +450,6 @@ class IPFeatureGenerator(GroupbyTransformer):
             ft.CountUniqueOU(),
         ]
         super(IPFeatureGenerator, self).__init__(
-            group_keys=["CN"], features=features,
+            group_keys=["CN"],
+            features=features,
         )

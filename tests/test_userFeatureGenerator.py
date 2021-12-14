@@ -6,6 +6,7 @@ from src.caaswx.spark.transformers import (
     UserFeatureGenerator,
 )
 from src.caaswx.spark.utils import load_test_data
+
 spark = SparkSession.builder.getOrCreate()
 
 
@@ -31,7 +32,6 @@ def test_num_rows():
     """
     # row test
     assert result.count() == ans_1_data.count()
-
 
     """
     Tests if the data in the results is the same as the data in the
