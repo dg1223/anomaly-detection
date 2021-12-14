@@ -1,20 +1,100 @@
-from pyspark.ml import Transformer
 from pyspark.ml.param import Param, Params
 from pyspark.sql.functions import (
-    window,
     count,
-    collect_set,
-    round as sparkround,
-    stddev as sparkstddev,
-    sort_array,
-    min as sparkmin
+    window,
+    countDistinct,
+    array_remove,
+    array_distinct,
+    collect_list,
+    size as sparksize,
 )
-from pyspark.sql.types import (
-    IntegerType,
-    ArrayType,
-    StringType
+
+from pyspark.sql.types import IntegerType, ArrayType, StringType, StructType
+from src.caaswx.spark.utils import (
+    HasTypedOutputCol,
+    HasInputSchema,
+    schema_concat,
 )
-from utils import HasTypedOutputCol
+
+from pyspark.ml import Transformer
+
+
+class SparkNativeTransformer(Transformer):
+    """
+    This class inherits from the Transformer class and overrides Transform to
+    add input schema checking. For correct operation it is imperative that
+    _transform be implemented in the child class and a dictionary "sch_dict" be
+    implemented as a class attribute in the child class. The sch_dict is to be
+    formatted as follows: sch_dict = { "Column_1": ["Column_1", __Type()],
+    "Column_2": ["Column_2", __Type()], }
+        where:
+            "Column_X" is the actual Name of the Column
+            __Type() are pyspark.sql.types.
+        Example:
+            sch_dict = {"SM_RESOURCE": ["SM_RESOURCE", StringType()]}
+    """
+
+    def test_schema(self, incoming_schema, schema):
+        def null_swap(st1, st2):
+            """
+            Function to swap datatype null parameter within a nested
+            dataframe schema
+            """
+            if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
+                raise ValueError(
+                    "Keys for first schema aren't a subset of " "the second."
+                )
+            for sf in st1:
+                sf.nullable = st2[sf.name].nullable
+                if isinstance(sf.dataType, StructType):
+                    if not {sf.name for sf in st1}.issubset(
+                        {sf.name for sf in st2}
+                    ):
+                        raise ValueError(
+                            "Keys for first schema aren't a subset of the "
+                            "second. "
+                        )
+                    null_swap(sf.dataType, st2[sf.name].dataType)
+                if isinstance(sf.dataType, ArrayType):
+                    sf.dataType.containsNull = st2[
+                        sf.name
+                    ].dataType.containsNull
+
+        null_swap(schema, incoming_schema)
+        if any([x not in incoming_schema for x in schema]):
+            raise ValueError(
+                "Keys for first schema aren't a subset of the " "second."
+            )
+
+    def transform(self, dataset, params=None):
+        """
+        Transforms the input dataset with optional parameters.
+        .. version added:: 1.3.0
+        Parameters
+        ----------
+        dataset : :py:class:`pyspark.sql.DataFrame`
+            input dataset
+        params : dict, optional
+            an optional param map that overrides embedded params.
+        Returns
+        -------
+        :py:class:`pyspark.sql.DataFrame`
+            transformed dataset
+        """
+
+        self.test_schema(dataset.schema, self.get_input_schema())
+
+        if params is None:
+            params = {}
+        if isinstance(params, dict):
+            if params:
+                return self.copy(params)._transform(dataset)
+            else:
+                return self._transform(dataset)
+        else:
+            raise ValueError(
+                "Params must be a param map but got %s." % type(params)
+            )
 
 
 class GroupbyFeature(HasInputSchema):
@@ -27,7 +107,7 @@ class GroupbyFeature(HasInputSchema):
         """
         The pre-operation performed by this feature before
         aggregation.
-        :param dataset: The input data frame.
+        :param dataset: The input dataframe.
         :type dataset: :class:`pyspark.sql.DataFrame`
         :return: The input DataFrame after applying this
         feature's pre-operation.
@@ -49,7 +129,7 @@ class GroupbyFeature(HasInputSchema):
         """
         The post-operation performed by this feature after
         aggregation.
-        :param dataset: The input data frame.
+        :param dataset: The input dataframe.
         :type dataset: :class:`pyspark.sql.DataFrame`
         :return: The input DataFrame after applying this
         feature's post-operation.
@@ -68,7 +148,8 @@ class GroupbyFeature(HasInputSchema):
         return GroupbyTransformer(group_keys=group_keys, features=[self])
 
 
-class GroupbyTransformer(Transformer):
+class GroupbyTransformer(SparkNativeTransformer, HasInputSchema):
+
     """
     A transformer that computes a list of features during a single
     groupby operation.
@@ -81,12 +162,15 @@ class GroupbyTransformer(Transformer):
         :param features: a list of features to be calculated by
         this transformer.
         :type group_keys: list of str
-        :type features: list of :class:`Feature`
         :type features: list of :class:`GroupbyFeature`
         """
         super(GroupbyTransformer, self).__init__()
         self._features = features
         self._group_keys = group_keys
+        feature_schemas = [
+            feature.get_input_schema() for feature in self._features
+        ]
+        self.set_input_schema(schema_concat(list(feature_schemas)))
 
     def _transform(self, dataset):
         for feature in self._features:
@@ -103,7 +187,7 @@ class GroupbyTransformer(Transformer):
         return dataset
 
 
-class WindowedGroupbyTransformer(GroupbyTransformer):
+class WindowedGroupbyTransformer(SparkNativeTransformer, HasInputSchema):
 
     """
     Inherited version of GroupbyTransformer for incorporating window
@@ -135,13 +219,16 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
         :type window_length: int
         :type window_step: int
         """
-        super(WindowedGroupbyTransformer, self).__init__(
-            group_keys=group_keys, features=features
-        )
-
+        super(WindowedGroupbyTransformer, self).__init__()
+        self._features = features
+        self._group_keys = group_keys
         self._setDefault(window_length=900, window_step=900)
 
         self._set(window_length=window_length, window_step=window_step)
+        feature_schemas = [
+            feature.get_input_schema() for feature in self._features
+        ]
+        self.set_input_schema(schema_concat(list(feature_schemas)))
 
     def get_window_length(self):
         """
@@ -180,45 +267,69 @@ class WindowedGroupbyTransformer(GroupbyTransformer):
 
 
 class CounterFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base counter feature, will be the parent class to all counting features.
+    Base class for counter feature, calculates total number of elements in the
+    given group.
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
+
+        :param outputColType: Type of column
+        :type outputColType: IntegerType()
         """
         super(CounterFeature, self).__init__()
         self._set(outputCol=outputCol, outputColType=IntegerType())
 
     def count_clause(self):
-        """
-        Counting feature implementation.
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the count defined by subclasses
-
-        :return: The Count
-        :rtype: IntegerType
-        """
         return count(self.count_clause()).alias(self.getOutputCol())
 
 
-class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
+class DistinctCounterFeature(GroupbyFeature, HasTypedOutputCol):
+
     """
-    Base array distinct feature, will be the parent class to all
-    array_distinct features.
+    Base class for distinct counter feature, calculates distinct number of
+    elements in the given group.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+
+        :param outputColType: Type of column
+        :type outputColType: IntegerType()
+        """
+        super(DistinctCounterFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def count_clause(self):
+        raise NotImplementedError()
+
+    def agg_op(self):
+        return countDistinct(self.count_clause()).alias(self.getOutputCol())
+
+
+class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
+
+    """
+    Base class for array distinct feature, calculates a distinct list of
+    objects from the grouped data.
+
+    Removes Duplicates from grouped data.
     """
 
     def __init__(self, outputCol):
         """
         :param outputCol: Name for the output Column of the feature.
         :type outputCol: StringType
-        
+
         :param outputColType: Type of column
         :type outputColType: ArrayType(StringType())
         """
@@ -226,18 +337,67 @@ class ArrayDistinctFeature(GroupbyFeature, HasTypedOutputCol):
         self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
 
     def array_clause(self):
-        """
-        Distinct Array feature implementation.
-        """
         raise NotImplementedError()
 
     def agg_op(self):
-        """
-        The aggregation operation that performs the func defined by subclasses.
+        return array_distinct(collect_list(self.array_clause())).alias(
+            self.getOutputCol()
+        )
 
-        :return: The list of distinct elements 
-        :rtype: ArrayType(StringType)
+
+class ArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
+
+    """
+    Base class for array remove feature, calculates a distinct list of objects
+    from the grouped data with objects of 0 length removed.
+
+    Designed to handle excess blank spaces("") created by regex operations.
+    """
+
+    def __init__(self, outputCol):
         """
-        return array_distinct(
-            collect_list(self.array_clause()).alias(self.getOutputCol())
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: ArrayType
+
+        :param outputColType: Type of column
+        :type outputColType: ArrayType(StringType())
+        """
+        super(ArrayRemoveFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=ArrayType(StringType()))
+
+    def array_clause(self):
+        raise NotImplementedError()
+
+    def agg_op(self):
+        return array_remove(array_distinct(self.array_clause()), "",).alias(
+            self.getOutputCol()
+        )
+
+
+class SizeArrayRemoveFeature(GroupbyFeature, HasTypedOutputCol):
+
+    """
+    Base size of array remove feature, calculates the size of a distinct list
+    of objects from the grouped data with empty Strings removed.
+
+    Designed to handle excess blank spaces("") created by regex operations.
+    """
+
+    def __init__(self, outputCol):
+        """
+        :param outputCol: Name for the output Column of the feature.
+        :type outputCol: IntegerType
+
+        :param outputColType: Type of column
+        :type outputColType: IntegerType()
+        """
+        super(SizeArrayRemoveFeature, self).__init__()
+        self._set(outputCol=outputCol, outputColType=IntegerType())
+
+    def array_clause(self):
+        raise NotImplementedError()
+
+    def agg_op(self):
+        return sparksize(array_remove(self.array_clause(), "",)).alias(
+            self.getOutputCol()
         )
