@@ -307,6 +307,43 @@ def schema_concat(schema_list):
     return StructType(list(duplicate_rem))
 
 
+def schema_test(base_schema, test_schema):
+    """
+    This function tests whether test_schema is a subset of base_schema,
+    and makes the nullability values of both schemas the same.
+
+    """
+
+    def nullTest(st1, st2):
+        """
+        Function to swap datatype null parameter within a nested
+        dataframe schema
+        """
+        if not {sf.name for sf in st1}.issubset({sf.name for sf in st2}):
+            raise ValueError(
+                "Keys for first schema aren't a subset of " "the second."
+            )
+        for sf in st1:
+            sf.nullable = st2[sf.name].nullable
+            if isinstance(sf.dataType, StructType):
+                if not {sf.name for sf in st1}.issubset(
+                    {sf.name for sf in st2}
+                ):
+                    raise ValueError(
+                        "Keys for first schema aren't a subset of the "
+                        "second. "
+                    )
+                nullTest(sf.dataType, st2[sf.name].dataType)
+            if isinstance(sf.dataType, ArrayType):
+                sf.dataType.containsNull = st2[sf.name].dataType.containsNull
+
+    nullTest(test_schema, base_schema)
+    if any([x not in base_schema for x in test_schema]):
+        raise ValueError(
+            "Keys for first schema aren't a subset of the " "second."
+        )
+
+
 class WriteDataToParquet:
     """class to implement various kinds of methods to write parquets"""
 
