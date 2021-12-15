@@ -309,7 +309,7 @@ def schema_concat(schema_list):
 
 def schema_test(base_schema, test_schema):
     """
-    This funciton tests whether test_schema is a subset of base_schema,
+    This function tests whether test_schema is a subset of base_schema,
     and makes the nullability values of both schemas the same.
 
     """
