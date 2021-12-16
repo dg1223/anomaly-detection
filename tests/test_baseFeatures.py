@@ -118,15 +118,51 @@ class TestArrayDistinctFeature(ArrayDistinctFeature, HasTypedInputCol):
         return dataset
 
 
-class TestArrayRemove(ArrayRemoveFeature, HasTypedInputCol):
+class TestArrayRemoveFeature(ArrayRemoveFeature, HasTypedInputCol):
     """
     Feature to test basic ArrayRemove functionality.
     (Original: UniqueUserOU)
     """
 
     def __init__(self, inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU"):
-        super(TestArrayRemove, self).__init__(outputCol)
+        super(TestArrayRemoveFeature, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU")
+        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        schema = StructType(
+            [
+                StructField(
+                    self.getOrDefault("inputCol"),
+                    self.getOrDefault("inputColType"),
+                )
+            ]
+        )
+        self.set_input_schema(schema)
+
+    def array_clause(self):
+        """
+        :return: Returns regex-modified list of strings from SM_USERNAME
+        :rtype: ArrayType(StringType())
+        """
+        return collect_list(
+            regexp_extract(self.getOrDefault("inputCol"), r"ou=(,*?),", 0)
+        )
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
+
+
+class TestSizeArrayRemoveFeature(SizeArrayRemoveFeature, HasTypedInputCol):
+    """
+    Feature to test basic ArrayRemove functionality.
+    (Original: CountUniqueOU)
+    """
+
+    def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU"):
+        super(TestSizeArrayRemoveFeature, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU")
         self._set(inputCol="SM_USERNAME", inputColType=StringType())
         schema = StructType(
             [
@@ -168,7 +204,8 @@ class TestingFeatureGenerator(GroupbyTransformer):
         features = [
             TestCounterFeature(),
             TestArrayDistinctFeature(),
-            TestArrayRemove(),
+            TestArrayRemoveFeature(),
+            TestSizeArrayRemoveFeature(),
         ]
         super(TestingFeatureGenerator, self).__init__(
             group_keys=["CN"],
@@ -219,6 +256,17 @@ def test_array_distinct_feature():
 def test_array_remove_feature():
     rTest = result_df.select("UNIQUE_USER_OU")
     aTest = ans_df.select("UNIQUE_USER_OU")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+
+def test_size_array_remove_feature():
+    rTest = result_df.select("COUNT_UNIQUE_OU")
+    aTest = ans_df.select("COUNT_UNIQUE_OU")
 
     # Size test
     assert rTest.count() == aTest.count()
