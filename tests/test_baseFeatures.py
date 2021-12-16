@@ -1,7 +1,9 @@
+from ..src.caaswx.spark.base import GroupbyTransformer
+
 from src.caaswx.spark.utils import (
     HasTypedInputCol,
     HasTypedInputCols,
-    HasTypedOutputCol,
+    HasTypedOutputCol, load_test_data,
 )
 
 from src.caaswx.spark.base import (
@@ -43,15 +45,18 @@ from pyspark.sql.types import (
     StructField,
 )
 from pyspark.sql.window import Window
+from pyspark.sql.session import SparkSession
+
+spark = SparkSession.builder.getOrCreate()
 
 
-class Test_CounterFeature(CounterFeature, HasTypedInputCol):
+class TestCounterFeature(CounterFeature, HasTypedInputCol):
     """
-    Feature.
+    Feature to test basic CounterFeature functionality.
     """
 
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
-        super(Test_CounterFeature, self).__init__(outputCol)
+        super(TestCounterFeature, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
         schema = StructType(
@@ -74,7 +79,43 @@ class Test_CounterFeature(CounterFeature, HasTypedInputCol):
         return dataset
 
 
-def test_counter:
-    fg = Test_CounterFeature()
+class TestingFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the TestingFeatureGenerator.
 
-    # gonna put some basic counter tests...?
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            TestCounterFeature(),
+        ]
+        super(TestingFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
+
+
+# get data and run transformer
+df = load_test_data(
+    "data", "parquet_data", "user_feature_generator_tests", "data.parquet"
+)
+
+ans_df = load_test_data(
+    "data",
+    "parquet_data",
+    "user_feature_generator_tests",
+    "ans.parquet",
+)
+fg = TestingFeatureGenerator()
+result_df = fg.transform(df)
+
+print(result_df)
+
+
+# check cols for accuracy (asserts)
+def test_counter_feature():
+    # assert new col = ans' COUNT_AUTH_ACCEPT
