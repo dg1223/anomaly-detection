@@ -99,6 +99,9 @@ class TestingFeatureGenerator(GroupbyTransformer):
         )
 
 
+class TestingDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
+
+
 # get data and run transformer
 df = load_test_data(
     "data", "parquet_data", "user_feature_generator_tests", "data.parquet"
