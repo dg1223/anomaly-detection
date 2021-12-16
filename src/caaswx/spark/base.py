@@ -10,14 +10,14 @@ from pyspark.sql.functions import (
 )
 
 from pyspark.sql.types import IntegerType, ArrayType, StringType
-from src.caaswx.spark.utils import (
+from .utils import (
     HasTypedOutputCol,
     HasInputSchema,
     schema_concat,
+    schema_test
 )
 
 from pyspark.ml import Transformer
-from .utils import schema_test
 
 
 class SparkNativeTransformer(Transformer):
