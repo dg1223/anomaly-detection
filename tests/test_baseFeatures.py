@@ -1,13 +1,12 @@
-from src.caaswx.spark.base import GroupbyTransformer
-
 from src.caaswx.spark.utils import (
     HasTypedInputCol,
     HasTypedInputCols,
     HasTypedOutputCol, load_test_data,
 )
-
+import src.caaswx.spark.features as ft
 from src.caaswx.spark.base import (
     GroupbyFeature,
+    GroupbyTransformer,
     CounterFeature,
     DistinctCounterFeature,
     ArrayDistinctFeature,
@@ -202,10 +201,21 @@ class TestingFeatureGenerator(GroupbyTransformer):
     def __init__(self):
         group_keys = ["CN"]
         features = [
+            # Testing Base Features
             TestCounterFeature(),
             TestArrayDistinctFeature(),
             TestArrayRemoveFeature(),
             TestSizeArrayRemoveFeature(),
+
+            # Testing Individual Features that inherit from GroupbyFeature
+            ft.MinUserTimestamp(),
+            ft.MinTimeBtRecords(),
+            ft.MaxUserTimestamp(),
+            ft.MaxTimeBtRecords(),
+            ft.AvgTimeBtRecords(),
+            ft.UserNumOfAccountsLoginWithSameIPs(),
+            ft.StdBtRecords(),
+            # ft.UserIsUsingUnusualBrowser(),
         ]
         super(TestingFeatureGenerator, self).__init__(
             group_keys=["CN"],
@@ -214,7 +224,7 @@ class TestingFeatureGenerator(GroupbyTransformer):
 
 
 # get data and run transformer
-df = load_test_data(
+ufg_df = load_test_data(
     "data",
     "parquet_data",
     "user_feature_generator_tests",
@@ -228,7 +238,8 @@ ans_df = load_test_data(
     "ans.parquet",
 )
 fg = TestingFeatureGenerator()
-result_df = fg.transform(df)
+
+result_df = fg.transform(ufg_df)
 
 
 # check cols for accuracy (asserts)
@@ -253,6 +264,7 @@ def test_array_distinct_feature():
     # content test
     assert rTest.subtract(aTest).count() == 0
 
+
 def test_array_remove_feature():
     rTest = result_df.select("UNIQUE_USER_OU")
     aTest = ans_df.select("UNIQUE_USER_OU")
@@ -267,6 +279,88 @@ def test_array_remove_feature():
 def test_size_array_remove_feature():
     rTest = result_df.select("COUNT_UNIQUE_OU")
     aTest = ans_df.select("COUNT_UNIQUE_OU")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+
+def test_min_user_timestamp():
+    rTest = result_df.select("MIN_USER_TIMESTAMP")
+    aTest = ans_df.select("MIN_USER_TIMESTAMP")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+def test_min_time_bt_records():
+    rTest = result_df.select("MIN_TIME_BT_RECORDS")
+    aTest = ans_df.select("MIN_TIME_BT_RECORDS")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+
+def test_max_user_timestamp():
+    rTest = result_df.select("MAX_USER_TIMESTAMP")
+    aTest = ans_df.select("MAX_USER_TIMESTAMP")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+def test_max_time_bt_records():
+    rTest = result_df.select("MAX_TIME_BT_RECORDS")
+    aTest = ans_df.select("MAX_TIME_BT_RECORDS")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+def test_min_user_timestamp():
+    rTest = result_df.select("MIN_USER_TIMESTAMP")
+    aTest = ans_df.select("MIN_USER_TIMESTAMP")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+def test_avg_time_bt_records():
+    rTest = result_df.select("AVG_TIME_BT_RECORDS")
+    aTest = ans_df.select("AVG_TIME_BT_RECORDS")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+def test_std_bt_records():
+    rTest = result_df.select("SDV_BT_RECORDS")
+    aTest = ans_df.select("SDV_BT_RECORDS")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
+
+def test_user_num_acc_same_ips():
+    rTest = result_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
+    aTest = ans_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
 
     # Size test
     assert rTest.count() == aTest.count()
