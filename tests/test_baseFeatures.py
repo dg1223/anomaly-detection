@@ -101,7 +101,10 @@ class TestingFeatureGenerator(GroupbyTransformer):
 
 # get data and run transformer
 df = load_test_data(
-    "data", "parquet_data", "user_feature_generator_tests", "data.parquet"
+    "data",
+    "parquet_data",
+    "user_feature_generator_tests",
+    "data.parquet",
 )
 
 ans_df = load_test_data(
@@ -118,5 +121,11 @@ print(result_df)
 
 # check cols for accuracy (asserts)
 def test_counter_feature():
-    print("tmp")
-        # assert new col = ans' COUNT_AUTH_ACCEPT
+    rTest = result_df.select("COUNT_AUTH_ACCEPT")
+    aTest = ans_df.select("COUNT_AUTH_ACCEPT")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
