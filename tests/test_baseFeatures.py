@@ -100,7 +100,32 @@ class TestingFeatureGenerator(GroupbyTransformer):
 
 
 class TestingDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
+    """
+        Feature to test basic DistinctCounterFeature functionality.
+        """
 
+    def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
+        super(TestingDistinctCounterFeature, self).__init__(outputCol)
+        self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
+        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        schema = StructType(
+            [
+                StructField(
+                    self.getOrDefault("inputCol"),
+                    self.getOrDefault("inputColType"),
+                )
+            ]
+        )
+        self.set_input_schema(schema)
+
+    def count_clause(self):
+        return when(col(self.getOrDefault("inputCol")) == 1, True)
+
+    def pre_op(self, dataset):
+        return dataset
+
+    def post_op(self, dataset):
+        return dataset
 
 # get data and run transformer
 df = load_test_data(
