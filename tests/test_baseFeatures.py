@@ -92,6 +92,7 @@ class TestingFeatureGenerator(GroupbyTransformer):
         group_keys = ["CN"]
         features = [
             TestCounterFeature(),
+            TestingDistinctCounterFeature(),
         ]
         super(TestingFeatureGenerator, self).__init__(
             group_keys=["CN"],
@@ -141,10 +142,13 @@ ans_df = load_test_data(
 fg = TestingFeatureGenerator()
 result_df = fg.transform(df)
 
-print(result_df)
-
-
 # check cols for accuracy (asserts)
-def test_counter_feature():
-    print("tmp")
-        # assert new col = ans' COUNT_AUTH_ACCEPT
+def test_distinct_counter_feature():
+    rTest = result_df.select("COUNT_AUTH_ACCEPT")
+    aTest = ans_df.select("COUNT_AUTH_ACCEPT")
+
+    # Size test
+    assert rTest.count() == aTest.count()
+
+    # content test
+    assert rTest.subtract(aTest).count() == 0
