@@ -188,49 +188,13 @@ class TestSizeArrayRemoveFeature(SizeArrayRemoveFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
-
-class TestingFeatureGenerator(GroupbyTransformer):
-    """
-    Base Implementation of the TestingFeatureGenerator.
-
-    To add a feature implement the feature as subclass of GroupbyFeature and
-    include feature in features variable in the constructor and in super
-    constructor.
-    """
-
-    def __init__(self):
-        group_keys = ["CN"]
-        features = [
-            # Testing Base Features
-            TestCounterFeature(),
-            TestArrayDistinctFeature(),
-            TestArrayRemoveFeature(),
-            TestSizeArrayRemoveFeature(),
-
-            # Testing Individual Features that inherit from GroupbyFeature
-            ft.MinUserTimestamp(),
-            ft.MinTimeBtRecords(),
-            ft.MaxUserTimestamp(),
-            ft.MaxTimeBtRecords(),
-            ft.AvgTimeBtRecords(),
-            ft.UserNumOfAccountsLoginWithSameIPs(),
-            ft.StdBtRecords(),
-            # ft.UserIsUsingUnusualBrowser(),
-            TestingDistinctCounterFeature(),
-        ]
-        super(TestingFeatureGenerator, self).__init__(
-            group_keys=["CN"],
-            features=features,
-        )
-
-
-class TestingDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
+class TestDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
     """
         Feature to test basic DistinctCounterFeature functionality.
         """
 
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
-        super(TestingDistinctCounterFeature, self).__init__(outputCol)
+        super(TestDistinctCounterFeature, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
         self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
         schema = StructType(
@@ -251,6 +215,45 @@ class TestingDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
 
     def post_op(self, dataset):
         return dataset
+
+
+
+class TestingFeatureGenerator(GroupbyTransformer):
+    """
+    Base Implementation of the TestingFeatureGenerator.
+
+    To add a feature implement the feature as subclass of GroupbyFeature and
+    include feature in features variable in the constructor and in super
+    constructor.
+    """
+
+    def __init__(self):
+        group_keys = ["CN"]
+        features = [
+            # Testing Base Features
+            TestCounterFeature(),
+            TestArrayDistinctFeature(),
+            TestArrayRemoveFeature(),
+            TestSizeArrayRemoveFeature(),
+            TestDistinctCounterFeature(),
+
+            # Testing Individual Features that inherit from GroupbyFeature
+            ft.MinUserTimestamp(),
+            ft.MinTimeBtRecords(),
+            ft.MaxUserTimestamp(),
+            ft.MaxTimeBtRecords(),
+            ft.AvgTimeBtRecords(),
+            ft.UserNumOfAccountsLoginWithSameIPs(),
+            ft.StdBtRecords(),
+            # ft.UserIsUsingUnusualBrowser(),
+
+        ]
+        super(TestingFeatureGenerator, self).__init__(
+            group_keys=["CN"],
+            features=features,
+        )
+
+
 
 # get data and run transformer
 ufg_df = load_test_data(
