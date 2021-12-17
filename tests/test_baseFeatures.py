@@ -1,11 +1,18 @@
-from src.caaswx.spark.utils import (
-    HasTypedInputCol,
-    HasTypedInputCols,
-    HasTypedOutputCol, load_test_data,
+from pyspark.sql.functions import (
+    col,
+    when,
+    regexp_extract,
+    collect_list,
+)
+from pyspark.sql.session import SparkSession
+from pyspark.sql.types import (
+    IntegerType,
+    StringType,
+    StructType,
+    StructField,
 )
 import src.caaswx.spark.features as ft
 from src.caaswx.spark.base import (
-    GroupbyFeature,
     GroupbyTransformer,
     CounterFeature,
     DistinctCounterFeature,
@@ -13,38 +20,10 @@ from src.caaswx.spark.base import (
     ArrayRemoveFeature,
     SizeArrayRemoveFeature,
 )
-
-from pyspark.sql.functions import (
-    col,
-    when,
-    lag,
-    isnull,
-    regexp_extract,
-    countDistinct,
-    array_distinct,
-    sort_array,
-    collect_set,
-    collect_list,
-    mean as sparkmean,
-    stddev as sparkstddev,
-    min as sparkmin,
-    max as sparkmax,
-    round as sparkround,
-    sum as sparksum,
-    slice as sparkslice,
+from src.caaswx.spark.utils import (
+    HasTypedInputCol,
+    load_test_data,
 )
-from pyspark.ml.param.shared import TypeConverters, Param, Params
-from pyspark.sql.types import (
-    IntegerType,
-    LongType,
-    ArrayType,
-    TimestampType,
-    StringType,
-    StructType,
-    StructField,
-)
-from pyspark.sql.window import Window
-from pyspark.sql.session import SparkSession
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -85,13 +64,9 @@ class TestArrayDistinctFeature(ArrayDistinctFeature, HasTypedInputCol):
     (Original: UniqueSMActions)
     """
 
-    def __init__(
-        self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"
-    ):
+    def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(TestArrayDistinctFeature, self).__init__(outputCol)
-        self._setDefault(
-            inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"
-        )
+        self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
         self._set(inputCol="SM_ACTION", inputColType=StringType())
         schema = StructType(
             [
@@ -188,10 +163,11 @@ class TestSizeArrayRemoveFeature(SizeArrayRemoveFeature, HasTypedInputCol):
     def post_op(self, dataset):
         return dataset
 
+
 class TestDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
     """
-        Feature to test basic DistinctCounterFeature functionality.
-        """
+    Feature to test basic DistinctCounterFeature functionality.
+    """
 
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
         super(TestDistinctCounterFeature, self).__init__(outputCol)
@@ -217,7 +193,6 @@ class TestDistinctCounterFeature(DistinctCounterFeature, HasTypedInputCol):
         return dataset
 
 
-
 class TestingFeatureGenerator(GroupbyTransformer):
     """
     Base Implementation of the TestingFeatureGenerator.
@@ -236,7 +211,6 @@ class TestingFeatureGenerator(GroupbyTransformer):
             TestArrayRemoveFeature(),
             TestSizeArrayRemoveFeature(),
             TestDistinctCounterFeature(),
-
             # Testing Individual Features that inherit from GroupbyFeature
             ft.MinUserTimestamp(),
             ft.MinTimeBtRecords(),
@@ -246,13 +220,11 @@ class TestingFeatureGenerator(GroupbyTransformer):
             ft.UserNumOfAccountsLoginWithSameIPs(),
             ft.StdBtRecords(),
             # ft.UserIsUsingUnusualBrowser(),
-
         ]
         super(TestingFeatureGenerator, self).__init__(
             group_keys=["CN"],
             features=features,
         )
-
 
 
 # get data and run transformer
@@ -276,135 +248,143 @@ result_df = fg.transform(ufg_df)
 
 # check cols for accuracy (asserts)
 def test_counter_feature():
-    rTest = result_df.select("COUNT_AUTH_ACCEPT")
-    aTest = ans_df.select("COUNT_AUTH_ACCEPT")
+    r_test = result_df.select("COUNT_AUTH_ACCEPT")
+    a_test = ans_df.select("COUNT_AUTH_ACCEPT")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
 
 
 def test_array_distinct_feature():
-    rTest = result_df.select("UNIQUE_SM_ACTIONS")
-    aTest = ans_df.select("UNIQUE_SM_ACTIONS")
+    r_test = result_df.select("UNIQUE_SM_ACTIONS")
+    a_test = ans_df.select("UNIQUE_SM_ACTIONS")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
 
 
 def test_array_remove_feature():
-    rTest = result_df.select("UNIQUE_USER_OU")
-    aTest = ans_df.select("UNIQUE_USER_OU")
+    r_test = result_df.select("UNIQUE_USER_OU")
+    a_test = ans_df.select("UNIQUE_USER_OU")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
 
 
 def test_size_array_remove_feature():
-    rTest = result_df.select("COUNT_UNIQUE_OU")
-    aTest = ans_df.select("COUNT_UNIQUE_OU")
+    r_test = result_df.select("COUNT_UNIQUE_OU")
+    a_test = ans_df.select("COUNT_UNIQUE_OU")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
 
 
 def test_min_user_timestamp():
-    rTest = result_df.select("MIN_USER_TIMESTAMP")
-    aTest = ans_df.select("MIN_USER_TIMESTAMP")
+    r_test = result_df.select("MIN_USER_TIMESTAMP")
+    a_test = ans_df.select("MIN_USER_TIMESTAMP")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
+
 
 def test_min_time_bt_records():
-    rTest = result_df.select("MIN_TIME_BT_RECORDS")
-    aTest = ans_df.select("MIN_TIME_BT_RECORDS")
+    r_test = result_df.select("MIN_TIME_BT_RECORDS")
+    a_test = ans_df.select("MIN_TIME_BT_RECORDS")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
 
 
 def test_max_user_timestamp():
-    rTest = result_df.select("MAX_USER_TIMESTAMP")
-    aTest = ans_df.select("MAX_USER_TIMESTAMP")
+    r_test = result_df.select("MAX_USER_TIMESTAMP")
+    a_test = ans_df.select("MAX_USER_TIMESTAMP")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
+
 
 def test_max_time_bt_records():
-    rTest = result_df.select("MAX_TIME_BT_RECORDS")
-    aTest = ans_df.select("MAX_TIME_BT_RECORDS")
+    r_test = result_df.select("MAX_TIME_BT_RECORDS")
+    a_test = ans_df.select("MAX_TIME_BT_RECORDS")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
 
-def test_min_user_timestamp():
-    rTest = result_df.select("MIN_USER_TIMESTAMP")
-    aTest = ans_df.select("MIN_USER_TIMESTAMP")
 
-    # Size test
-    assert rTest.count() == aTest.count()
+# def test_min_user_timestamp():
+#     r_test = result_df.select("MIN_USER_TIMESTAMP")
+#     a_test = ans_df.select("MIN_USER_TIMESTAMP")
+#
+#     # Size test
+#     assert r_test.count() == a_test.count()
+#
+#     # content test
+#     assert r_test.subtract(a_test).count() == 0
 
-    # content test
-    assert rTest.subtract(aTest).count() == 0
 
 def test_avg_time_bt_records():
-    rTest = result_df.select("AVG_TIME_BT_RECORDS")
-    aTest = ans_df.select("AVG_TIME_BT_RECORDS")
+    r_test = result_df.select("AVG_TIME_BT_RECORDS")
+    a_test = ans_df.select("AVG_TIME_BT_RECORDS")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
+
 
 def test_std_bt_records():
-    rTest = result_df.select("SDV_BT_RECORDS")
-    aTest = ans_df.select("SDV_BT_RECORDS")
+    r_test = result_df.select("SDV_BT_RECORDS")
+    a_test = ans_df.select("SDV_BT_RECORDS")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
+
 
 def test_user_num_acc_same_ips():
-    rTest = result_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
-    aTest = ans_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
+    r_test = result_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
+    a_test = ans_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
+
+
 def test_distinct_counter_feature():
-    rTest = result_df.select("COUNT_AUTH_ACCEPT")
-    aTest = ans_df.select("COUNT_AUTH_ACCEPT")
+    r_test = result_df.select("COUNT_AUTH_ACCEPT")
+    a_test = ans_df.select("COUNT_AUTH_ACCEPT")
 
     # Size test
-    assert rTest.count() == aTest.count()
+    assert r_test.count() == a_test.count()
 
     # content test
-    assert rTest.subtract(aTest).count() == 0
+    assert r_test.subtract(a_test).count() == 0
