@@ -226,6 +226,7 @@ class TestingFeatureGenerator(GroupbyTransformer):
             ft.AvgTimeBtRecords(),
             ft.UserNumOfAccountsLoginWithSameIPs(),
             ft.StdBtRecords(),
+            ft.FlattenerFeature("SM_AGENTNAME", "Flattened_SM_AGENTNAME"),
             # ft.UserIsUsingUnusualBrowser(),
         ]
         super(TestingFeatureGenerator, self).__init__(
@@ -379,6 +380,26 @@ def test_user_num_acc_same_ips():
     r_test = result_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
     a_test = ans_df.select("USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS")
 
+    # Size test
+    assert r_test.count() == a_test.count()
+
+    # content test
+    assert r_test.subtract(a_test).count() == 0
+
+
+def test_flattener_feature():
+    ans_flat_df = load_test_data(
+        "data",
+        "parquet_data",
+        "flattener_tests",
+        "ans_df.parquet",
+    )
+
+    r_test = result_df.select("Flattened_SM_AGENTNAME")
+    a_test = ans_flat_df.select("Flattened_SM_AGENTNAME")
+
+    print(r_test.schema)
+    print(a_test.schema)
     # Size test
     assert r_test.count() == a_test.count()
 
