@@ -53,7 +53,7 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
         super(CountAuthAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
