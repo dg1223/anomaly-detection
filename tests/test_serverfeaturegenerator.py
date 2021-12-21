@@ -31,7 +31,7 @@ def test_no_of_users():
         "data",
         "JSON",
         "server_feature_generator_tests",
-        "ans_data_schema" ".json ",
+        "ans_data_schema" ".json",
     )
 
     with open(df2_schema_file_path) as json_file:
