@@ -280,7 +280,7 @@ def test_count_unique_resources():
     assert result_df.collect()[0][1] == 6
 
 
-def test_count_unique_ip():
+def test_count_unique_ips():
 
     result_df = ft.CountUniqueIps().get_transformer(["CN"]).transform(ufg_df)
     """
