@@ -1335,22 +1335,22 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1458,22 +1458,22 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1539,22 +1539,22 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1608,7 +1608,7 @@ class UserNumOfAccountsLoginWithSameIPs(
     def pre_op(self, dataset):
         if "distinct_usernames_for_ip" not in dataset.columns:
             ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
-                countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+                countDistinct(self.getOrDefault("inputCol")).alias("distinct_usernames_for_ip")
             )
             dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
         return dataset
@@ -1672,22 +1672,22 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
