@@ -1,45 +1,22 @@
-from pyspark.sql.functions import (
-    col,
-    when,
-    regexp_extract,
-    collect_list,
-)
 from pyspark.sql.session import SparkSession
-from pyspark.sql.types import (
-    IntegerType,
-    StringType,
-    StructType,
-    StructField,
-)
-import src.caaswx.spark.features as ft
-from src.caaswx.spark.base import (
-    GroupbyTransformer,
-    CounterFeature,
-    DistinctCounterFeature,
-    ArrayDistinctFeature,
-    ArrayRemoveFeature,
-    SizeArrayRemoveFeature,
-)
-from src.caaswx.spark.utils import (
-    HasTypedInputCol,
-    load_test_data,
-)
 from pytest import raises
+
+import src.caaswx.spark.features as ft
+from src.caaswx.spark.utils import load_test_data
 
 spark = SparkSession.builder.getOrCreate()
 
 # Get data
 ufg_df = load_test_data(
-    "data",
-    "parquet_data",
-    "user_feature_generator_tests",
-    "data.parquet",
+    "data", "parquet_data", "user_feature_generator_tests", "data.parquet",
 )
 
 
 def test_count_unique_actions():
 
-    result_df = ft.CountUniqueActions().get_transformer(["CN"]).transform(ufg_df)
+    result_df = (
+        ft.CountUniqueActions().get_transformer(["CN"]).transform(ufg_df)
+    )
     """
     Test for default feature functionality
     """
@@ -91,7 +68,9 @@ def test_count_unique_actions():
 
 def test_count_unique_events():
 
-    result_df = ft.CountUniqueEvents().get_transformer(["CN"]).transform(ufg_df)
+    result_df = (
+        ft.CountUniqueEvents().get_transformer(["CN"]).transform(ufg_df)
+    )
     """
     Test for default feature functionality
     """
@@ -143,7 +122,9 @@ def test_count_unique_events():
 
 def test_count_unique_sessions():
 
-    result_df = ft.CountUniqueSessions().get_transformer(["CN"]).transform(ufg_df)
+    result_df = (
+        ft.CountUniqueSessions().get_transformer(["CN"]).transform(ufg_df)
+    )
     """
     Test for default feature functionality
     """
@@ -195,7 +176,9 @@ def test_count_unique_sessions():
 
 def test_count_unique_username():
 
-    result_df = ft.CountUniqueUsername().get_transformer(["CN"]).transform(ufg_df)
+    result_df = (
+        ft.CountUniqueUsername().get_transformer(["CN"]).transform(ufg_df)
+    )
     """
     Test for default feature functionality
     """
@@ -209,9 +192,7 @@ def test_count_unique_username():
             ["CN"]
         ).transform(ufg_df)
 
-    test_df = ufg_df.withColumn("testin", ufg_df["CN"]).drop(
-        "CN"
-    )
+    test_df = ufg_df.withColumn("testin", ufg_df["CN"]).drop("CN")
     result_df = (
         ft.CountUniqueUsername(inputCol="testin")
         .get_transformer(["testin"])
@@ -247,7 +228,9 @@ def test_count_unique_username():
 
 def test_count_unique_resources():
 
-    result_df = ft.CountUniqueResources().get_transformer(["CN"]).transform(ufg_df)
+    result_df = (
+        ft.CountUniqueResources().get_transformer(["CN"]).transform(ufg_df)
+    )
     """
     Test for default feature functionality
     """
@@ -309,9 +292,9 @@ def test_count_unique_ip():
     Test for valid input column name (if name exists in input dataframe)
     """
     with raises(ValueError):
-        ft.CountUniqueIps(inputCol="testin").get_transformer(
-            ["CN"]
-        ).transform(ufg_df)
+        ft.CountUniqueIps(inputCol="testin").get_transformer(["CN"]).transform(
+            ufg_df
+        )
 
     test_df = ufg_df.withColumn("testin", ufg_df["SM_CLIENTIP"]).drop(
         "SM_CLIENTIP"
@@ -338,7 +321,7 @@ def test_count_unique_ip():
     assert "testout" in result_df.columns
 
     """
-    Test for correct number of rows in result dataframe with specified output 
+    Test for correct number of rows in result dataframe with specified output
     column
     """
     assert result_df.count() == 1
@@ -347,4 +330,3 @@ def test_count_unique_ip():
     Test for feature functionality with specified output column
     """
     assert result_df.collect()[0][1] == 2
-
