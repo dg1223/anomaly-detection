@@ -68,7 +68,7 @@ def test_unique_cn():
     ]
 
 
-def test_unique_actions():
+def test_unique_sm_actions():
 
     result_df = ft.UniqueSMActions().get_transformer(["CN"]).transform(ufg_df)
     """
@@ -364,7 +364,7 @@ def test_unique_sm_transactions():
     ]
 
 
-def test_unique_sm_sessionsid():
+def test_unique_sm_sessionids():
 
     result_df = (
         ft.UniqueSMSessionIds().get_transformer(["CN"]).transform(ufg_df)
