@@ -120,7 +120,8 @@ def test_count_unique_user_apps():
     """
     Test for default feature functionality
     """
-    assert result.collect()[0][1] == 0
+    result.show()
+    assert result.collect()[0][1] == 3
 
     """
     Test for valid input column name (if name exists in input dataframe)
@@ -137,10 +138,10 @@ def test_count_unique_user_apps():
     """
     Test for input column name change functionality
     """
-    test = ufg_df.withColumn("testInput", ufg_df["CN"]).drop("CN")
+    test = ufg_df.withColumn("testInput", ufg_df["SM_RESOURCE"]).drop("SM_RESOURCE")
     result = (
         ft.CountUniqueUserApps(inputCol="testInput", outputCol="testOutput")
-        .get_transformer(["testInput"])
+        .get_transformer(group_keys)
         .transform(test)
     )
 
@@ -155,7 +156,9 @@ def test_count_unique_user_apps():
     """
     assert result.count() == 1
 
+
     """
     Test for feature functionality with specified output column
     """
-    assert result.collect()[0][1] == 0
+    assert result.collect()[0][1] == 3
+
