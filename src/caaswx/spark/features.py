@@ -53,7 +53,7 @@ class CountAuthAccept(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT"):
         super(CountAuthAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_ACCEPT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -86,7 +86,7 @@ class CountAuthReject(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT"):
         super(CountAuthReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_REJECT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -121,7 +121,7 @@ class CountAdminAttempt(CounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_ATTEMPT"
         )
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -159,7 +159,7 @@ class CountAuthChallenge(CounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_AUTH_CHALLENGE"
         )
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -192,7 +192,7 @@ class CountAZAccept(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT"):
         super(CountAZAccept, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_ACCEPT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -225,7 +225,7 @@ class CountAZReject(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT"):
         super(CountAZReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AZ_REJECT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -258,7 +258,7 @@ class CountAdminLogin(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN"):
         super(CountAdminLogin, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGIN")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -291,7 +291,7 @@ class CountAdminLogout(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT"):
         super(CountAdminLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_LOGOUT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -324,7 +324,7 @@ class CountAdminReject(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT"):
         super(CountAdminReject, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_ADMIN_REJECT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -357,7 +357,7 @@ class CountAuthLogout(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT"):
         super(CountAuthLogout, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_AUTH_LOGOUT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -394,7 +394,7 @@ class CountValidateAccept(CounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_ACCEPT"
         )
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -431,7 +431,7 @@ class CountValidateReject(CounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_VALIDATE_REJECT"
         )
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -464,7 +464,7 @@ class CountVisit(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_VISIT"):
         super(CountVisit, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_VISIT")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -497,7 +497,7 @@ class CountFailed(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="COUNT_FAILED"):
         super(CountFailed, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="COUNT_FAILED")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -547,7 +547,7 @@ class CountOUAms(CounterFeature, HasTypedInputCols):
             inputCols=["SM_USERNAME", "SM_RESOURCE"], outputCol="COUNT_OU_AMS"
         )
         self._set(
-            inputCols=["SM_USERNAME", "SM_RESOURCE"],
+            inputCols=inputCols,
             inputColsType=[StringType(), StringType()],
         )
         sch_list = []
@@ -587,7 +587,7 @@ class CountOUCms(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CMS"):
         super(CountOUCms, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_AMS")
-        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -623,7 +623,7 @@ class CountGet(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_GET"):
         super(CountGet, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_GET")
-        self._set(inputCol="SM_ACTION", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -657,7 +657,7 @@ class CountPost(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_POST"):
         super(CountPost, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_POST")
-        self._set(inputCol="SM_ACTION", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -693,7 +693,7 @@ class CountHTTPMethod(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD"):
         super(CountHTTPMethod, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="COUNT_HTTP_METHOD")
-        self._set(inputCol="SM_ACTION", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -731,7 +731,7 @@ class CountOUIdentity(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY"):
         super(CountOUIdentity, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_IDENTITY")
-        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -768,7 +768,7 @@ class CountOUCred(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED"):
         super(CountOUCred, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_OU_CRED")
-        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -807,7 +807,7 @@ class CountOUSecurekey(CounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_USERNAME", outputCol="COUNT_OU_SECUREKEY"
         )
-        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -844,7 +844,7 @@ class CountPortalMya(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA"):
         super(CountPortalMya, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYA")
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -881,7 +881,7 @@ class CountPortalMyba(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA"):
         super(CountPortalMyba, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_PORTAL_MYBA")
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -918,7 +918,7 @@ class CountRecords(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="CRA_SEQ", outputCol="COUNT_RECORDS"):
         super(CountRecords, self).__init__(outputCol)
         self._setDefault(inputCol="CRA_SEQ", outputCol="COUNT_RECORDS")
-        self._set(inputCol="CRA_SEQ", inputColType=LongType())
+        self._set(inputCol=inputCol, inputColType=LongType())
         schema = StructType(
             [
                 StructField(
@@ -952,7 +952,7 @@ class UserLoginAttempts(CounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_EVENTID", outputCol="UserLoginAttempts"):
         super(UserLoginAttempts, self).__init__(outputCol)
         self._setDefault(inputCol="SM_EVENTID", outputCol="UserLoginAttempts")
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -996,7 +996,7 @@ class UserNumOfPasswordChange(CounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_RESOURCE", outputCol="UserNumOfPasswordChange"
         )
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1035,7 +1035,7 @@ class CountUniqueActions(DistinctCounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_ACTION", outputCol="COUNT_UNIQUE_ACTIONS"
         )
-        self._set(inputCol="SM_ACTION", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1071,7 +1071,7 @@ class CountUniqueEvents(DistinctCounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_EVENTID", outputCol="COUNT_UNIQUE_EVENTS"
         )
-        self._set(inputCol="SM_EVENTID", inputColType=IntegerType())
+        self._set(inputCol=inputCol, inputColType=IntegerType())
         schema = StructType(
             [
                 StructField(
@@ -1109,7 +1109,7 @@ class CountUniqueSessions(DistinctCounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_SESSIONID", outputCol="COUNT_UNIQUE_SESSIONS"
         )
-        self._set(inputCol="SM_SESSIONID", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1142,7 +1142,7 @@ class CountUniqueUsername(DistinctCounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="CN", outputCol="COUNT_UNIQUE_USERNAME"):
         super(CountUniqueUsername, self).__init__(outputCol)
         self._setDefault(inputCol="CN", outputCol="COUNT_UNIQUE_USERNAME")
-        self._set(inputCol="CN", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1180,7 +1180,7 @@ class CountUniqueResources(DistinctCounterFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_RESOURCES"
         )
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1213,7 +1213,7 @@ class CountUniqueIps(DistinctCounterFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS"):
         super(CountUniqueIps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_CLIENTIP", outputCol="COUNT_UNIQUE_IPS")
-        self._set(inputCol="SM_CLIENTIP", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1251,7 +1251,7 @@ class MinUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
             inputCol="SM_TIMESTAMP", outputCol="MIN_USER_TIMESTAMP"
         )
         self._set(
-            inputCol="SM_TIMESTAMP",
+            inputCol=inputCol,
             inputColType=TimestampType(),
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1313,7 +1313,7 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol="MIN_TIME_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_TIMESTAMP", "CN"],
+            inputCols=inputCols,
             inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1335,22 +1335,23 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]])
+                .over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1375,7 +1376,7 @@ class MaxUserTimestamp(GroupbyFeature, HasTypedInputCol, HasTypedOutputCol):
             inputCol="SM_TIMESTAMP", outputCol="MAX_USER_TIMESTAMP"
         )
         self._set(
-            inputCol="SM_TIMESTAMP",
+            inputCol=inputCol,
             inputColType=TimestampType(),
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1436,7 +1437,7 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol="MAX_TIME_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_TIMESTAMP", "CN"],
+            inputCols=inputCols,
             inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1458,22 +1459,23 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]])
+                .over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1517,7 +1519,7 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol="AVG_TIME_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_TIMESTAMP", "CN"],
+            inputCols=inputCols,
             inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1539,22 +1541,23 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]])
+                .over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1585,7 +1588,7 @@ class UserNumOfAccountsLoginWithSameIPs(
             outputCol="USER_NUM_OF_ACCOUNTS_LOGIN_WITH_SAME_IPS",
         )
         self._set(
-            inputCol="SM_USERNAME",
+            inputCol=inputCol,
             inputColType=StringType(),
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1608,7 +1611,8 @@ class UserNumOfAccountsLoginWithSameIPs(
     def pre_op(self, dataset):
         if "distinct_usernames_for_ip" not in dataset.columns:
             ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
-                countDistinct("SM_USERNAME").alias("distinct_usernames_for_ip")
+                countDistinct(self.getOrDefault("inputCol"))
+                .alias("distinct_usernames_for_ip")
             )
             dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
         return dataset
@@ -1650,7 +1654,7 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             outputCol="SDV_BT_RECORDS",
         )
         self._set(
-            inputCols=["SM_TIMESTAMP", "CN"],
+            inputCols=inputCols,
             inputColsType=[TimestampType(), StringType()],
             outputCol=outputCol,
             outputColType=IntegerType(),
@@ -1672,22 +1676,23 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
         if "SM_CONSECUTIVE_TIME_DIFFERENCE" not in dataset.columns:
             ts_window = Window.partitionBy(
                 self.getOrDefault("inputCols")[1]
-            ).orderBy("SM_TIMESTAMP")
+            ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset["SM_TIMESTAMP"]).over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]])
+                .over(ts_window),
             )
 
             dataset = dataset.withColumn(
                 "SM_CONSECUTIVE_TIME_DIFFERENCE",
                 when(
                     isnull(
-                        dataset["SM_TIMESTAMP"].cast("long")
+                        dataset[self.getOrDefault("inputCols")[0]].cast("long")
                         - dataset["SM_PREV_TIMESTAMP"].cast("long")
                     ),
                     0,
                 ).otherwise(
-                    dataset["SM_TIMESTAMP"].cast("long")
+                    dataset[self.getOrDefault("inputCols")[0]].cast("long")
                     - dataset["SM_PREV_TIMESTAMP"].cast("long")
                 ),
             )
@@ -1715,7 +1720,7 @@ class UserIsUsingUnusualBrowser(
             inputCols=["SM_AGENTNAME", "CN"], outputCol="BROWSER_LIST"
         )
         self._set(
-            inputCols=["SM_AGENTNAME", "CN"],
+            inputCols=inputCols,
             inputColsType=[StringType(), StringType()],
             outputCol=outputCol,
             outputColType=ArrayType(StringType()),
@@ -1773,7 +1778,7 @@ class UniqueCN(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="CN", outputCol="UNIQUE_CN"):
         super(UniqueCN, self).__init__(outputCol)
         self._setDefault(inputCol="CN", outputCol="UNIQUE_CN")
-        self._set(inputCol="CN", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1807,7 +1812,7 @@ class UniqueSMActions(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS"):
         super(UniqueSMActions, self).__init__(outputCol)
         self._setDefault(inputCol="SM_ACTION", outputCol="UNIQUE_SM_ACTIONS")
-        self._set(inputCol="SM_ACTION", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1844,7 +1849,7 @@ class UniqueSMClientIps(ArrayDistinctFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_CLIENTIP", outputCol="UNIQUE_SM_CLIENTIPS"
         )
-        self._set(inputCol="SM_CLIENTIP", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1878,7 +1883,7 @@ class UniqueSMPortals(ArrayDistinctFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS"):
         super(UniqueSMPortals, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_SM_PORTALS")
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1916,7 +1921,7 @@ class UniqueSMTransactions(ArrayDistinctFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_TRANSACTIONID", outputCol="UNIQUE_SM_TRANSACTIONS"
         )
-        self._set(inputCol="SM_TRANSACTIONID", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1954,7 +1959,7 @@ class UniqueSMSessionIds(ArrayDistinctFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_SESSIONID", outputCol="UNIQUE_SM_SESSION_IDS"
         )
-        self._set(inputCol="SM_SESSIONID", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -1989,7 +1994,7 @@ class UniqueUserOU(ArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU"):
         super(UniqueUserOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="UNIQUE_USER_OU")
-        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -2025,7 +2030,7 @@ class UniquePortalRep(ArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP"):
         super(UniquePortalRep, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_PORTAL_REP")
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -2062,7 +2067,7 @@ class UniqueUserApps(ArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS"):
         super(UniqueUserApps, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="UNIQUE_USER_APPS")
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -2098,7 +2103,7 @@ class CountUniqueOU(SizeArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU"):
         super(CountUniqueOU, self).__init__(outputCol)
         self._setDefault(inputCol="SM_USERNAME", outputCol="COUNT_UNIQUE_OU")
-        self._set(inputCol="SM_USERNAME", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -2134,7 +2139,7 @@ class CountUniqueRep(SizeArrayRemoveFeature, HasTypedInputCol):
     def __init__(self, inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP"):
         super(CountUniqueRep, self).__init__(outputCol)
         self._setDefault(inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_REP")
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(
@@ -2177,7 +2182,7 @@ class CountUniqueUserApps(SizeArrayRemoveFeature, HasTypedInputCol):
         self._setDefault(
             inputCol="SM_RESOURCE", outputCol="COUNT_UNIQUE_USER_APPS"
         )
-        self._set(inputCol="SM_RESOURCE", inputColType=StringType())
+        self._set(inputCol=inputCol, inputColType=StringType())
         schema = StructType(
             [
                 StructField(

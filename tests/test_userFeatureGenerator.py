@@ -34,8 +34,13 @@ def test_num_rows():
     Tests if the data in the results is the same as the data in the
     expected result.
     """
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert result.subtract(ans_1_data).count() == 0
+    assert (
+        result_assert == 0 and ans_assert == 0
+    )
 
 
 def test_empty_data():

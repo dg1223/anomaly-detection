@@ -26,8 +26,13 @@ def test_content():
     fg = IPFeatureGenerator()
     result = fg.transform(test_df)
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert result.subtract(ans_1_data).count() == 0
+    assert (
+        result_assert == 0 and ans_assert == 0
+    )
 
     # row test
     assert result.count() == ans_1_data.count()
