@@ -1,11 +1,10 @@
 import json
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-from src.caaswx.spark.utilities.schema_utils import null_swap
-from src.caaswx.spark._transformers.serverfeaturegenerator import (
+from src.caaswx.spark.transformers import (
     ServerFeatureGenerator,
 )
-from src.caaswx.spark.utilities.loadtestdata import load_test_data, load_path
+from src.caaswx.spark.utils import null_swap, load_test_data, load_path
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -32,12 +31,8 @@ def test_no_of_users():
         "data",
         "JSON",
         "server_feature_generator_tests",
-        "ans_data_schema" ".json ",
+        "ans_data_schema" ".json",
     )
-
-    # write the schema in JSON file
-    with open(df2_schema_file_path, "w") as outfile:
-        json.dump(result.schema.json(), outfile)
 
     with open(df2_schema_file_path) as json_file:
         ans_1_data_schema = json.load(json_file)
@@ -46,11 +41,11 @@ def test_no_of_users():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()
@@ -92,11 +87,11 @@ def test_failed_logins():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()
@@ -138,11 +133,11 @@ def test_mulitple_ip_fails():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()
@@ -184,11 +179,11 @@ def test_two_windows():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()
@@ -230,11 +225,11 @@ def test_two_windows_multiple_logins():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()
@@ -276,11 +271,11 @@ def test_two_windows_multiple_ips():
         json.loads(ans_1_data_schema)
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert (
-        result.subtract(ans_1_data).count() == 0
-        and ans_1_data.subtract(result).count() == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()

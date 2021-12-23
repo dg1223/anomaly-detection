@@ -40,7 +40,7 @@ jobs:
         black --line-length=79 --diff --check --verbose .
     - name: flake8
       run: |
-        flake8 . --count --statistics --select=E,F,W,C90
+        flake8 . --count --statistics --select=E,F,W,C90 --ignore=N802,N803,N815,W503,F841
 
 
 

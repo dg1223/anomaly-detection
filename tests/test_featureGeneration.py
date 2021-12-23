@@ -4,14 +4,14 @@ import src.caaswx.spark.transformers as transform
 spark = SparkSession.builder.getOrCreate()
 
 """
-This set of tests are intended to test the intercompatibility of the separate
+This set of tests are intended to test the inter-compatibility of the separate
 parts of the pipeline.
 
 test_CN_RC_UserFG tests:
  CnExtractor -> SMResourceCleaner -> UserFeatureGenerator
 
 test ASF_RF_SessionFG will test:
- AgentStringFlattner -> ResourceFlattener -> ServerFeatureGenertor
+ AgentStringFlattener -> ResourceFlattener -> ServerFeatureGenerator
     ASF and RF currently return new dataframes with just the respective new
     columns, therefore will not work.
 """
@@ -19,7 +19,7 @@ test ASF_RF_SessionFG will test:
 
 def test_cn_rc_userfg():
     """
-    Tests if the CnExtractor, SMResouceCleaner and UserFeatureGenertors
+    Tests if the CnExtractor, SMResourceCleaner and UserFeatureGenerators
     work together with a sample of raw_logs.
     """
 

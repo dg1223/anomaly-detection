@@ -2,9 +2,8 @@ import json
 
 import pyspark.sql.types
 from pyspark.sql.session import SparkSession
-from src.caaswx.spark._transformers.smresourcecleaner import SMResourceCleaner
-from src.caaswx.spark.utilities.schema_utils import null_swap
-from src.caaswx.spark.utilities.loadtestdata import load_test_data, load_path
+from src.caaswx.spark.transformers import SMResourceCleaner
+from src.caaswx.spark.utils import load_test_data, load_path, null_swap
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -24,8 +23,11 @@ def test_content():
         "data", "parquet_data", "sm_resource_tests", "ans_data.parquet"
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert result.subtract(ans_1_data).count() == 0
+    assert result_assert == 0 and ans_assert == 0
 
 
 def test_schema():
