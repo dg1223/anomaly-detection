@@ -26,17 +26,17 @@ def test_count_unique_ou():
     Test for valid input column name (if name exists in input dataframe)
     """
     with raises(ValueError):
-        ft.CountUniqueOU(inputCol="testin").get_transformer(
-            ["CN"]
-        ).transform(ufg_df)
+        ft.CountUniqueOU(inputCol="testin").get_transformer(["CN"]).transform(
+            ufg_df
+        )
 
     test_df = ufg_df.withColumn("testin", ufg_df["SM_USERNAME"]).drop(
         "SM_USERNAME"
     )
     result_df = (
         ft.CountUniqueOU(inputCol="testin")
-            .get_transformer(["CN"])
-            .transform(test_df)
+        .get_transformer(["CN"])
+        .transform(test_df)
     )
     """
     Test for input column name change functionality
@@ -45,8 +45,8 @@ def test_count_unique_ou():
 
     result_df = (
         ft.CountUniqueOU(outputCol="testout")
-            .get_transformer(["CN"])
-            .transform(ufg_df)
+        .get_transformer(["CN"])
+        .transform(ufg_df)
     )
 
     """
@@ -55,7 +55,7 @@ def test_count_unique_ou():
     assert "testout" in result_df.columns
 
     """
-    Test for correct number of rows in result dataframe with specified output 
+    Test for correct number of rows in result dataframe with specified output
     column
     """
     assert result_df.count() == 1
@@ -80,20 +80,18 @@ def test_count_unique_rep():
     with raises(ValueError):
         (
             ft.UniquePortalRep(inputCol="testInput", outputCol="testOutput")
-                .get_transformer(group_keys)
-                .transform(ufg_df)
+            .get_transformer(group_keys)
+            .transform(ufg_df)
         )
 
-    test = (
-        ufg_df
-            .withColumn("testInput", ufg_df["SM_RESOURCE"])
-            .drop("SM_RESOURCE")
+    test = ufg_df.withColumn("testInput", ufg_df["SM_RESOURCE"]).drop(
+        "SM_RESOURCE"
     )
 
     result = (
         ft.CountUniqueRep(inputCol="testInput", outputCol="testOutput")
-            .get_transformer(group_keys)
-            .transform(test)
+        .get_transformer(group_keys)
+        .transform(test)
     )
 
     """
@@ -107,7 +105,7 @@ def test_count_unique_rep():
     assert result.collect()[0][1] == 0
 
     """
-    Test for correct number of rows in result dataframe with specified output 
+    Test for correct number of rows in result dataframe with specified output
     column
     """
     assert result.count() == 1
@@ -126,8 +124,9 @@ def test_count_unique_user_app():
     """
     with raises(ValueError):
         (
-            ft.CountUniqueUserApps(inputCol="testInput",
-                                   outputCol="testOutput")
+            ft.CountUniqueUserApps(
+                inputCol="testInput", outputCol="testOutput"
+            )
             .get_transformer(group_keys)
             .transform(ufg_df)
         )
