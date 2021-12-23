@@ -16,7 +16,6 @@ ufg_df = load_test_data(
 
 
 def test_count_unique_ou():
-
     result_df = ft.CountUniqueOU().get_transformer(["CN"]).transform(ufg_df)
     """
     Test for default feature functionality
@@ -36,8 +35,8 @@ def test_count_unique_ou():
     )
     result_df = (
         ft.CountUniqueOU(inputCol="testin")
-        .get_transformer(["CN"])
-        .transform(test_df)
+            .get_transformer(["CN"])
+            .transform(test_df)
     )
     """
     Test for input column name change functionality
@@ -46,8 +45,8 @@ def test_count_unique_ou():
 
     result_df = (
         ft.CountUniqueOU(outputCol="testout")
-        .get_transformer(["CN"])
-        .transform(ufg_df)
+            .get_transformer(["CN"])
+            .transform(ufg_df)
     )
 
     """
@@ -71,39 +70,45 @@ def test_count_unique_rep():
     group_keys = ["CN"]
     result = ft.CountUniqueRep().get_transformer(group_keys).transform(ufg_df)
     """
-    Test for default functionality
+    Test for default feature functionality
     """
     assert result.collect()[0][1] == 0
 
     """
-    Test for name update
+    Test for valid input column name (if name exists in input dataframe)
     """
     with raises(ValueError):
         (
             ft.UniquePortalRep(inputCol="testInput", outputCol="testOutput")
-            .get_transformer(group_keys)
-            .transform(ufg_df)
+                .get_transformer(group_keys)
+                .transform(ufg_df)
         )
 
-    test = ufg_df.withColumn("testInput", ufg_df["SM_RESOURCE"]).drop("SM_RESOURCE")
+    test = (
+        ufg_df
+            .withColumn("testInput", ufg_df["SM_RESOURCE"])
+            .drop("SM_RESOURCE")
+    )
 
     result = (
         ft.CountUniqueRep(inputCol="testInput", outputCol="testOutput")
-        .get_transformer(group_keys)
-        .transform(test)
+            .get_transformer(group_keys)
+            .transform(test)
     )
 
-    assert "CN" in result.columns
-
+    """
+    Test for output column name change functionality
+    """
     assert "testOutput" in result.columns
 
     """
-    Test for default functionality
+    Test for feature functionality with specified output column
     """
     assert result.collect()[0][1] == 0
 
     """
-    Correct number of result rows
+    Test for correct number of rows in result dataframe with specified output 
+    column
     """
     assert result.count() == 1
 
@@ -112,16 +117,17 @@ def test_count_unique_user_app():
     group_keys = ["CN"]
     result = ft.CountUniqueOU().get_transformer(group_keys).transform(ufg_df)
     """
-    Default test to check basic functionality.
+    Test for default feature functionality
     """
     assert result.collect()[0][1] == 0
 
     """
-    Check for name exist
+    Test for valid input column name (if name exists in input dataframe)
     """
     with raises(ValueError):
         (
-            ft.CountUniqueUserApps(inputCol="testInput", outputCol="testOutput")
+            ft.CountUniqueUserApps(inputCol="testInput",
+                                   outputCol="testOutput")
             .get_transformer(group_keys)
             .transform(ufg_df)
         )
@@ -137,13 +143,16 @@ def test_count_unique_user_app():
     )
 
     """
-    Test for input and output col name change functionality.
+    Test for output column name change functionality
     """
-    assert "testInput" in result.columns
-
     assert "testOutput" in result.columns
 
     """
     Correct number of result rows
     """
     assert result.count() == 1
+
+    """
+    Test for feature functionality with specified output column
+    """
+    assert result.collect()[0][1] == 0
