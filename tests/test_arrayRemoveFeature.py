@@ -15,7 +15,7 @@ ufg_df = load_test_data(
 )
 
 
-def test_unique_portal_ou():
+def test_unique_portal_rep():
     group_keys = ["CN"]
     result_df = (
         ft.UniquePortalRep().get_transformer(group_keys).transform(ufg_df)
