@@ -8,7 +8,10 @@ spark = SparkSession.builder.getOrCreate()
 
 # Get data
 ufg_df = load_test_data(
-    "data", "parquet_data", "user_feature_generator_tests", "data.parquet",
+    "data",
+    "parquet_data",
+    "user_feature_generator_tests",
+    "data.parquet",
 )
 
 

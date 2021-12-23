@@ -30,9 +30,7 @@ def test_content():
     ans_assert = ans_1_data.subtract(result).count()
 
     # content test
-    assert (
-        result_assert == 0 and ans_assert == 0
-    )
+    assert result_assert == 0 and ans_assert == 0
 
     # row test
     assert result.count() == ans_1_data.count()

@@ -314,7 +314,7 @@ def schema_test(base_schema, test_schema):
 
     """
 
-    def nullTest(st1, st2):
+    def null_test(st1, st2):
         """
         Function to swap datatype null parameter within a nested
         dataframe schema
@@ -333,11 +333,11 @@ def schema_test(base_schema, test_schema):
                         "Keys for first schema aren't a subset of the "
                         "second. "
                     )
-                nullTest(sf.dataType, st2[sf.name].dataType)
+                null_test(sf.dataType, st2[sf.name].dataType)
             if isinstance(sf.dataType, ArrayType):
                 sf.dataType.containsNull = st2[sf.name].dataType.containsNull
 
-    nullTest(test_schema, base_schema)
+    null_test(test_schema, base_schema)
     if any([x not in base_schema for x in test_schema]):
         raise ValueError(
             "Keys for first schema aren't a subset of the " "second."

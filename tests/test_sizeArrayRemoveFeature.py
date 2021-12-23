@@ -113,10 +113,9 @@ def test_count_unique_rep():
 
 def test_count_unique_user_apps():
     group_keys = ["CN"]
-    result = (ft.CountUniqueUserApps()
-              .get_transformer(group_keys)
-              .transform(ufg_df)
-              )
+    result = (
+        ft.CountUniqueUserApps().get_transformer(group_keys).transform(ufg_df)
+    )
     """
     Test for default feature functionality
     """
@@ -138,8 +137,9 @@ def test_count_unique_user_apps():
     """
     Test for input column name change functionality
     """
-    test = ufg_df.withColumn("testInput", ufg_df["SM_RESOURCE"])\
-        .drop("SM_RESOURCE")
+    test = ufg_df.withColumn("testInput", ufg_df["SM_RESOURCE"]).drop(
+        "SM_RESOURCE"
+    )
     result = (
         ft.CountUniqueUserApps(inputCol="testInput", outputCol="testOutput")
         .get_transformer(group_keys)

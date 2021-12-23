@@ -1338,8 +1338,9 @@ class MinTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset[self.getOrDefault("inputCols")[0]])
-                .over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(
+                    ts_window
+                ),
             )
 
             dataset = dataset.withColumn(
@@ -1462,8 +1463,9 @@ class MaxTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset[self.getOrDefault("inputCols")[0]])
-                .over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(
+                    ts_window
+                ),
             )
 
             dataset = dataset.withColumn(
@@ -1544,8 +1546,9 @@ class AvgTimeBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset[self.getOrDefault("inputCols")[0]])
-                .over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(
+                    ts_window
+                ),
             )
 
             dataset = dataset.withColumn(
@@ -1611,8 +1614,9 @@ class UserNumOfAccountsLoginWithSameIPs(
     def pre_op(self, dataset):
         if "distinct_usernames_for_ip" not in dataset.columns:
             ip_counts_df = dataset.groupBy("SM_CLIENTIP").agg(
-                countDistinct(self.getOrDefault("inputCol"))
-                .alias("distinct_usernames_for_ip")
+                countDistinct(self.getOrDefault("inputCol")).alias(
+                    "distinct_usernames_for_ip"
+                )
             )
             dataset = dataset.join(ip_counts_df, on="SM_CLIENTIP")
         return dataset
@@ -1679,8 +1683,9 @@ class StdBtRecords(GroupbyFeature, HasTypedInputCols, HasTypedOutputCol):
             ).orderBy(self.getOrDefault("inputCols")[0])
             dataset = dataset.withColumn(
                 "SM_PREV_TIMESTAMP",
-                lag(dataset[self.getOrDefault("inputCols")[0]])
-                .over(ts_window),
+                lag(dataset[self.getOrDefault("inputCols")[0]]).over(
+                    ts_window
+                ),
             )
 
             dataset = dataset.withColumn(
