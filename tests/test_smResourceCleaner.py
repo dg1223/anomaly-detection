@@ -23,8 +23,13 @@ def test_content():
         "data", "parquet_data", "sm_resource_tests", "ans_data.parquet"
     )
 
+    result_assert = result.subtract(ans_1_data).count()
+    ans_assert = ans_1_data.subtract(result).count()
+
     # content test
-    assert result.subtract(ans_1_data).count() == 0
+    assert (
+        result_assert == 0 and ans_assert == 0
+    )
 
 
 def test_schema():
