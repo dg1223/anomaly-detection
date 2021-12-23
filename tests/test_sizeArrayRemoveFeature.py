@@ -111,7 +111,7 @@ def test_count_unique_rep():
     assert result.collect()[0][1] == 0
 
 
-def test_count_unique_user_app():
+def test_count_unique_user_apps():
     group_keys = ["CN"]
     result = (ft.CountUniqueUserApps()
               .get_transformer(group_keys)
