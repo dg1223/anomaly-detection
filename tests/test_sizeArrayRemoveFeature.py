@@ -79,7 +79,7 @@ def test_count_unique_rep():
     """
     with raises(ValueError):
         (
-            ft.UniquePortalRep(inputCol="testInput", outputCol="testOutput")
+            ft.CountUniqueRep(inputCol="testInput", outputCol="testOutput")
             .get_transformer(group_keys)
             .transform(ufg_df)
         )
@@ -100,20 +100,23 @@ def test_count_unique_rep():
     assert "testOutput" in result.columns
 
     """
-    Test for feature functionality with specified output column
-    """
-    assert result.collect()[0][1] == 0
-
-    """
     Test for correct number of rows in result dataframe with specified output
     column
     """
     assert result.count() == 1
 
+    """
+    Test for feature functionality with specified output column
+    """
+    assert result.collect()[0][1] == 0
+
 
 def test_count_unique_user_app():
     group_keys = ["CN"]
-    result = ft.CountUniqueOU().get_transformer(group_keys).transform(ufg_df)
+    result = (ft.CountUniqueUserApps()
+              .get_transformer(group_keys)
+              .transform(ufg_df)
+              )
     """
     Test for default feature functionality
     """
@@ -132,7 +135,7 @@ def test_count_unique_user_app():
         )
 
     """
-    Test name change.
+    Test for input column name change functionality
     """
     test = ufg_df.withColumn("testInput", ufg_df["CN"]).drop("CN")
     result = (
