@@ -150,7 +150,8 @@ def test_count_unique_user_app():
     assert "testOutput" in result.columns
 
     """
-    Correct number of result rows
+    Test for correct number of rows in result dataframe with specified output
+    column
     """
     assert result.count() == 1
 
