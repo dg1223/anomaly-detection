@@ -39,8 +39,9 @@ def test_num_rows():
 
     # content test
     assert (
-            result_assert == 0 and ans_assert == 0
+        result_assert == 0 and ans_assert == 0
     )
+
 
 def test_empty_data():
     """

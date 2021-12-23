@@ -283,7 +283,8 @@ def test_avg_time_bt_records():
 # Broken, todo later
 # def test_user_num_of_accounts_login_with_same_ips():
 #
-#     result_df = ft.UserNumOfAccountsLoginWithSameIPs().get_transformer(["CN"]).transform(ufg_df)
+#     result_df = ft.UserNumOfAccountsLoginWithSameIPs()
+#     .get_transformer(["CN"]).transform(ufg_df)
 #     """
 #     Test for default feature functionality
 #     """
@@ -390,7 +391,8 @@ def test_std_bt_records():
 # Broken, todo later
 # def test_user_is_using_unusual_browser():
 #
-#     result_df = ft.UserIsUsingUnusualBrowser().get_transformer(["CN"]).transform(ufg_df)
+#     result_df = ft.UserIsUsingUnusualBrowser()
+#       .get_transformer(["CN"]).transform(ufg_df)
 #     """
 #     Test for default feature functionality
 #     """
@@ -400,7 +402,8 @@ def test_std_bt_records():
 #     Test for valid input column name (if name exists in input dataframe)
 #     """
 #     with raises(ValueError):
-#         ft.UserIsUsingUnusualBrowser(inputCols=["one", "two"]).get_transformer(
+#         ft.UserIsUsingUnusualBrowser(inputCols=["one", "two"])
+#         .get_transformer(
 #             ["CN"]
 #         ).transform(ufg_df)
 #
