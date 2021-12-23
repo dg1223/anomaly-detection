@@ -135,10 +135,12 @@ def test_unique_user_apps():
     """
     Test for input column name change functionality
     """
-    test = ufg_df.withColumn("testInput", ufg_df["CN"]).drop("CN")
+    test = ufg_df.withColumn("testInput", ufg_df["SM_RESOURCE"]).drop(
+        "SM_RESOURCE"
+    )
     result = (
         ft.UniqueUserApps(inputCol="testInput", outputCol="testOutput")
-        .get_transformer(["testInput"])
+        .get_transformer(group_keys)
         .transform(test)
     )
 
