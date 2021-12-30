@@ -8,8 +8,8 @@ def store_json(df: pyspark.sql.DataFrame, storage_path):
 
     schema = [json.loads(df.schema.json())]
 
-    json_dict = {'data': data, 'schema': schema}
+    json_dict = {"data": data, "schema": schema}
     with open(storage_path, "w") as outfile:
-        json.dump(json_dict, outfile, default=str)
+        json.dump(json_dict, outfile, default=str, indent=4)
 
     return True
